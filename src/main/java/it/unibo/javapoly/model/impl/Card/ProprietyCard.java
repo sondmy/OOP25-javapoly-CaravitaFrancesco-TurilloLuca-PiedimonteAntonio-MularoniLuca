@@ -1,40 +1,21 @@
 package it.unibo.javapoly.model.impl.Card;
 
-import java.util.List;
-
 import it.unibo.javapoly.model.api.card.Card;
 
-public class ProprietyCard implements Card{
+public abstract class ProprietyCard implements Card{
 
     final String id;
     final String name;
     final String description;
-
-    final String color;
-
-    final int baseRent;
-    final List<Integer> multiProroprietyCost;
-    final int hotelRent;
     final int proprietyCost;
+    final String group;
 
-    final int houseCost;
-    final int hotelCost;
-
-
-    public ProprietyCard(final String id, final String name, final String description, 
-        final String color, final int baseRent, final List<Integer> multiProroprietyCost, final int hotelRent, 
-        final int proprietyCost, final int houseCost, final int hotelCost) {
-        
+    public ProprietyCard(final String id, final String name, final String description, final int proprietyCost, final String group) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.color = color;
-        this.baseRent = baseRent;
-        this.multiProroprietyCost = multiProroprietyCost;
-        this.hotelRent = hotelRent;
         this.proprietyCost = proprietyCost;
-        this.houseCost = houseCost;
-        this.hotelCost = hotelCost;
+        this.group = group;
     }
 
     @Override
@@ -52,14 +33,27 @@ public class ProprietyCard implements Card{
         return this.description;
     }
 
-    
+    public int getProprietyCost() {
+        return this.proprietyCost;
+    }
+
+    public String getGroup() {
+        return this.group;
+    }
+
+    /**
+    *   this method return the final rent that a player need to pay
+    *   (including house, multiplier, number of station)
+    */
+    public abstract int calculateRent();
 
     @Override
     public String toString() {
         return "ProprietyCard{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
+                "id='" + this.id + '\'' +
+                ", name='" + this.name + '\'' +
+                ", description='" + this.description + '\'' +
+                ", proprietyCost='" + this.proprietyCost + '\'' +
                 '}';
     }
     
