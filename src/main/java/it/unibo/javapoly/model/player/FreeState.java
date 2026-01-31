@@ -14,7 +14,7 @@ public class FreeState implements PlayerState {
     @Override
     public void playTurn(Player player, int diceResult) {
         // Logica standard: il giocatore è libero, quindi si muove.
-        //System.out.println("[Stato Libero] Il giocatore si muove di " + diceResult);
+        System.out.println("[Stato Libero] Il giocatore si muove di " + diceResult);
         player.move(diceResult);
     }
 
