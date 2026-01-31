@@ -1,5 +1,6 @@
 package it.unibo.javapoly.model.impl.Card;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UtilityProprietyCard extends ProprietyCard{
@@ -15,7 +16,7 @@ public class UtilityProprietyCard extends ProprietyCard{
                              final int hotelRent, final int houseCost, final int hotelCost) {
         super(id, name, description, proprietyCost, utility);
         this.baseRent = baseRent;
-        this.multiProroprietyCost = multiProroprietyCost;
+        this.multiProroprietyCost = new ArrayList<>(multiProroprietyCost);
 
     }
 
