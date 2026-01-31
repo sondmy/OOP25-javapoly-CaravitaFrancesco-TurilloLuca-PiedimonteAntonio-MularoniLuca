@@ -52,6 +52,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     // The engine that must be available at runtime to run the tests.
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // The library JACKSON: is a json formatter for data
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
 }
 
 tasks.withType<Test> {
@@ -63,5 +66,5 @@ val main: String by project
 
 application {
     // Define the main class for the application
-    mainClass.set(main)
+    mainClass.set("it.unibo.javapoly.App")
 }
