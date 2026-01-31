@@ -1,7 +1,19 @@
 package it.unibo.javapoly.model.impl.Card;
 
-import it.unibo.javapoly.model.api.card.Card;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
+import it.unibo.javapoly.model.api.card.Card;
+import it.unibo.javapoly.utils.JsonUtils;
+
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+  @JsonSubTypes.Type(value = LandProprietyCard.class, name = "street"),
+//   @JsonSubTypes.Type(value = StationPropertyCard.class, name = "station"),
+  @JsonSubTypes.Type(value = UtilityProprietyCard.class, name = "utility")
+})
 public abstract class ProprietyCard implements Card{
 
     final String id;
@@ -49,12 +61,25 @@ public abstract class ProprietyCard implements Card{
 
     @Override
     public String toString() {
-        return "ProprietyCard{" +
-                "id='" + this.id + '\'' +
-                ", name='" + this.name + '\'' +
-                ", description='" + this.description + '\'' +
-                ", proprietyCost='" + this.proprietyCost + '\'' +
-                '}';
+        try {
+            return JsonUtils.mapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return "{\"error\":\"Serialization failed\"}";
+        }
     }
+
+
+    /*
+    @Override
+    public String toString() {
+        return "ProprietyCard{" +
+                "id:'" + this.id + '\'' +
+                ", name:'" + this.name + '\'' +
+                ", description:'" + this.description + '\'' +
+                ", proprietyCost:" + this.proprietyCost  +
+                ", group:'" + this.group + '\'' +
+                '}';
+    } */
+
     
 }
