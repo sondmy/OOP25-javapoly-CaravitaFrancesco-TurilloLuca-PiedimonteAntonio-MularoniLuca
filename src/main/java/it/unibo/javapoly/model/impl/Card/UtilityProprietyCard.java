@@ -3,6 +3,8 @@ package it.unibo.javapoly.model.impl.Card;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: add all the JavaDoc comment
+
 public class UtilityProprietyCard extends ProprietyCard{
 
     final int baseRent;
