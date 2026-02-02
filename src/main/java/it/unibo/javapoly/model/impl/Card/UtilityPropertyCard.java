@@ -12,7 +12,6 @@ import it.unibo.javapoly.model.api.RentContext;
  */
 public class UtilityPropertyCard extends AbstractPropertyCard {
 
-    // FIXME: finire di aggiustare i CDC di questa classe
     private final int oneOwnedMultiplier;
     private final int bothOwnedMultiplier;
 
