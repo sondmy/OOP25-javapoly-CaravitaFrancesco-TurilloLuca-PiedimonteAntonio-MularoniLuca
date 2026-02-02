@@ -5,15 +5,29 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-// TODO: add all the JavaDoc comment
-
+/**
+ * Utility class that provides a pre-configured {@link ObjectMapper} for JSON
+ * serialization and deserialization across the project.
+ *
+ * <p>
+ * The mapper is configured with consistent options (indentation, root wrapping,
+ * date handling, ...). Callers receive a copy of the shared configuration
+ * through {@link #mapper()} to avoid accidental cross-thread/state mutation.
+ */
 public final class JsonUtils {
     private static final ObjectMapper MAPPER = create();
 
-    private JsonUtils() {}
+    private JsonUtils() {
+        // Prevent instantiation
+    }
 
+    /**
+     * Creates and configures the {@link ObjectMapper} used as template.
+     *
+     * @return a configured ObjectMapper instance (the internal template).
+     */
     private static ObjectMapper create() {
-        ObjectMapper m = new ObjectMapper();
+        final ObjectMapper m = new ObjectMapper();
         m.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         m.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         m.enable(SerializationFeature.INDENT_OUTPUT);
@@ -26,9 +40,9 @@ public final class JsonUtils {
     }
 
     /**
-     * This method return the mapper of Jackson library. 
-     * in this way every classes use the same object. 
-     * This ObjectMapper its used for Serialization and deserialization of json item.
+     * Returns a copy of the pre-configured {@link ObjectMapper}.
+     *
+     * @return a copy of the configured ObjectMapper to be used for (de)serialization.
      */
     public static ObjectMapper mapper() {
         return MAPPER.copy();

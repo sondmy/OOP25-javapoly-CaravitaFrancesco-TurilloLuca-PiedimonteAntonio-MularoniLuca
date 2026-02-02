@@ -1,6 +1,6 @@
-package it.unibo.javapoly.model.impl.Card;
+package it.unibo.javapoly.model.impl.card;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -8,21 +8,53 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 
 // TODO: add all the JavaDoc comment
 
-@JsonRootName(value = "LandProprietyCard")
-public class LandProprietyCard extends ProprietyCard {
+/**
+ * Representation of a land/property card in the Monopoly-like game.
+ * 
+ * <p>
+ * The class stores the rents for different numbers of houses and for the hotel,
+ * together with the costs to build houses and hotels.
+ */
+@JsonRootName("LandProprietyCard")
+public class LandProprietyCard extends AbstractProprietyCard {
 
-    //final private int baseRent;
-    //final private int hotelRent;
-    final private List<Integer> multiProroprietyRent; // TODO: Valutare se trasformalo in una Map<Integer, Integer> -> <numHouse, numHouseRent>
-    
-    final private int housePrice;
-    final private int hotelPrice;
+    private static final String ERR_LIST_IS_EMPTY = "The rent list is empty";
+    private static final String ERR_LIST_IS_NULL = "The rent list is null";
+    private static final String ERR_INDEX_OUT_LIMITS = "The given index is out of size";
 
-    public LandProprietyCard(final String id, final String name, final String description, final int proprietyCost,
-                             final String color, final int baseRent, final List<Integer> multiProroprietyRent,
-                             final int hotelRent, final int houseCost, final int hotelCost) {
+    // FIXME: riguardare il nome perche non è totalmente in inglese
+    // TODO: Valutare se trasformalo in una Map<Integer, Integer> -> <numHouse, numHouseRent>
+    private final List<Integer> multiProroprietyRent; 
+
+    private final int housePrice;
+    private final int hotelPrice;
+
+    /**
+     * Creates a new {@link LandProprietyCard}.
+     *
+     * @param id the card identifier
+     * @param name the card name
+     * @param description the card description
+     * @param proprietyCost the cost of the property
+     * @param color the property color
+     * @param baseRent the base rent
+     * @param multiProroprietyRent the list of rents for houses
+     * @param hotelRent the hotel rent
+     * @param houseCost the cost to build a house
+     * @param hotelCost the cost to build a hotel
+     */
+    public LandProprietyCard(final String id,
+                             final String name,
+                             final String description,
+                             final int proprietyCost,
+                             final String color,
+                             final int baseRent,
+                             final List<Integer> multiProroprietyRent,
+                             final int hotelRent,
+                             final int houseCost,
+                             final int hotelCost) {
         super(id, name, description, proprietyCost, color);
-        this.multiProroprietyRent = new ArrayList<>(multiProroprietyRent);
+        this.multiProroprietyRent = new LinkedList<>(multiProroprietyRent);
         this.multiProroprietyRent.addFirst(baseRent);
         this.multiProroprietyRent.addLast(hotelRent);
         this.housePrice = houseCost;
@@ -32,153 +64,124 @@ public class LandProprietyCard extends ProprietyCard {
     //#region Getter
 
     /**
-     *  This method return the base price (land rent), that a player must pay 
-     * 
-     * @return the base rent
-     */ 
-    public int getBaseRent(){
-
-        if(checkListIsEmpty()){
-            throw new NoSuchElementException("The rent list is empty");
+     * This method returns the base price (land rent) that a player must pay.
+     *
+     * @return the base rent.
+     */
+    public int getBaseRent() {
+        if (checkListIsEmpty()) {
+            throw new NoSuchElementException(ERR_LIST_IS_EMPTY);
         }
-        
-        return this.multiProroprietyRent.getFirst();
+        return this.multiProroprietyRent.get(0);
     }
 
     /**
-     *  This method return the price for the hotel rent, that a player must pay 
-     * 
-     * @return the hotel rent
+     * This method returns the hotel rent that a player must pay.
+     *
+     * @return the hotel rent.
      */
-    public int getHotelRent(){
-        
-        if(checkListIsEmpty()){
-            throw new NoSuchElementException("The rent list is empty");
+    public int getHotelRent() {
+        if (checkListIsEmpty()) {
+            throw new NoSuchElementException(ERR_LIST_IS_EMPTY);
         }
-        
-        return this.multiProroprietyRent.getLast();    
+        return this.multiProroprietyRent.get(this.multiProroprietyRent.size() - 1);
     }
 
     /**
-     * This method return the cost to built the new house on the terrain
-     * 
-     * @return the price to build an house
+     * This method returns the cost to build a new house.
+     *
+     * @return the house cost.
      */
-    public int getHouseCost(){
+    public int getHouseCost() {
         return this.housePrice;
     }
 
     /**
-     * This method return the cost to buit the Hotel
-     * 
-     * @return the price to build an hotel
+     * This method returns the cost to build the hotel.
+     *
+     * @return the hotel cost.
      */
-    public int getHotelCost(){
+    public int getHotelCost() {
         return this.hotelPrice;
     }
 
     /**
-     * this method return the number of how many house are built on the land
-     * 
-     * @param houseNumber is the number of the house built on the land
-     * @return the rent in base of the number house built
+     * This method returns the rent based on the number of houses built.
+     *
+     * @param houseNumber the number of houses built
+     * @return the rent for the given number of houses.
      */
-    public int getNumberHouseRent(int houseNumber){
-
-        if(checkListIsEmpty()){
-            throw new NoSuchElementException("The rent list is empty");
+    public int getNumberHouseRent(final int houseNumber) {
+        if (checkListIsEmpty()) {
+            throw new NoSuchElementException(ERR_LIST_IS_EMPTY);
         }
-
-        if (checkIsHotel(houseNumber)){
+        if (checkIsHotel(houseNumber)) {
             return getHotelRent();
         }
-
         return this.multiProroprietyRent.get(houseNumber);
     }
 
     /**
-     * This method return all rent in base of the number of the house built
-     * 
-     * @return the baseRent
+     * This method returns all rents based on the number of houses built.
+     *
+     * @return a copy of the full rent list.
      */
-    public List<Integer> getMultiHouseRent(){
-
-        if(checkListIsEmpty()){
-            throw new NoSuchElementException("The rent list is empty"); // TODO: Valutare se restituire un errore o semplicemente restituire una lista vuota
+    public List<Integer> getMultiHouseRent() {
+        if (checkListIsEmpty()) {
+            // TODO: Valutare se restituire un errore o semplicemente restituire una lista vuota
+            throw new NoSuchElementException(ERR_LIST_IS_EMPTY); 
         }
-
-        return new ArrayList<>(this.multiProroprietyRent);
+        return new LinkedList<>(this.multiProroprietyRent);
     }
 
     //#endregion
 
     /**
-     * This method calculate the rent in base of the house number or if there is any hotel
+     * This method calculates the rent based on the number of houses or the presence of a hotel.
+     *
+     * @param houseNumber the number of houses built
+     * @return the calculated rent.
      */
     @Override
-    public int calculateRent(int houseNumber) {
+    public int calculateRent(final int houseNumber) {
         return checkIsHotel(houseNumber) ? getHotelRent() : getNumberHouseRent(houseNumber);
     }
 
     /**
-     * This method returns a string with all the data of this LandProprietyCard in JSON format
+     * This method checks if the passed number is out of the list limits.
+     *
+     * @param number the index to check
+     * @return true if the number is out of bounds, false otherwise.
      */
-    @Override
-    public String toString(){
-        return super.toString();
+    private boolean checkNumberHouse(final int number) {
+        return number < 0 || number >= this.multiProroprietyRent.size();
     }
 
     /**
-     * This method checks if the passed number is not out of the List limits
-     * @param number 
-     * @return true if the number is out of the limit, false otherwise
+     * This method checks if the passed number represents the hotel.
+     *
+     * @param number the index to check
+     * @return true if the number represents the hotel, false otherwise.
      */
-    private boolean checkNumberHouse(int number){
-
-        if (number < 0 || number > this.multiProroprietyRent.size()){
-            return true;
+    private boolean checkIsHotel(final int number) {
+        if (checkNumberHouse(number)) {
+            throw new IndexOutOfBoundsException(ERR_INDEX_OUT_LIMITS);
         }
-
-        return false;
-    }
-
-        /**
-     * This method checks if the passed number is ht hotel number
-     * @param number 
-     * @return true if the number is the hotel number, false otherwise
-     */
-    private boolean checkIsHotel(int number){
-        if(checkNumberHouse(number)){
-            throw new IndexOutOfBoundsException("The given index is out of size");
-        }
-
-        if(number == this.multiProroprietyRent.size()){
-            return true;
-        }
-
-        return false;
+        return number == this.multiProroprietyRent.size() - 1;
     }
 
     /**
-     * 
-     * @return true if the this.multiProroprietyRent is a empty list, false otherwise
+     * @return true if the rent list is empty, false otherwise.
      */
-    private boolean checkListIsEmpty(){
-
-        if(this.multiProroprietyRent == null){
-            throw new NullPointerException("The list with the rent is null");
+    private boolean checkListIsEmpty() {
+        if (this.multiProroprietyRent == null) {
+            throw new IllegalStateException(ERR_LIST_IS_NULL);
         }
-
-        if(this.multiProroprietyRent.isEmpty()){
-            return true;
-        }
-
-        return false;
+        return this.multiProroprietyRent.isEmpty();
     }
 
-
-    // FIXME: Capire bene cosa fare con lindece per la lista. perche bisogna vedere se vogliamo fare indice-1 o lasciare indice. 
-    // Quindi bisogna vedere se vogliamo mettere baseRent nella posizione 0 del arraylist e hotelRent nell'ultima posizione
-
-
+    // FIXME: Capire bene cosa fare con l'indice per la lista. 
+    // Perche bisogna vedere se vogliamo fare indice-1 o lasciare indice. 
+    // Quindi bisogna vedere se vogliamo mettere baseRent nella posizione 0 
+    // del arraylist e hotelRent nell'ultima posizione
 }

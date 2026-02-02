@@ -1,31 +1,63 @@
-package it.unibo.javapoly.model.impl.Card;
+package it.unibo.javapoly.model.impl.card;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 // TODO: add all the JavaDoc comment
 
-public class UtilityProprietyCard extends ProprietyCard{
-
-    final int baseRent;
+public class UtilityProprietyCard extends AbstractProprietyCard{
 
     // TODO finire di aggiustare i CDC di questa classe
-    final List<Integer> multiProroprietyCost;
+    final Map<Integer, Integer> multiplierRent;
 
 
     public UtilityProprietyCard(final String id, final String name, final String description, final int proprietyCost,
-                             final String utility, final int baseRent, final List<Integer> multiProroprietyCost,
-                             final int hotelRent, final int houseCost, final int hotelCost) {
+                             final String utility, final Map<Integer, Integer> multiProroprietyCost) {
         super(id, name, description, proprietyCost, utility);
-        this.baseRent = baseRent;
-        this.multiProroprietyCost = new ArrayList<>(multiProroprietyCost);
+        this.multiplierRent = new HashMap<>(multiProroprietyCost);
 
     }
 
+    /**
+     * This method return all rent multplier in base of the utility owned
+     * 
+     * @return a copy of the full map of multiplier
+     */
+    public Map<Integer, Integer> getAllMultiplier(){
+
+        if(checkMapIsEmpty()){
+            throw new NoSuchElementException("The multplier map is empty"); // TODO: Valutare se restituire un errore o semplicemente restituire una lista vuota
+        }
+
+        return new HashMap<>(this.multiplierRent);
+    }
+
+    /**
+     * 
+     * @return return the Multiplier in base of the utility number owned
+     */
     @Override
     public int calculateRent(int utilityNumber) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'calculateRent'");
+        return 0;
     }
     
+
+
+    /**
+     * 
+     * @return true if the this.multiplier is a empty map, false otherwise
+     */
+    private boolean checkMapIsEmpty(){
+
+        if(this.multiplierRent == null){
+            throw new NullPointerException("The map with the rent multiplier is null");
+        }
+
+        if(this.multiplierRent.isEmpty()){
+            return true;
+        }
+
+        return false;
+    }
 }
