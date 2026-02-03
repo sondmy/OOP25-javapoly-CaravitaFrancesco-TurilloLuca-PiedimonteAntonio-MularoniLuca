@@ -45,12 +45,23 @@ public final class PropertyStateImpl implements PropertyState {
     }
 
     /**
+     * Constructor to create a copy of a passed instance.
+     *
+     * @param state nstance from which to create a copy
+     */
+    public PropertyStateImpl(final PropertyStateImpl state) {
+        this.purchasePrice = state.getPurchasePrice();
+        this.ownerID = state.getOwnerId();
+        this.houses = state.getHouses();
+    }
+
+    /**
      * Get the ID of the owner of the property.
      *
      * @return the owner's ID, or "Bank" if the property is owned by the bank.
      */
     @Override
-    public String getOwnerId() {
+    public String getOwnerId() { 
         if (this.ownerID.isEmpty()) {
             return this.BANK_OWN;
         }
@@ -75,6 +86,17 @@ public final class PropertyStateImpl implements PropertyState {
     @Override
     public int getPurchasePrice() {
         return this.purchasePrice;
+    }
+
+    /**
+     * This method checks if the property has an owner.
+     * The owner must be different from the bank.
+     * 
+     * @return true if there is an owner (!= bank), false otherwise
+     */
+    @Override
+    public boolean isOwnedByPlayer() {
+        return !this.getOwnerId().contains(this.BANK_OWN);
     }
 
     /* These are intentionally package-private: only PropertyImpl (same package)
@@ -103,7 +125,7 @@ public final class PropertyStateImpl implements PropertyState {
      * @param numHouses the number of houses to set (cannot be negative).
      */
     void setHouse(final int numHouses) {
-        if (numHouses < 0) {
+        if (numHouses < this.HOUSE_DEF) {
             throw new IllegalArgumentException(this.ERR_HOUSE);
         }
         this.houses = (numHouses >= this.NUM_HOTEL) ? this.NUM_HOTEL : numHouses;
@@ -137,13 +159,4 @@ public final class PropertyStateImpl implements PropertyState {
         return false;
     }
 
-    /**
-     * This method checks if the property has an owner.
-     * The owner must be different from the bank.
-     * 
-     * @return true if there is an owner (!= bank), false otherwise
-     */
-    boolean isOwnedByPlayer() {
-        return !this.getOwnerId().contains(this.BANK_OWN);
-    }
 }
