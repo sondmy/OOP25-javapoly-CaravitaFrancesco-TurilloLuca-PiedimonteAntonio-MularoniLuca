@@ -22,9 +22,17 @@ public interface PropertyState {
     int getHouses();
 
     /**
-     * Convenience: returns the purchase price from the card (convenience).
+     * returns the purchase price from the card (convenience).
      *
      * @return purchase price
      */
     int getPurchasePrice();
+
+    /**
+     * This method checks if the property has an owner.
+     * The owner must be different from the bank.
+     * 
+     * @return true if there is an owner (!= bank), false otherwise
+     */
+    boolean isOwnedByPlayer();
 }
