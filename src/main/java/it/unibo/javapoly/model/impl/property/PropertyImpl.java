@@ -71,7 +71,7 @@ public final class PropertyImpl implements Property {
      */
     @Override
     public PropertyState getState() {
-        return this.state;
+        return new PropertyStateImpl(this.state);
     }
 
     /**
@@ -119,13 +119,13 @@ public final class PropertyImpl implements Property {
      */
     @Override
     public boolean buildHouse(final String ownerID) {
-        if (isPropertyLand()) {
+        if (!isPropertyLand()) {
             return false;
         }
 
         Objects.requireNonNull(ownerID);
 
-        if (this.state.getOwnerId().isEmpty() || !this.state.getOwnerId().equals(ownerID)) {
+        if (!this.state.isOwnedByPlayer() || !this.state.getOwnerId().equals(ownerID)) {
             throw new IllegalStateException("player is not the owner");
         }
 
@@ -141,13 +141,13 @@ public final class PropertyImpl implements Property {
      */
     @Override
     public boolean destroyHouse(final String ownerID) {
-        if (isPropertyLand()) {
+        if (!isPropertyLand()) {
             return false;
         }
 
         Objects.requireNonNull(ownerID);
 
-        if (this.state.getOwnerId().isEmpty() || !this.state.getOwnerId().equals(ownerID)) {
+        if (!this.state.isOwnedByPlayer() || !this.state.getOwnerId().equals(ownerID)) {
             throw new IllegalStateException("player is not the owner");
         }
 
@@ -179,13 +179,13 @@ public final class PropertyImpl implements Property {
         this.state.bankIsNewOwnerID();
     }
 
-    /**
+    /** 
      * Determines if this property is a land property or a special type of property like a utility or railroad.
      * 
-     * @return true if the property is a land property, false otherwise
+     * @return true if the property is not a land property, false otherwise
      */
     private boolean isPropertyLand() {
-        return this.ST_GROUP.equals(this.card.getGroup()) || this.UTI_GROUP.equals(this.card.getGroup());
+        return !(this.ST_GROUP.equals(this.card.getGroup()) || this.UTI_GROUP.equals(this.card.getGroup()));
     }
 
 }
