@@ -1,31 +1,31 @@
 package it.unibo.javapoly.controller.impl;
 
 import java.util.List;
-
+import java.util.Objects;
 import it.unibo.javapoly.controller.api.Bank;
 import it.unibo.javapoly.controller.api.GameBoard;
 import it.unibo.javapoly.controller.api.MatchController;
 import it.unibo.javapoly.controller.api.Player;
 import it.unibo.javapoly.model.impl.DiceImpl;
 import it.unibo.javapoly.model.impl.DiceThrow;
-import it.unibo.javapoly.view.impl.MainFrame;
+import it.unibo.javapoly.view.impl.MainView;
 
 /**
- * MatchControllerImpl manages the flow of the game:
- * - player turns
- * - dice throws
- * - player movement
- * - interaction with the bank and properties
- * - updating the GUI
+ * MatchControllerImpl manages the flow of the game, including turns, 
+ * movement, and GUI updates.
  */
 public class MatchControllerImpl implements MatchController{
-    private List<Player> players;    //implementazione esterna
+
+    private static final int MAX_DOUBLES = 3;
+
+    private final List<Player> players;    //implementazione esterna
+    private final DiceThrow diceThrow;
+    private final GameBoard gameBoard;
+    private final Bank bank;               //implementazione esterna
+    private final MainView gui;
+
     private int currentPlayerIndex;
     private int consecutiveDoubles;
-    private DiceThrow diceThrow;
-    private GameBoard gameBoard;
-    private Bank bank;               //implementazione esterna
-    private MainFrame gui;
 
     /**
      * Constructor
@@ -34,14 +34,14 @@ public class MatchControllerImpl implements MatchController{
      * @param gameBoard the game board implementation
      * @param bank the bank implementation
      */
-    public MatchControllerImpl(List<Player> players, GameBoard gameBoard, Bank bank){
-        this.players = players; //perche' la lista e' gia stata creata, cosi' la passo semplicemente
+    public MatchControllerImpl(final List<Player> players, final GameBoard gameBoard, final Bank bank){
+        this.players = List.copyOf(players); //perche' la lista e' gia stata creata, cosi' la passo semplicemente
         this.currentPlayerIndex = 0;
         this.consecutiveDoubles = 0;
         this.diceThrow = new DiceThrow(new DiceImpl(), new DiceImpl());
-        this.gameBoard = gameBoard;
-        this.bank = bank;
-        this.gui = new MainFrame(this);
+        this.gameBoard = Objects.requireNonNull(gameBoard);
+        this.bank = Objects.requireNonNull(bank);
+        this.gui = new MainView(this);
     }
     
     /**
@@ -51,11 +51,10 @@ public class MatchControllerImpl implements MatchController{
     @Override
     public void startGame() {
         gui.addLog("Partita avviata");
-
         gui.updateBoard();
         gui.updateInfo();
 
-        Player firstPlayer = getCurrentPlayer();
+        final Player firstPlayer = getCurrentPlayer();
         gui.addLog("E' il turno di: " + firstPlayer.getName());
     }
 
@@ -65,12 +64,9 @@ public class MatchControllerImpl implements MatchController{
      */
     @Override
     public void nextTurn() {
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-
-        Player current = getCurrentPlayer();
-
+        this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.size();
+        final Player current = getCurrentPlayer();
         gui.addLog("Ora e' il turno di: " + current.getName());
-
         gui.updateInfo();
     }
 
@@ -79,7 +75,7 @@ public class MatchControllerImpl implements MatchController{
      */
     @Override
     public Player getCurrentPlayer() {
-        return players.get(currentPlayerIndex);
+        return this.players.get(this.currentPlayerIndex);
     }
 
     /**
@@ -87,21 +83,22 @@ public class MatchControllerImpl implements MatchController{
      */
     @Override
     public void handleDiceThrow() {
-        Player currentPlayer = getCurrentPlayer();
-        int steps = diceThrow.throwAll();
+        final Player currentPlayer = getCurrentPlayer();
+        final int steps = diceThrow.throwAll();
+
         gui.addLog("Il giocatore: " + currentPlayer.getName() + " lancia i dadi: " + steps);
         
         if(diceThrow.isDouble()){
-            consecutiveDoubles++;
+            this.consecutiveDoubles++;
             gui.addLog("Doppio! Avanza e rilancia i dadi");
         }else{
-            consecutiveDoubles = 0;
+            this.consecutiveDoubles = 0;
         }
 
-        if(consecutiveDoubles == 3){
+        if(consecutiveDoubles == MAX_DOUBLES){
             gui.addLog("3 doppi consecutivi! Vai in prigione senza passare dal Via");
             handlePrison();
-            consecutiveDoubles = 0;
+            this.consecutiveDoubles = 0;
             return;
         }
 
@@ -123,7 +120,7 @@ public class MatchControllerImpl implements MatchController{
      */
     @Override
     public void handleMove(int steps) {
-        Player currentPlayer = getCurrentPlayer();
+        final Player currentPlayer = getCurrentPlayer();
         currentPlayer.move(steps);
 
         gui.addLog(currentPlayer.getName() + " si e' spostato di: " + steps + " spazi");
@@ -139,8 +136,9 @@ public class MatchControllerImpl implements MatchController{
      */
     @Override
     public void handlePrison() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'handlePrison'");
+        final Player currentPlayer = getCurrentPlayer();
+        gui.addLog(currentPlayer + " e' in prigione ora");
+        //da finire di implementare
     }
 
     /**
@@ -149,8 +147,9 @@ public class MatchControllerImpl implements MatchController{
      */
     @Override
     public void handlePropertyLanding() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'handlePropertyLanding'");
+        final Player currentPlayer = getCurrentPlayer();
+        gui.addLog(currentPlayer + " e' in una proprieta' ora");
+        //da finire di implementare
     }
     
     /**
