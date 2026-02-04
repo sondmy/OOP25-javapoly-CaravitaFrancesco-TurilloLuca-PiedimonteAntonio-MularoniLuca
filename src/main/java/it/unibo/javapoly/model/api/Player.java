@@ -1,10 +1,23 @@
 package it.unibo.javapoly.model.api;
 
 /**
- * Represents a player in the JavaPoly game.
- * This interface defines the core behaviors and properties that a player entity
- * must support,
- * including managing finances, movement, and game state.
+ * Represents a player in the Javapoly game.
+ * This interface defines the core behaviors and properties of a player,
+ * including their identity, financial status, position on the board, and state
+ * management.
+ * Players can move around the board, manage their money, and interact with the
+ * game through their turns.
+ * <strong>Important:</strong> The {@link #move(int)} method should not be
+ * called directly from outside the player implementation, as it would break the
+ * state management logic.
+ * Use {@link #playTurn(int, boolean)} instead to properly execute a player's
+ * turn.
+ *
+ * @see PlayerState
+ * @see FreeState
+ * @see JailState
+ * @see BankruptcyState
+ * 
  */
 public interface Player {
 
@@ -46,8 +59,18 @@ public interface Player {
 
     /**
      * Moves the player a specified number of steps on the game board.
-     *
+     * 
+     * <strong>Important:</strong> The {@link #move(int)} method should not be
+     * called directly from outside the player implementation, as it would break the
+     * state management logic.
+     * Use {@link #playTurn(int, boolean)} instead to properly execute a player's
+     * turn.
+     * 
      * @param steps the number of spaces to move forward.
+     * @see PlayerState
+     * @see FreeState
+     * @see JailState
+     * @see BankruptcyState
      */
     void move(int steps);
 
