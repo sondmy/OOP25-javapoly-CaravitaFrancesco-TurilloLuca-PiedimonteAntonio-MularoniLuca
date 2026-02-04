@@ -1,4 +1,4 @@
-package it.unibo.javapoly.model.impl.economy;
+package it.unibo.javapoly.model.api.economy;
 
 /**
  * Enumeration representing the different types of financial
