@@ -2,9 +2,9 @@ package it.unibo.javapoly.model.impl.board.tile;
 
 import it.unibo.javapoly.model.api.board.TileType;
 
-public class PropertyTile extends AbstractTile{
+public class StationPropertyTile extends AbstractTile{
 
-    protected PropertyTile(int position, TileType type, String name) {
+    protected StationPropertyTile(int position, TileType type, String name) {
         super(position, type, name);
         //TODO Auto-generated constructor stub
     }
