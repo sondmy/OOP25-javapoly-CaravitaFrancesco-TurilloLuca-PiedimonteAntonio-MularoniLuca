@@ -13,9 +13,8 @@ public interface Bank {
      *
      * @param player the player receiving the money.
      * @param amount the amount to deposit.
-     * @return {@code true} if the deposit was successful, {@code false} otherwise
      */
-    boolean deposit(Player player, int amount);
+    void deposit(Player player, int amount);
 
     /**
      * Withdraws money from a player's balance.

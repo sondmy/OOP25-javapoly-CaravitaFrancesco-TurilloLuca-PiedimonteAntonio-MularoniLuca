@@ -16,13 +16,12 @@ public final class BankImpl implements Bank {
      * {@inheritDoc}
      */
     @Override
-    public boolean deposit(final Player player, final int amount) {
+    public void deposit(final Player player, final int amount) {
         Objects.requireNonNull(player, "Player can not be null");
         if (amount < 0) {
             throw new IllegalArgumentException(AMOUNT_MUST_BE_POSITIVE);
         }
         player.receiveMoney(amount);
-        return true;
     }
 
     /**
