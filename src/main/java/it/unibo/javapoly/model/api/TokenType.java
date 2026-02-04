@@ -5,11 +5,14 @@ package it.unibo.javapoly.model.api;
  * game.
  * Each enum constant corresponds to a specific visual representation of a
  * player on the board.
+ * 
+ * @see Token
  */
 public enum TokenType {
     CAR,
     HAT,
     DOG,
     SHOE,
-    SHIP
+    SHIP,
+    CAT
 }

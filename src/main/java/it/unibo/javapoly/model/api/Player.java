@@ -64,8 +64,9 @@ public interface Player {
      * turn.
      * 
      * <strong>Exception:</strong> This method can be called directly only when a
-     * card instructs the player to move without
-     * rolling the dice.
+     * card instructs the player to move without rolling the dice.
+     * In such cases, the caller should verify that the player can move by checking
+     * their current state using {@link #getState()} before invoking this method.
      * 
      * @param steps the number of spaces to move forward.
      * @see PlayerState
@@ -76,8 +77,7 @@ public interface Player {
      * Attempts to pay a specified amount from the player's balance.
      * If the player has sufficient funds, the balance is decreased and the method
      * returns true.
-     * Otherwise, the balance remains unchanged (or handling logic is applied) and
-     * it returns false.
+     * Otherwise, the balance remains unchanged and it returns false.
      *
      * @param amount the amount of money to pay.
      * @return true if the payment was successful, false otherwise.
@@ -95,6 +95,7 @@ public interface Player {
      * Updates the current state of the player.
      *
      * @param state the new {@link PlayerState} to set.
+     * @see PlayerState
      */
     void setState(PlayerState state);
 
@@ -102,6 +103,7 @@ public interface Player {
      * Retrieves the current state of the player.
      *
      * @return the current {@link PlayerState} of the player.
+     * @see PlayerState
      */
     PlayerState getState();
 }
