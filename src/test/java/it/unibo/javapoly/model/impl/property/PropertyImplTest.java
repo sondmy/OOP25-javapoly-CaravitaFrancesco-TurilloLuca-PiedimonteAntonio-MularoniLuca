@@ -9,18 +9,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import it.unibo.javapoly.model.api.RentContext;
+import it.unibo.javapoly.model.api.property.PropertyGroup;
 import it.unibo.javapoly.model.impl.card.AbstractPropertyCard;
 
 class PropertyImplTest {
 
     private static final int FIXED_RENT = 777;
     private static final int NUM_SEVEN = 7;
-    private static final String GROUP_BLUE = "BLUE";
+    private static final PropertyGroup GROUP_BLUE = PropertyGroup.DARK_BLUE;
     private static final int PURCHASE_PRICE = 180;
     private static final String BANK = "Bank";
     private static final String OWNER_BOB = "bob";
 
-    private static AbstractPropertyCard testCard(final String group, final int purchasePrice) {
+    private static AbstractPropertyCard testCard(final PropertyGroup group, final int purchasePrice) {
         return new AbstractPropertyCard("c1", "Test", "desc", purchasePrice, group) {
             @Override
             public int calculateRent(final RentContext ctx) {

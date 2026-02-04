@@ -7,13 +7,14 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import it.unibo.javapoly.model.api.RentContext;
+import it.unibo.javapoly.model.api.property.PropertyGroup;
 
 class LandPropertyCardTest {
 
     private static final String ID = "L1";
     private static final String NAME = "Via Roma";
     private static final String DESCRIPTION = "Bella strada centrale";
-    private static final String GROUP = "BLUE";
+    private static final PropertyGroup GROUP = PropertyGroup.DARK_BLUE;
 
     private static final int PROPERTY_COST = 100;
     private static final int BASE_RENT = 10;

@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import it.unibo.javapoly.model.impl.card.LandPropertyCard;
+import it.unibo.javapoly.model.api.property.PropertyGroup;
 import it.unibo.javapoly.model.impl.card.AbstractPropertyCard;
 import it.unibo.javapoly.utils.JsonUtils;
 
@@ -32,7 +33,7 @@ public final class App {
             "Via Roma",
             "Descrizione",
             100,
-            "RED",
+            PropertyGroup.RED,
             10,
             rents,
             10,

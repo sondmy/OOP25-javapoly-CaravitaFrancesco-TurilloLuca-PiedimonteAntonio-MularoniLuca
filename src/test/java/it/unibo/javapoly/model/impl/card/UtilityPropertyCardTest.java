@@ -8,13 +8,14 @@ import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Test;
 
 import it.unibo.javapoly.model.api.RentContext;
+import it.unibo.javapoly.model.api.property.PropertyGroup;
 
 class UtilityPropertyCardTest {
 
     private static final String ID = "U1";
     private static final String NAME = "Compagnia Elettrica";
     private static final String DESCRIPTION = "Forniamo corrente";
-    private static final String GROUP = "UTILITY";
+    private static final PropertyGroup GROUP = PropertyGroup.UTILITY;
 
     private static final int PROPERTY_COST = 150;
 
