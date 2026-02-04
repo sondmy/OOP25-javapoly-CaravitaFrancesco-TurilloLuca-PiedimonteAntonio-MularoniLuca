@@ -13,7 +13,6 @@ import it.unibo.javapoly.model.api.TokenType;
  * @see Token
  * @see TokenType
  */
-@SuppressWarnings("PMD.ExhaustiveSwitchHasDefault")
 public final class TokenFactory {
 
     /**
