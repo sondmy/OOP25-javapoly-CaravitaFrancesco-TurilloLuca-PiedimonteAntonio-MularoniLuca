@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import it.unibo.javapoly.model.api.RentContext;
+import it.unibo.javapoly.model.api.property.PropertyGroup;
 
 /**
  * Representation of a utility card in the Monopoly game. This card computes rent based on
@@ -27,7 +28,7 @@ public class UtilityPropertyCard extends AbstractPropertyCard {
      * @param bothOwnedMultiplier multiplier when both utilities are owned.
      */
     public UtilityPropertyCard(final String id, final String name, final String description, final int propertyCost,
-            final String utility, final int oneOwnedMultiplier, final int bothOwnedMultiplier) {
+            final PropertyGroup utility, final int oneOwnedMultiplier, final int bothOwnedMultiplier) {
         super(id, name, description, propertyCost, utility);
         this.oneOwnedMultiplier = oneOwnedMultiplier;
         this.bothOwnedMultiplier = bothOwnedMultiplier;

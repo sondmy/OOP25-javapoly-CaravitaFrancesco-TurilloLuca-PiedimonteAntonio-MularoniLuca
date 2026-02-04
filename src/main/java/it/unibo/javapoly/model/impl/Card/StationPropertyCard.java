@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import it.unibo.javapoly.model.api.RentContext;
+import it.unibo.javapoly.model.api.property.PropertyGroup;
 
 /**
  * Representation of a station card in the Monopoly game.
@@ -29,7 +30,7 @@ public class StationPropertyCard extends AbstractPropertyCard {
                               final String name,
                               final String description,
                               final int propetyCost,
-                              final String group,
+                              final PropertyGroup group,
                               final List<Integer> rents) {
         super(id, name, description, propetyCost, group);
         this.rentNumberSation = new ArrayList<>(rents);

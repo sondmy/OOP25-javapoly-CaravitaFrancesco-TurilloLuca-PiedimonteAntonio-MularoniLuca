@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 import it.unibo.javapoly.model.api.RentContext;
+import it.unibo.javapoly.model.api.property.PropertyGroup;
 
 /**
  * Representation of a land/property card in the Monopoly-like game.
@@ -47,7 +48,7 @@ public class LandPropertyCard extends AbstractPropertyCard {
                             final String name,
                             final String description,
                             final int propertyCost,
-                            final String color,
+                            final PropertyGroup color,
                             final int baseRent,
                             final List<Integer> multiProroprietyRent,
                             final int hotelRent,

@@ -3,6 +3,7 @@ package it.unibo.javapoly.model.impl.property;
 import java.util.Objects;
 import it.unibo.javapoly.model.api.RentContext;
 import it.unibo.javapoly.model.api.property.Property;
+import it.unibo.javapoly.model.api.property.PropertyGroup;
 import it.unibo.javapoly.model.api.property.PropertyState;
 import it.unibo.javapoly.model.impl.card.AbstractPropertyCard;
 
@@ -12,16 +13,6 @@ import it.unibo.javapoly.model.impl.card.AbstractPropertyCard;
  *
  */
 public final class PropertyImpl implements Property {
-
-    /**
-     * The group name for utility properties.
-     */
-    private static final String UTI_GROUP = "UTILITY";
-
-    /**
-     * The group name for railroad properties.
-     */
-    private static final String ST_GROUP = "RAILROAD";
 
     private final String id;
     private final int position;
@@ -185,7 +176,7 @@ public final class PropertyImpl implements Property {
      * @return true if the property is not a land property, false otherwise
      */
     private boolean isPropertyLand() {
-        return !(this.ST_GROUP.equals(this.card.getGroup()) || this.UTI_GROUP.equals(this.card.getGroup()));
+        return !(PropertyGroup.RAILROAD.equals(this.card.getGroup()) || PropertyGroup.UTILITY.equals(this.card.getGroup()));
     }
 
 }

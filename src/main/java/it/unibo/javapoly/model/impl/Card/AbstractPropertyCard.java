@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import it.unibo.javapoly.model.api.RentContext;
 import it.unibo.javapoly.model.api.card.Card;
+import it.unibo.javapoly.model.api.property.PropertyGroup;
 import it.unibo.javapoly.utils.JsonUtils;
 
 /**
@@ -45,7 +46,7 @@ public abstract class AbstractPropertyCard implements Card {
     private final String name;
     private final String description;
     private final int propertyCost;
-    private final String group;
+    private final PropertyGroup group;
 
     /**
      * Creates a new property card.
@@ -60,7 +61,7 @@ public abstract class AbstractPropertyCard implements Card {
                                 final String name,
                                 final String description,
                                 final int propertyCost,
-                                final String group) {
+                                final PropertyGroup group) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -112,7 +113,7 @@ public abstract class AbstractPropertyCard implements Card {
      *
      * @return the property group.
      */
-    public String getGroup() {
+    public PropertyGroup getGroup() {
         return this.group;
     }
 
