@@ -21,7 +21,8 @@ public final class PropertyManagerImpl implements PropertyManager {
      * @param allProperties the list of all properties in the game.
      */
     public PropertyManagerImpl(final List<Property> allProperties) {
-        this.allProperties = allProperties;
+        Objects.requireNonNull(allProperties);
+        this.allProperties = new ArrayList<>(allProperties);
     }
 
     /**
@@ -29,7 +30,7 @@ public final class PropertyManagerImpl implements PropertyManager {
      */
     @Override
     public List<Property> getAllProperties() {
-        return this.allProperties;
+        return new ArrayList<>(this.allProperties);
     }
 
     /**
@@ -110,9 +111,6 @@ public final class PropertyManagerImpl implements PropertyManager {
     public boolean assignProperty(final Property property, final Player newOwner) {
         Objects.requireNonNull(property);
         Objects.requireNonNull(newOwner);
-        if (property.getState().isOwnedByPlayer()) {
-            return false;
-        }
         return property.assignOwner(newOwner.getName());
     }
 }
