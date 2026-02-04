@@ -9,26 +9,37 @@ import it.unibo.javapoly.model.api.TokenType;
  * Implementation of the {@link Player} interface representing a concrete player
  * in the game.
  * This class manages the player's state, balance, position, and token.
+ * It delegates turn logic to the current {@link PlayerState} and handles
+ * movement and financial transactions.
+ * 
+ * @see Player
+ * @see PlayerState
+ * @see Token
+ * @see TokenType
  */
 public class PlayerImpl implements Player {
 
+    /**
+     * Number of spaces on the game board.
+     */
     private static final int SPACES_ON_BOARD = 40;
+
     private final String name;
     private int balance;
     private final Token token;
     private PlayerState currentState;
-
-    // Placeholder per la posizione (da 0 a 39)
     private int currentPosition;
 
     /**
-     * Constructs a new ConcretePlayer with a specified name, initial balance, and
+     * Constructs a new PlayerImpl with a specified name, initial balance, and
      * token type.
      * The player starts in the {@link FreeState} and at position 0.
      *
      * @param name           the name of the player.
      * @param initialBalance the starting balance of the player.
      * @param tokenType      the type of token associated with the player.
+     * @see FreeState
+     * @see TokenFactory
      */
     public PlayerImpl(final String name, final int initialBalance, final TokenType tokenType) {
         this.name = name;
@@ -39,11 +50,12 @@ public class PlayerImpl implements Player {
     }
 
     /**
-     * Executes the player's turn based on the dice result.
-     * The logic is delegated to the current {@link PlayerState}.
-     *
-     * @param diceResult the total value rolled on the dice.
-     * @param isDouble   indicates if the dice roll was a double.
+     * {@inheritDoc}
+     * 
+     * @see PlayerState
+     * @see FreeState
+     * @see JailedState
+     * @see BankruptState
      */
     @Override
     public void playTurn(final int diceResult, final boolean isDouble) {
@@ -51,10 +63,13 @@ public class PlayerImpl implements Player {
     }
 
     /**
-     * Moves the player a specific number of steps on the board.
-     * Limits the position to the board size (0-39) using circular movement logic.
-     *
-     * @param steps the number of spaces to move.
+     * {@inheritDoc}
+     * 
+     * @see Player
+     * @see PlayerState
+     * @see FreeState
+     * @see JailedState
+     * @see BankruptState
      */
     @Override
     public void move(final int steps) {
@@ -104,9 +119,7 @@ public class PlayerImpl implements Player {
     }
 
     /**
-     * Gets the name of the player.
-     *
-     * @return the player's name.
+     * {@inheritDoc}
      */
     @Override
     public String getName() {
@@ -114,9 +127,7 @@ public class PlayerImpl implements Player {
     }
 
     /**
-     * Gets the current balance of the player.
-     *
-     * @return the player's balance.
+     * {@inheritDoc}
      */
     @Override
     public int getBalance() {
@@ -124,9 +135,7 @@ public class PlayerImpl implements Player {
     }
 
     /**
-     * Gets the token associated with the player.
-     *
-     * @return the player's token.
+     * {@inheritDoc}
      */
     @Override
     public Token getToken() {
@@ -134,9 +143,7 @@ public class PlayerImpl implements Player {
     }
 
     /**
-     * Gets the current state of the player.
-     *
-     * @return the current {@link PlayerState}.
+     * {@inheritDoc}
      */
     @Override
     public PlayerState getState() {
@@ -144,9 +151,7 @@ public class PlayerImpl implements Player {
     }
 
     /**
-     * Sets the state of the player.
-     *
-     * @param state the new {@link PlayerState} to set.
+     * {@inheritDoc}
      */
     @Override
     public void setState(final PlayerState state) {
@@ -155,9 +160,7 @@ public class PlayerImpl implements Player {
     }
 
     /**
-     * Returns a string representation of the player.
-     *
-     * @return a string containing the player's name, balance, and current state.
+     * {@inheritDoc}
      */
     @Override
     public String toString() {

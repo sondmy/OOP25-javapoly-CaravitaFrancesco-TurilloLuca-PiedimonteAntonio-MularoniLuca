@@ -6,8 +6,7 @@ import it.unibo.javapoly.model.api.PlayerState;
 /**
  * Represents the state of a player when they are free to move.
  * This class implements the {@link PlayerState} interface and follows the
- * Singleton pattern,
- * ensuring that only one instance of the free state exists.
+ * Singleton pattern, ensuring that only one instance of the free state exists.
  * In this state, the player is allowed to move normally based on the dice roll
  * result.
  */
@@ -38,8 +37,8 @@ public final class FreeState implements PlayerState {
      * The player moves by the number of steps indicated by the dice result.
      * A message is logged to the standard output indicating the movement.
      *
-     * @param player     the player performing the turn.
-     * @param diceResult the total result of the dice roll.
+     * @param player     the player currently in this state.
+     * @param diceResult the result of the dice roll.
      * @param isDouble   indicates if the dice roll was a double.
      */
     @Override
@@ -49,7 +48,7 @@ public final class FreeState implements PlayerState {
     }
 
     /**
-     * Checks if the player is allowed to move.
+     * Checks if the player is allowed to move in this state.
      *
      * @return {@code true} as the player is in a free state and can always move.
      */
