@@ -1,6 +1,6 @@
 package it.unibo.javapoly.model.api.economy;
 
-import it.unibo.javapoly.model.player.Player;
+import it.unibo.javapoly.model.api.Player;
 
 import java.util.Optional;
 
