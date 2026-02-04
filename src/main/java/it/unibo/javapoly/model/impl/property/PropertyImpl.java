@@ -176,7 +176,7 @@ public final class PropertyImpl implements Property {
      * @return true if the property is not a land property, false otherwise
      */
     private boolean isPropertyLand() {
-        return !(PropertyGroup.RAILROAD.equals(this.card.getGroup()) || PropertyGroup.UTILITY.equals(this.card.getGroup()));
+        return !(PropertyGroup.RAILROAD == this.card.getGroup() || PropertyGroup.UTILITY == this.card.getGroup());
     }
 
 }
