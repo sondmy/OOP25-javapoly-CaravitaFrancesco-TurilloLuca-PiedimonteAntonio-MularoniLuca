@@ -1,4 +1,5 @@
 package it.unibo.javapoly.model.api.property;
+
 /**
  * Enum with all identifiers for property groups (color sets).
  */
