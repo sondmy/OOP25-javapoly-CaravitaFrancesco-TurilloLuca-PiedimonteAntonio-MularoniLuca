@@ -4,12 +4,14 @@ package it.unibo.javapoly.model.api;
  * Observer interface for monitoring changes in a player's state during the
  * game.
  * 
+ * <p>
  * This interface implements the Observer pattern to decouple the player model
  * from the components that need to react to player state changes. By using this
  * observer pattern, the game maintains a clean separation of concerns where the
  * Player class doesn't need to know about the specific implementations that
  * respond to its changes.
  * 
+ * <p>
  * The primary purposes of this interface are:
  * <ul>
  * <li>To enable reactive updates in the UI or other game components when player
@@ -24,6 +26,7 @@ package it.unibo.javapoly.model.api;
  * components are notified when critical player events occur</li>
  * </ul>
  * 
+ * <p>
  * This design allows for flexible extension of game functionality, as new
  * observers can be added without modifying the existing Player class. It also
  * supports features like logging, game statistics tracking, UI updates, and

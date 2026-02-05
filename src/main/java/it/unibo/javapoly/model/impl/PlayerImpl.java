@@ -74,6 +74,7 @@ public class PlayerImpl implements Player {
     /**
      * {@inheritDoc}
      * 
+     * <p>
      * Notifies observers about the movement.
      * 
      * @see Player
@@ -97,6 +98,7 @@ public class PlayerImpl implements Player {
     /**
      * {@inheritDoc}
      * 
+     * <p>
      * Notifies observers about the balance change if the payment is successful.
      */
     @Override
@@ -112,6 +114,7 @@ public class PlayerImpl implements Player {
     /**
      * {@inheritDoc}
      * 
+     * <p>
      * Notifies observers about the balance change.
      */
     @Override
@@ -126,7 +129,7 @@ public class PlayerImpl implements Player {
      * {@inheritDoc}
      */
     @Override
-    public void addObserver(PlayerObserver observer) {
+    public void addObserver(final PlayerObserver observer) {
         this.observers.add(observer);
     }
 
@@ -134,7 +137,7 @@ public class PlayerImpl implements Player {
      * {@inheritDoc}
      */
     @Override
-    public void removeObserver(PlayerObserver observer) {
+    public void removeObserver(final PlayerObserver observer) {
         this.observers.remove(observer);
     }
 
@@ -144,8 +147,8 @@ public class PlayerImpl implements Player {
      * @param oldPos the previous position of the player.
      * @param newPos the new position of the player.
      */
-    private void notifyMoved(int oldPos, int newPos) {
-        for (PlayerObserver obs : this.observers) {
+    private void notifyMoved(final int oldPos, final int newPos) {
+        for (final PlayerObserver obs : this.observers) {
             obs.onPlayerMoved(this, oldPos, newPos);
         }
     }
@@ -155,8 +158,8 @@ public class PlayerImpl implements Player {
      * 
      * @param newBalance the new balance of the player.
      */
-    private void notifyBalanceChanged(int newBalance) {
-        for (PlayerObserver obs : this.observers) {
+    private void notifyBalanceChanged(final int newBalance) {
+        for (final PlayerObserver obs : this.observers) {
             obs.onBalanceChanged(this, newBalance);
         }
     }
@@ -167,8 +170,8 @@ public class PlayerImpl implements Player {
      * @param oldState the previous state of the player.
      * @param newState the new state of the player.
      */
-    private void notifyStateChanged(PlayerState oldState, PlayerState newState) {
-        for (PlayerObserver obs : observers) {
+    private void notifyStateChanged(final PlayerState oldState, final PlayerState newState) {
+        for (final PlayerObserver obs : this.observers) {
             obs.onStateChanged(this, oldState, newState);
         }
     }
@@ -218,12 +221,13 @@ public class PlayerImpl implements Player {
     /**
      * {@inheritDoc}
      * 
+     * <p>
      * Notifies observers about the state change if the new state is different from
      * the old state.
      */
     @Override
     public void setState(final PlayerState state) {
-        PlayerState oldState = this.currentState;
+        final PlayerState oldState = this.currentState;
         this.currentState = state;
         if (!oldState.getClass().equals(state.getClass())) {
             notifyStateChanged(oldState, state);

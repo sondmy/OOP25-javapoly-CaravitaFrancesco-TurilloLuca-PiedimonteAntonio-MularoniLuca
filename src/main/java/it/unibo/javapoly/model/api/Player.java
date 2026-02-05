@@ -8,6 +8,7 @@ package it.unibo.javapoly.model.api;
  * Players can move around the board, manage their money, and interact with the
  * game through their turns.
  * 
+ * <p>
  * Also implements the Observer pattern to allow monitoring of player state
  * changes.
  * 
