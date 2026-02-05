@@ -8,8 +8,32 @@ package it.unibo.javapoly.model.api;
  * Players can move around the board, manage their money, and interact with the
  * game through their turns.
  * 
+ * Also implements the Observer pattern to allow monitoring of player state
+ * changes.
+ * 
+ * @see PlayerState
+ * @see Token
+ * @see TokenType
+ * @see PlayerObserver
+ * 
  */
 public interface Player {
+
+    /**
+     * Registers an observer to monitor changes in the player's state.
+     * 
+     * @param observer the {@link PlayerObserver} to be added.
+     * @see PlayerObserver
+     */
+    void addObserver(PlayerObserver observer);
+
+    /**
+     * Unregisters an observer from monitoring changes in the player's state.
+     * 
+     * @param observer the {@link PlayerObserver} to be removed.
+     * @see PlayerObserver
+     */
+    void removeObserver(PlayerObserver observer);
 
     /**
      * Retrieves the name of the player.
@@ -80,7 +104,8 @@ public interface Player {
      * Otherwise, the balance remains unchanged and it returns false.
      *
      * @param amount the amount of money to pay.
-     * @return true if the payment was successful, false otherwise.
+     * @return true if the player has enough balance and the payment was successful
+     *         false otherwise.
      */
     boolean tryToPay(int amount);
 
