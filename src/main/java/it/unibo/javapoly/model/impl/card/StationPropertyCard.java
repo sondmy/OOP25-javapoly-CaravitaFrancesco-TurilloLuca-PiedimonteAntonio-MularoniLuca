@@ -23,16 +23,14 @@ public class StationPropertyCard extends AbstractPropertyCard {
      * @param name the card name.
      * @param description the card description.
      * @param propetyCost the cost of the property.
-     * @param group the property group.
      * @param rents the list of rents for 1..n stations (ordered).
      */
     public StationPropertyCard(final String id,
                               final String name,
                               final String description,
                               final int propetyCost,
-                              final PropertyGroup group,
                               final List<Integer> rents) {
-        super(id, name, description, propetyCost, group);
+        super(id, name, description, propetyCost, PropertyGroup.RAILROAD);
         this.rentNumberSation = new ArrayList<>(rents);
     }
 

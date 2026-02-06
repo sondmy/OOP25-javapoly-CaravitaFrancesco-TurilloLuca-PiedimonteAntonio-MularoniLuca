@@ -23,13 +23,12 @@ public class UtilityPropertyCard extends AbstractPropertyCard {
      * @param name                the card name.
      * @param description         the card description.
      * @param propertyCost        the cost of the property.
-     * @param utility             the utility group identifier.
      * @param oneOwnedMultiplier  multiplier when one utility is owned.
      * @param bothOwnedMultiplier multiplier when both utilities are owned.
      */
     public UtilityPropertyCard(final String id, final String name, final String description, final int propertyCost,
-            final PropertyGroup utility, final int oneOwnedMultiplier, final int bothOwnedMultiplier) {
-        super(id, name, description, propertyCost, utility);
+                               final int oneOwnedMultiplier, final int bothOwnedMultiplier) {
+        super(id, name, description, propertyCost, PropertyGroup.UTILITY);
         this.oneOwnedMultiplier = oneOwnedMultiplier;
         this.bothOwnedMultiplier = bothOwnedMultiplier;
     }
