@@ -1,9 +1,12 @@
 package it.unibo.javapoly.model.api.card.payload;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 /**
  * The class represents the payload of a "Money" object.
  * It contains the amount and the receiver associated with it.
  */
+@JsonRootName("PayLoadMoney")
 public final class MoneyPayload implements CardPayload {
 
     private final int amount;

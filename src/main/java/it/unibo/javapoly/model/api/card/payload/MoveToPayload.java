@@ -1,9 +1,12 @@
 package it.unibo.javapoly.model.api.card.payload;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 /**
  * The class represents the payload for a move to a specific target position.
  * It contains the target position for the move.
  */
+@JsonRootName("PayLoadMoveTo")
 public final class MoveToPayload implements CardPayload {
 
     private final int targetPosition;

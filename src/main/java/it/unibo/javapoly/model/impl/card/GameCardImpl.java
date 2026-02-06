@@ -2,6 +2,8 @@ package it.unibo.javapoly.model.impl.card;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 import it.unibo.javapoly.model.api.card.CardType;
 import it.unibo.javapoly.model.api.card.GameCard;
 import it.unibo.javapoly.model.api.card.payload.CardPayload;
@@ -11,6 +13,7 @@ import it.unibo.javapoly.model.api.card.payload.CardPayload;
  * This class represents a game card with various properties such as:
  * ID, name, description, type, payload, and whether it is kept until used.
  */
+@JsonRootName("GameCard")
 public class GameCardImpl implements GameCard {
 
     private final String id;

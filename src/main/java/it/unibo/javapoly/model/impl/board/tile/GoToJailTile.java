@@ -1,10 +1,13 @@
 package it.unibo.javapoly.model.impl.board.tile;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 import it.unibo.javapoly.model.api.board.TileType;
 
 /**
  * Represents the Go To Jail tile.
  */
+@JsonRootName("GoToJailTile")
 public final class GoToJailTile extends AbstractTile {
 
     private final int jailPos;

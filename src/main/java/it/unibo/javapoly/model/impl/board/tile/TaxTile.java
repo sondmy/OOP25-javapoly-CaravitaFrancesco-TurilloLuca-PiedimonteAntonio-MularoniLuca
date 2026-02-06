@@ -1,10 +1,13 @@
 package it.unibo.javapoly.model.impl.board.tile;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 import it.unibo.javapoly.model.api.board.TileType;
 
 /**
  * Represents a tax tile.
  */
+@JsonRootName("TaxTile")
 public final class TaxTile extends AbstractTile {
 
     private final int amountTax;

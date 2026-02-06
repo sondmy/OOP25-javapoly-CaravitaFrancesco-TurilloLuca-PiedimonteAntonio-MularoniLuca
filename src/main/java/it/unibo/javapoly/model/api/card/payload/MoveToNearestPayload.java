@@ -2,12 +2,15 @@ package it.unibo.javapoly.model.api.card.payload;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 import it.unibo.javapoly.model.api.property.PropertyGroup;
 
 /**
  * The class represents the payload for a move to the nearest category operation.
  * It contains the destination category for the move.
  */
+@JsonRootName("PayLoadMoveToNearest")
 public final class MoveToNearestPayload implements CardPayload {
 
     private final PropertyGroup category;

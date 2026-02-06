@@ -2,6 +2,8 @@ package it.unibo.javapoly.model.impl.board.tile;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 import it.unibo.javapoly.model.api.board.TileType;
 import it.unibo.javapoly.model.api.property.Property;
 import it.unibo.javapoly.model.api.property.PropertyGroup;
@@ -10,6 +12,7 @@ import it.unibo.javapoly.model.impl.property.PropertyImpl;
 /**
  * Represents a tile associated with a land property.
  */
+@JsonRootName("LandPropertyTile")
 public final class LandPropertyTile extends AbstractTile {
 
     private final Property property;

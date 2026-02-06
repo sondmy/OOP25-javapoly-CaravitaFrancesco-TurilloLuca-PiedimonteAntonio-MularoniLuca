@@ -1,10 +1,13 @@
 package it.unibo.javapoly.model.impl.board.tile;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 import it.unibo.javapoly.model.api.board.TileType;
 
 /**
  * Represents the Start tile of the board.
  */
+@JsonRootName("StartTile")
 public final class StartTile extends AbstractTile {
 
     private final int reward;

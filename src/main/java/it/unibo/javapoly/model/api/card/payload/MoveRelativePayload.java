@@ -1,9 +1,12 @@
 package it.unibo.javapoly.model.api.card.payload;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 /**
  * The class represents the payload of a relative move operation.
  * It contains the delta of the move.
  */
+@JsonRootName("PayLoadMoveRelative")
 public final class MoveRelativePayload implements CardPayload {
 
     private final int delta;

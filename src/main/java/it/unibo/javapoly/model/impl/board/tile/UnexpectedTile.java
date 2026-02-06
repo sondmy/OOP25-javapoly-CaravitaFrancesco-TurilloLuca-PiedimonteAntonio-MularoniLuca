@@ -1,10 +1,13 @@
 package it.unibo.javapoly.model.impl.board.tile;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 import it.unibo.javapoly.model.api.board.TileType;
 
 /**
  * Represents an Unexpected tile.
  */
+@JsonRootName("UnexpectedTile")
 public final class UnexpectedTile extends AbstractTile {
 
     private final String deckCardID;
