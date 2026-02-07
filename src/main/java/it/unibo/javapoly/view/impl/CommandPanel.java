@@ -30,14 +30,14 @@ public class CommandPanel {
         this.throwDice = new Button("Lancia dadi");
         this.endTurnButton = new Button("Fine turno");
 
-        // JavaFX usa setOnAction con espressioni lambda
-        this.throwDice.setOnAction(e -> 
-            this.matchController.handleDiceThrow());
+        this.throwDice.setOnAction(e -> {
+            this.matchController.handleDiceThrow();
             updateState();
-        this.endTurnButton.setOnAction(e -> 
-            this.matchController.nextTurn());
+        });
+        this.endTurnButton.setOnAction(e -> {
+            this.matchController.nextTurn();
             updateState();
-
+        });
         // Aggiunta dei nodi alla radice del pannello
         this.root.getChildren().addAll(this.throwDice, this.endTurnButton);
 

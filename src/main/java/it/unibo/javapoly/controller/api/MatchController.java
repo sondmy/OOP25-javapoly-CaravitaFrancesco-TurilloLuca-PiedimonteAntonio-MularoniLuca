@@ -3,6 +3,7 @@ package it.unibo.javapoly.controller.api;
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.board.Board;
 import it.unibo.javapoly.model.impl.PlayerImpl;
+import it.unibo.javapoly.view.impl.MainView;
 
 /**
  * Interface representing the main controller for a Monopoly match.
@@ -51,4 +52,6 @@ public interface MatchController {
 
     //descrizione da inserire
     boolean canCurrentPlayerRoll();
+
+    MainView getMainView();
 }

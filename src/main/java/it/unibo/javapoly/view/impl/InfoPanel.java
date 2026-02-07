@@ -46,8 +46,8 @@ public class InfoPanel {
         final Player p = this.matchController.getCurrentPlayer();
 
         this.nameLabel.setText("Giocatore: " + p.getName()); 
-        this.balanceLabel.setText("Saldo: "); //balance del giocatore(da aggiungere)
-        this.positionLabel.setText("Posizione: "); //posizione del giocatore (da aggiungere)
+        this.balanceLabel.setText("Saldo: " + p.getBalance() + "€"); 
+        this.positionLabel.setText("Posizione: " + p.getCurrentPosition()); 
     }
 
     /**

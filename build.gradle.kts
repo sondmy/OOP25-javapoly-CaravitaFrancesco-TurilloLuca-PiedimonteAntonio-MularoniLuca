@@ -16,8 +16,8 @@ plugins {
 }
 
 javafx {
-    version = "21" // Assicurati che coincida con la tua versione di Java (vedo JavaSE-21 nello screen)
-    modules = listOf("javafx.controls", "javafx.graphics")
+    version = "23.0.2" 
+    modules = listOf("javafx.controls", "javafx.graphics", "javafx.fxml")
 }
 
 repositories {
@@ -67,9 +67,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-val main: String by project
-
 application {
-    // Define the main class for the application
-    mainClass.set(main)
+    mainClass.set("it.unibo.javapoly.Main") 
 }

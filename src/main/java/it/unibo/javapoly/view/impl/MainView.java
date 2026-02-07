@@ -38,14 +38,14 @@ public class MainView {
         this.logArea = new TextArea(); // create text area for logs
         this.logArea.setEditable(false); // set not editable the log area
         final ScrollPane logScroll = new ScrollPane(this.logArea); // make log area scrollable
-        logScroll.setFitToWidth(true);
-        logScroll.setPrefHeight(100);
 
         // Posizionamento nel BorderPane (Equivalente di BorderLayout)
         this.root.setCenter(this.boardPanel.getRoot());
         this.root.setBottom(this.commandPanel.getRoot());
         this.root.setRight(this.infoPanel.getRoot()); // EAST -> RIGHT
-        this.root.setTop(logScroll); // NORTH -> TOP
+        this.root.setLeft(logScroll); 
+        logScroll.setPrefWidth(200); // Dai una larghezza fissa al log
+        logScroll.setPrefHeight(Double.MAX_VALUE); // Fallo alto quanto tutta la finestra
     }
 
     /**
@@ -60,6 +60,10 @@ public class MainView {
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
+    }
+
+    public void refreshPagination() {
+        this.commandPanel.updateState();
     }
 
     /**
