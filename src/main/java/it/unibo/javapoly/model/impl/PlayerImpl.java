@@ -26,11 +26,6 @@ import it.unibo.javapoly.model.api.TokenType;
  */
 public class PlayerImpl implements Player {
 
-    /**
-     * Number of spaces on the game board.
-     */
-    private static final int SPACES_ON_BOARD = 40;
-
     private final String name;
     private int balance;
     private final Token token;
@@ -91,9 +86,9 @@ public class PlayerImpl implements Player {
      * @see BankruptState
      */
     @Override
-    public void move(final int steps) {
+    public void move(final int newPosition) {
         final int oldPos = this.currentPosition;
-        this.currentPosition = (this.currentPosition + steps) % SPACES_ON_BOARD;
+        this.currentPosition = newPosition;
 
         notifyMoved(oldPos, this.currentPosition);
 

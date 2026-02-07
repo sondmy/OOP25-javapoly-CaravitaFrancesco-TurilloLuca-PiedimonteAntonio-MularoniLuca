@@ -34,8 +34,7 @@ public final class FreeState implements PlayerState {
 
     /**
      * Executes the standard turn logic for a free player.
-     * The player moves by the number of steps indicated by the dice result.
-     * A message is logged to the standard output indicating the movement.
+     * The player moves to the new position indicated by the dice result.
      *
      * @param player     the player currently in this state.
      * @param diceResult the result of the dice roll.
@@ -43,8 +42,8 @@ public final class FreeState implements PlayerState {
      */
     @Override
     public void playTurn(final Player player, final int diceResult, final boolean isDouble) {
-        System.out.println("[Stato Libero] Il giocatore si muove di " + diceResult); // NOPMD
         player.move(diceResult);
+        System.out.println("[Stato Libero] Il giocatore si muove di " + diceResult); // NOPMD
     }
 
     /**

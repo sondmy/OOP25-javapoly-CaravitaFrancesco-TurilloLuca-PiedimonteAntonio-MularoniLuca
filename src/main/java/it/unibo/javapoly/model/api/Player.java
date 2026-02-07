@@ -81,7 +81,7 @@ public interface Player {
     void playTurn(int diceResult, boolean isDouble);
 
     /**
-     * Moves the player a specified number of steps on the game board.
+     * Moves the player to a specified position on the game board.
      * 
      * <strong>Important:</strong> The {@link #move(int)} method should not be
      * called directly from outside the player implementation, as it would break the
@@ -94,10 +94,10 @@ public interface Player {
      * In such cases, the caller should verify that the player can move by checking
      * their current state using {@link #getState()} before invoking this method.
      * 
-     * @param steps the number of spaces to move forward.
+     * @param newPosition the new position to move the player to.
      * @see PlayerState
      */
-    void move(int steps);
+    void move(int newPosition);
 
     /**
      * Attempts to pay a specified amount from the player's balance.
