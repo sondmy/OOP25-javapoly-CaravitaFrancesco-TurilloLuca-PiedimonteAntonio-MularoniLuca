@@ -1,12 +1,41 @@
 package it.unibo.javapoly.model.api;
 
 /**
- * Represents a player in the JavaPoly game.
- * This interface defines the core behaviors and properties that a player entity
- * must support,
- * including managing finances, movement, and game state.
+ * Represents a player in the Javapoly game.
+ * This interface defines the core behaviors and properties of a player,
+ * including their identity, financial status, position on the board, and state
+ * management.
+ * Players can move around the board, manage their money, and interact with the
+ * game through their turns.
+ * 
+ * <p>
+ * Also implements the Observer pattern to allow monitoring of player state
+ * changes.
+ * </p>
+ * 
+ * @see PlayerState
+ * @see Token
+ * @see TokenType
+ * @see PlayerObserver
+ * 
  */
 public interface Player {
+
+    /**
+     * Registers an observer to monitor changes in the player's state.
+     * 
+     * @param observer the {@link PlayerObserver} to be added.
+     * @see PlayerObserver
+     */
+    void addObserver(PlayerObserver observer);
+
+    /**
+     * Unregisters an observer from monitoring changes in the player's state.
+     * 
+     * @param observer the {@link PlayerObserver} to be removed.
+     * @see PlayerObserver
+     */
+    void removeObserver(PlayerObserver observer);
 
     /**
      * Retrieves the name of the player.
@@ -37,17 +66,36 @@ public interface Player {
     int getCurrentPosition();
 
     /**
-     * Executes the logic for a player's turn based on a dice roll.
-     *
+     * Manages the turn logic based on the player's current state:
+     * in jail, free, or bankrupt.
+     * The method handle the player's actions, including moving the player and
+     * updating their state.
+     * The logic for the turn is delegated to the current {@link PlayerState} of the
+     * player, ensuring that the correct behavior is executed based on the player's
+     * situation.
+     * 
      * @param diceResult the total value obtained from rolling the dice.
      * @param isDouble   indicates if the dice roll was a double.
+     * @see PlayerState
      */
     void playTurn(int diceResult, boolean isDouble);
 
     /**
      * Moves the player a specified number of steps on the game board.
-     *
+     * 
+     * <strong>Important:</strong> The {@link #move(int)} method should not be
+     * called directly from outside the player implementation, as it would break the
+     * state management logic.
+     * Use {@link #playTurn(int, boolean)} instead to properly execute a player's
+     * turn.
+     * 
+     * <strong>Exception:</strong> This method can be called directly only when a
+     * card instructs the player to move without rolling the dice.
+     * In such cases, the caller should verify that the player can move by checking
+     * their current state using {@link #getState()} before invoking this method.
+     * 
      * @param steps the number of spaces to move forward.
+     * @see PlayerState
      */
     void move(int steps);
 
@@ -55,11 +103,11 @@ public interface Player {
      * Attempts to pay a specified amount from the player's balance.
      * If the player has sufficient funds, the balance is decreased and the method
      * returns true.
-     * Otherwise, the balance remains unchanged (or handling logic is applied) and
-     * it returns false.
+     * Otherwise, the balance remains unchanged and it returns false.
      *
      * @param amount the amount of money to pay.
-     * @return true if the payment was successful, false otherwise.
+     * @return true if the player has enough balance and the payment was successful
+     *         false otherwise.
      */
     boolean tryToPay(int amount);
 
@@ -74,6 +122,7 @@ public interface Player {
      * Updates the current state of the player.
      *
      * @param state the new {@link PlayerState} to set.
+     * @see PlayerState
      */
     void setState(PlayerState state);
 
@@ -81,6 +130,7 @@ public interface Player {
      * Retrieves the current state of the player.
      *
      * @return the current {@link PlayerState} of the player.
+     * @see PlayerState
      */
     PlayerState getState();
 }

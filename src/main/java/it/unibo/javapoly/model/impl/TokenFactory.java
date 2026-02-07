@@ -9,8 +9,10 @@ import it.unibo.javapoly.model.api.TokenType;
  * type.
  * It follows the Factory pattern to abstract the instantiation logic of Token
  * objects.
+ * 
+ * @see Token
+ * @see TokenType
  */
-@SuppressWarnings("PMD.ExhaustiveSwitchHasDefault")
 public final class TokenFactory {
 
     /**
@@ -25,6 +27,8 @@ public final class TokenFactory {
      * @param type the type of the token to be created.
      * @return a new Token instance corresponding to the specified type.
      * @throws IllegalArgumentException if the provided token type is not supported.
+     * @see Token
+     * @see TokenType
      */
     public static Token createToken(final TokenType type) {
         switch (type) {

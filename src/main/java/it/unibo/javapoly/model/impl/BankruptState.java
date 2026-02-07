@@ -6,10 +6,11 @@ import it.unibo.javapoly.model.api.PlayerState;
 /**
  * Represents the state of a player who has gone bankrupt.
  * This class implements the {@link PlayerState} interface using the Singleton
- * pattern,
- * as the behavior of a bankrupt player is stateless and identical for all
- * instances.
+ * pattern, as the behavior of a bankrupt player is stateless and identical for
+ * all instances.
  * A player in this state cannot move and performs no actions during their turn.
+ * 
+ * @see PlayerState
  */
 public final class BankruptState implements PlayerState {
 
@@ -27,7 +28,7 @@ public final class BankruptState implements PlayerState {
     /**
      * Returns the singleton instance of the BankruptState.
      *
-     * @return the single instance of {@code BankruptState}.
+     * @return the single instance of {@link BankruptState}.
      */
     public static BankruptState getInstance() {
         return INSTANCE;
@@ -39,7 +40,7 @@ public final class BankruptState implements PlayerState {
      * and performs no other actions.
      *
      * @param player     the player currently in this state.
-     * @param diceResult the result of the dice roll (ignored in this state).
+     * @param diceResult the result of the dice roll.
      * @param isDouble   indicates if the dice roll was a double.
      */
     @Override

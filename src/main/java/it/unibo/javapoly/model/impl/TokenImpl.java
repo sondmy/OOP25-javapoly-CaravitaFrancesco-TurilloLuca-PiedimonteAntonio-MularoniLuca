@@ -6,6 +6,9 @@ import it.unibo.javapoly.model.api.Token;
  * Implementation of the {@link Token} interface representing a player's piece
  * on the board.
  * This class encapsulates the visual or logical type of the token.
+ * 
+ * @see Token
+ * @see TokenType
  */
 class TokenImpl implements Token {
 
@@ -14,7 +17,7 @@ class TokenImpl implements Token {
     /**
      * Constructs a new TokenImpl with the specified type.
      *
-     * @param type the string representation of the token type.
+     * @param type the {@link String} representation of the token type.
      */
     protected TokenImpl(final String type) {
         this.type = type;
@@ -29,9 +32,7 @@ class TokenImpl implements Token {
     }
 
     /**
-     * Returns a string representation of the token.
-     *
-     * @return a string in the format "Token[type]"
+     * {@inheritDoc}
      */
     @Override
     public String toString() {
