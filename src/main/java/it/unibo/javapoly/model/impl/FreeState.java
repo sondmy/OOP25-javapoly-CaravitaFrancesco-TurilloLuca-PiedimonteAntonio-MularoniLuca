@@ -1,5 +1,7 @@
 package it.unibo.javapoly.model.impl;
 
+import java.util.Objects;
+
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.PlayerState;
 
@@ -43,6 +45,10 @@ public final class FreeState implements PlayerState {
      */
     @Override
     public void playTurn(final Player player, final int potentialDestination, final boolean isDouble) {
+        Objects.requireNonNull(player, "The player cannot be null");
+        if (potentialDestination < 0) {
+            throw new IllegalArgumentException("Potential destination cannot be negative: " + potentialDestination);
+        }
         player.move(potentialDestination);
 
         // TODO try to understand if the roll of a double has to be handled in the
