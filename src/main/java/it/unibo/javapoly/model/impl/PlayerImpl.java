@@ -58,6 +58,12 @@ public class PlayerImpl implements Player {
         this.currentPosition = 0;
     }
 
+    // TODO add constructor with only name and token type, with default balance, for
+    // easier usage in view menu, considering that the balance is not relevant for
+    // the view at the start of the game. And add a new state for the view menu,
+    // like "not-initialized" or something like that, to avoid that the player can
+    // play before the game starts.
+
     /**
      * {@inheritDoc}
      * 
