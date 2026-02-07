@@ -2,6 +2,7 @@ package it.unibo.javapoly.model.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.PlayerObserver;
@@ -46,6 +47,15 @@ public class PlayerImpl implements Player {
      * @see TokenFactory
      */
     public PlayerImpl(final String name, final int initialBalance, final TokenType tokenType) {
+        Objects.requireNonNull(name, "Name cannot be null");
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Name cannot be blank");
+        }
+        Objects.requireNonNull(tokenType, "Token type cannot be null");
+        if (initialBalance < 0) {
+            throw new IllegalArgumentException("Initial balance cannot be negative: " + initialBalance);
+        }
+
         this.name = name;
         this.balance = initialBalance;
         this.token = TokenFactory.createToken(tokenType);
@@ -69,6 +79,9 @@ public class PlayerImpl implements Player {
      */
     @Override
     public void playTurn(final int potentialDestination, final boolean isDouble) {
+        if (potentialDestination < 0) {
+            throw new IllegalArgumentException("Potential destination cannot be negative: " + potentialDestination);
+        }
         this.currentState.playTurn(this, potentialDestination, isDouble);
     }
 
@@ -87,6 +100,10 @@ public class PlayerImpl implements Player {
      */
     @Override
     public void move(final int newPosition) {
+        if (newPosition < 0) {
+            throw new IllegalArgumentException("The position cannot be negative: " + newPosition);
+        }
+
         final int oldPos = this.currentPosition;
         this.currentPosition = newPosition;
 
@@ -106,6 +123,10 @@ public class PlayerImpl implements Player {
      */
     @Override
     public boolean tryToPay(final int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("You cannot pay a negative amount: " + amount);
+        }
+
         if (this.balance >= amount) {
             this.balance -= amount;
             notifyBalanceChanged(this.balance);
@@ -123,6 +144,10 @@ public class PlayerImpl implements Player {
      */
     @Override
     public void receiveMoney(final int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("You cannot receive a negative amount: " + amount);
+        }
+
         this.balance += amount;
         notifyBalanceChanged(this.balance);
     }
@@ -134,7 +159,7 @@ public class PlayerImpl implements Player {
      */
     @Override
     public void addObserver(final PlayerObserver observer) {
-        this.observers.add(observer);
+        this.observers.add(Objects.requireNonNull(observer, "Observer cannot be null"));
     }
 
     /**
@@ -142,7 +167,7 @@ public class PlayerImpl implements Player {
      */
     @Override
     public void removeObserver(final PlayerObserver observer) {
-        this.observers.remove(observer);
+        this.observers.remove(Objects.requireNonNull(observer, "Observer cannot be null"));
     }
 
     /**
@@ -233,7 +258,7 @@ public class PlayerImpl implements Player {
     @Override
     public void setState(final PlayerState state) {
         final PlayerState oldState = this.currentState;
-        this.currentState = state;
+        this.currentState = Objects.requireNonNull(state, "State cannot be null");
         if (!oldState.getClass().equals(state.getClass())) {
             notifyStateChanged(oldState, state);
         }
