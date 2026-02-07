@@ -1,5 +1,7 @@
 package it.unibo.javapoly.model.api.card.payload;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 /**
@@ -28,7 +30,9 @@ public class BuildingPayload  implements CardPayload {
      * @param hotel the amount to transfer per hotel
      * @throws IllegalArgumentException if the amount is negative
      */
-    public BuildingPayload(final int house, final int hotel) {
+    @JsonCreator
+    public BuildingPayload(@JsonProperty("house") final int house, 
+                           @JsonProperty("hotel") final int hotel) {
         if (house < this.ERR_VALUE || hotel < this.ERR_VALUE) {
             throw new IllegalArgumentException(this.ERR_MSG);
         }

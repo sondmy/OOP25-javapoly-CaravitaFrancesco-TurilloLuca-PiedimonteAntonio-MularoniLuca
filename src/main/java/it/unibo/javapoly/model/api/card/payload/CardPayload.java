@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
     @JsonSubTypes.Type(value = MoneyPayload.class, name = "PayLoadMoney"),
     @JsonSubTypes.Type(value = MoveRelativePayload.class, name = "PayLoadMoveRelative"),
     @JsonSubTypes.Type(value = MoveToPayload.class, name = "PayLoadMoveTo"),
-    @JsonSubTypes.Type(value = MoveToNearestPayload.class, name = "PayLoadMoveToNearest")
+    @JsonSubTypes.Type(value = MoveToNearestPayload.class, name = "PayLoadMoveToNearest"),
+    @JsonSubTypes.Type(value = BuildingPayload.class, name = "PayloadBuilding")
 })
 public interface CardPayload { }
