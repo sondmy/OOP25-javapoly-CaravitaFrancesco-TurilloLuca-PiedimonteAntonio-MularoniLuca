@@ -95,6 +95,7 @@ Il `PlayerImpl` notifica automaticamente gli observer nei seguenti casi:
 
 - **Movimento del giocatore**: Quando il giocatore si sposta da una posizione all'altra sul tabellone (metodo `onPlayerMoved`).
 - **Cambio di bilancio**: Quando il giocatore riceve denaro (metodo `onBalanceChanged`).
+- **Cambio di stato**: Quando il giocatore passa da uno stato all'altro (FreeState, JailedState, BankruptState) tramite il metodo `onStateChanged`.
 
 ### Come Implementare un Observer
 
@@ -119,6 +120,13 @@ public class MyPlayerObserver implements PlayerObserver {
         // Gestisci il cambio di bilancio
         System.out.println(player.getName() + " ora ha " + newBalance + "$");
         // Ad esempio: aggiorna l'interfaccia utente
+    }
+
+    @Override
+    public void onStateChanged(Player player, String newState) {
+        // Gestisci il cambio di stato
+        System.out.println(player.getName() + " è ora in stato: " + newState);
+        // Ad esempio: mostra un messaggio, aggiorna la GUI, ecc.
     }
 }
 ```
