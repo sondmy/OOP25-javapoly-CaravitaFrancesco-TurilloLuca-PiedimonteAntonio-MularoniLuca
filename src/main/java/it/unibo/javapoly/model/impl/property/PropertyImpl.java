@@ -36,7 +36,7 @@ public final class PropertyImpl implements Property {
     /**
      * Constructor to create a copy of a passed instance.
      *
-     * @param property nstance from which to create a copy
+     * @param property istance from which to create a copy
      */
     public PropertyImpl(final Property property) {
         this(property.getId(), property.getPosition(), property.getCard());
@@ -55,9 +55,7 @@ public final class PropertyImpl implements Property {
     }
 
     /**
-     * Gets the card associated with this property.
-     * 
-     * @return the associated card
+     * {@inheritDoc}
      */
     @Override
     public AbstractPropertyCard getCard() {
@@ -75,9 +73,7 @@ public final class PropertyImpl implements Property {
     }
 
     /**
-     * Gets the position of the property on the board.
-     * 
-     * @return the position of the property
+     * {@inheritDoc}
      */
     @Override
     public int getPosition() {
@@ -85,10 +81,7 @@ public final class PropertyImpl implements Property {
     }
 
     /**
-     * Calculates the rent to be paid for this property, given the rent context.
-     * 
-     * @param ctx the context of the rent calculation
-     * @return the calculated rent
+     * {@inheritDoc}
      */
     @Override
     public int getRent(final RentContext ctx) {
@@ -99,16 +92,40 @@ public final class PropertyImpl implements Property {
     }
 
     /**
-     * Gets the purchase price of this property.
-     * 
-     * @return the purchase price of the property
+     * {@inheritDoc}
      */
     @Override
     public int getPurchasePrice() {
         return this.state.getPurchasePrice();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PropertyGroup getPropertyGroup(){
+        return this.card.getGroup();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBuiltHouses(){
+        return this.state.getHouses();
+    }
+
+ 
+
     //#endregion
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isOwnedByPlayer() {
+        return this.state.isOwnedByPlayer();
+    }
 
     /**
      * Build one house on this property for the provided owner.

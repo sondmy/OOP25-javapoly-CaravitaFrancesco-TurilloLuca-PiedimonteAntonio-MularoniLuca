@@ -28,6 +28,20 @@ public interface Property {
     AbstractPropertyCard getCard(); // FIXME: valutare il tipo restituito 
 
     /**
+     * Return the Group type of the property
+     * 
+     * @return the propriety group of the proprety
+     */
+    PropertyGroup getPropertyGroup();
+
+    /**
+     * Return the number of houses built
+     * 
+     * @return the number of houses built
+     */
+    int getBuiltHouses();
+
+    /**
      * Read-only view of the property's dynamic state.
      * 
      * @return the state of the property
@@ -87,4 +101,12 @@ public interface Property {
      * @return the purchase price of the property
      */
     int getPurchasePrice();
+
+    /**
+     * This method checks if the property has an owner.
+     * The owner must be different from the bank.
+     * 
+     * @return true if there is an owner (!= bank), false otherwise
+     */
+    boolean isOwnedByPlayer();
 }
