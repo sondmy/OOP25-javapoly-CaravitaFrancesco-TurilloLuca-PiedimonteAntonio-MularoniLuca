@@ -1,6 +1,7 @@
 package it.unibo.javapoly.view.impl;
 
 import it.unibo.javapoly.controller.api.MenuController;
+import it.unibo.javapoly.view.api.PlayerSetupView;
 import it.unibo.javapoly.view.api.MenuView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,8 +14,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
@@ -23,17 +26,17 @@ import java.util.Objects;
  * Implementation of the main menu view for the Javapoly application.
  */
 public class MenuViewImpl implements MenuView {
-
+    public static final String BG_COLOR = "-fx-background-color: #edfbea;";
     private static final String TITLE = "Javapoly";
     private static final String MENU = " - Menu";
+    private static final String SETUP = " - Setup player";
     private static final String ICON_PATH = "/images/javapolyICON.png";
     private static final String LOGO_PATH = "/images/javapolyLogo.png";
-    private static final int TOP_PADDING = 20;
     private static final String[] DEVELOPERS = {"Francesco Caravita", "Luca Turillo", "Antonio Piedimonte", "Luca Mularoni"};
+    private static final int TOP_PADDING = 20;
     private static final double BUTTON_WIDTH_PER = 0.13;
     private static final double BUTTON_HEIGHT_PER = 0.05;
     private static final double SPACING = 0.02;
-
     private final Stage stage;
     private MenuController controller;
 
@@ -43,15 +46,7 @@ public class MenuViewImpl implements MenuView {
      * @param stage the primary stage for the view.
      */
     public MenuViewImpl(final Stage stage) {
-        Objects.requireNonNull(stage);
-        this.stage = stage;
-        initializeUI();
-    }
-
-    /**
-     * Fully initializes UI components, stage, and layout.
-     */
-    private void initializeUI() {
+        this.stage = Objects.requireNonNull(stage);
         configureStage();
         buildLayout();
     }
@@ -60,9 +55,9 @@ public class MenuViewImpl implements MenuView {
      * Configures the stage properties.
      */
     private void configureStage() {
-        stage.setTitle(TITLE + MENU);
-        stage.setFullScreen(true);
-        stage.setResizable(false);
+        this.stage.setTitle(TITLE + MENU);
+        this.stage.setMaximized(true);
+        this.stage.setResizable(false);
         loadIcon();
     }
 
@@ -77,7 +72,7 @@ public class MenuViewImpl implements MenuView {
                 return;
             }
             final Image icon = new Image(iconStream);
-            stage.getIcons().add(icon);
+            this.stage.getIcons().add(icon);
         } catch (final NullPointerException e) {
             System.err.println("Icon loading failed.");
         }
@@ -88,13 +83,12 @@ public class MenuViewImpl implements MenuView {
      */
     private void buildLayout() {
         final BorderPane root = new BorderPane();
-        root.setStyle("-fx-background-color: #edfbea;");
-
+        root.setStyle(BG_COLOR);
         root.setTop(createTopSection());
         root.setCenter(createCenterSection());
         root.setBottom(createCreditSection());
         final Scene scene = new Scene(root);
-        stage.setScene(scene);
+        this.stage.setScene(scene);
     }
 
     /**
@@ -106,14 +100,12 @@ public class MenuViewImpl implements MenuView {
         final VBox topBox = new VBox();
         topBox.setAlignment(Pos.CENTER);
         topBox.setPadding(new Insets(TOP_PADDING));
-
             final var logoStream = getClass().getResourceAsStream(LOGO_PATH);
             if (logoStream == null) {
                 System.err.println("Logo not found");
                 topBox.getChildren().add(createTitleLabel());
                 return topBox;
             }
-
         try (var stream = logoStream) {
             final Image logo = new Image(stream);
             final ImageView logoView = new ImageView(logo);
@@ -123,7 +115,6 @@ public class MenuViewImpl implements MenuView {
         } catch (final IOException e) {
             topBox.getChildren().add(createTitleLabel());
         }
-
         return topBox;
     }
 
@@ -146,9 +137,9 @@ public class MenuViewImpl implements MenuView {
     private VBox createCenterSection() {
         final VBox centerBox = new VBox();
         centerBox.setAlignment(Pos.CENTER);
-        centerBox.spacingProperty().bind(stage.heightProperty().multiply(SPACING));
-        final Button newGameButton = createMenuButton("New Game", null);
-        final Button loadGameButton = createMenuButton("Load Game", null);
+        centerBox.spacingProperty().bind(this.stage.heightProperty().multiply(SPACING));
+        final Button newGameButton = createMenuButton("New Game", e -> showPlayerSetupView());
+        final Button loadGameButton = createMenuButton("Load Game", e -> showLoadGameView());
         final Button exitButton = createMenuButton("Exit", e -> controller.exitGame());
         centerBox.getChildren().addAll(newGameButton, loadGameButton, exitButton);
         return centerBox;
@@ -164,8 +155,8 @@ public class MenuViewImpl implements MenuView {
     private Button createMenuButton(final String text, final javafx.event.EventHandler<javafx.event.ActionEvent> action) {
         final Button button = new Button(text);
         button.setOnAction(action);
-        button.prefWidthProperty().bind(stage.widthProperty().multiply(BUTTON_WIDTH_PER));
-        button.prefHeightProperty().bind(stage.heightProperty().multiply(BUTTON_HEIGHT_PER));
+        button.prefWidthProperty().bind(this.stage.widthProperty().multiply(BUTTON_WIDTH_PER));
+        button.prefHeightProperty().bind(this.stage.heightProperty().multiply(BUTTON_HEIGHT_PER));
         return button;
     }
 
@@ -182,18 +173,8 @@ public class MenuViewImpl implements MenuView {
                 () -> new Insets(0, 0, stage.getHeight() * SPACING, 0),
                 stage.heightProperty()));
 
-        Arrays.stream(DEVELOPERS).forEach(dev -> creditBox.getChildren().add(createDeveloperLabel(dev)));
+        Arrays.stream(DEVELOPERS).forEach(dev -> creditBox.getChildren().add(new Label(dev)));
         return creditBox;
-    }
-
-    /**
-     * Creates label with developer name.
-     *
-     * @param developerName name of developer
-     * @return Label with developer name.
-     */
-    private Label createDeveloperLabel(final String developerName) {
-        return new Label(developerName);
     }
 
     /**
@@ -216,4 +197,30 @@ public class MenuViewImpl implements MenuView {
         alert.showAndWait();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void showPlayerSetupView() {
+        final PlayerSetupView view = new PlayerSetupViewImpl();
+        view.setController(controller);
+        view.setStage(this.stage);
+        this.stage.getScene().setRoot(view.getRoot());
+        this.stage.setTitle(TITLE + SETUP);
+    }
+
+    /**
+     * Create file picker dialog.
+     */
+    public void showLoadGameView() {
+        final FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Save Game");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("JSON file", "*.json"));
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        final File selectedFile = fileChooser.showOpenDialog(this.stage);
+        if (selectedFile != null) {
+            controller.loadGame(selectedFile);
+        }
+    }
 }
