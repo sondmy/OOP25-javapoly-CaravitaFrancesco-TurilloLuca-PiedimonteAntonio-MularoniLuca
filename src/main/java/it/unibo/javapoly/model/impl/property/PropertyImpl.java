@@ -150,7 +150,7 @@ public final class PropertyImpl implements Property {
 
         Objects.requireNonNull(ownerID);
 
-        if (!this.state.isOwnedByPlayer() || !this.state.getOwnerId().equals(ownerID)) {
+        if (!this.state.isOwnedByPlayer() || !playerIsTheOwner(ownerID)) {
             throw new IllegalStateException("player is not the owner");
         }
 
@@ -158,11 +158,7 @@ public final class PropertyImpl implements Property {
     }
 
     /**
-     * Destroy one house on this property for the provided owner.
-     * 
-     * @param ownerID the owner who wants to remove a house
-     * @return true if a house/hotel has been removed, false otherwise
-     * @throws IllegalStateException if owner is not the property's owner
+     * {@inheritDoc}
      */
     @Override
     public boolean destroyHouse(final String ownerID) {
@@ -172,7 +168,7 @@ public final class PropertyImpl implements Property {
 
         Objects.requireNonNull(ownerID);
 
-        if (!this.state.isOwnedByPlayer() || !this.state.getOwnerId().equals(ownerID)) {
+        if (!this.state.isOwnedByPlayer() || !playerIsTheOwner(ownerID)) {
             throw new IllegalStateException("player is not the owner");
         }
 
@@ -180,15 +176,11 @@ public final class PropertyImpl implements Property {
     }
 
     /**
-     * This method sells this property to {@code buyerID}.
-     * Sets {@code buyerID} as new owner only if the bank owns it.
-     *
-     * @param buyerID the player trying to buy
-     * @return true if the new owner is a player, false otherwise
+     * {@inheritDoc}
      */
     @Override
     public boolean assignOwner(final String buyerID) {
-        if (this.state.isOwnedByPlayer()) {
+        if (isOwnedByPlayer()) {
             return false;
         }
 
@@ -197,11 +189,19 @@ public final class PropertyImpl implements Property {
     }
 
     /**
-     * Clears the owner of this property and sets the bank as the new owner.
+     * {@inheritDoc}
      */
     @Override
     public void clearOwner() {
         this.state.bankIsNewOwnerID();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean playerIsTheOwner(final String playerID){
+        return this.state.getOwnerId().equals(playerID);
     }
 
     /** 

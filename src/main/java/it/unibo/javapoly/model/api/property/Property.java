@@ -117,4 +117,12 @@ public interface Property {
      * @return true if there is an owner (!= bank), false otherwise
      */
     boolean isOwnedByPlayer();
+
+    /**
+     * This method checks if playerID is the owner.
+     * The owner must be different from the bank.
+     * 
+     * @return true if there is the owner (!= bank), false otherwise
+     */
+    boolean playerIsTheOwner(final String playerID);
 }
