@@ -60,7 +60,6 @@ public final class JailedState implements PlayerState {
         if (potentialDestination < 0) {
             throw new IllegalArgumentException("Potential destination cannot be negative: " + potentialDestination);
         }
-        player.move(potentialDestination);
 
         turnsInJail++;
         System.out.println("[Prigione] Turno " + turnsInJail + " di detenzione."); // NOPMD
