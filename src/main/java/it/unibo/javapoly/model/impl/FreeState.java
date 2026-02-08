@@ -1,9 +1,8 @@
 package it.unibo.javapoly.model.impl;
 
-import java.util.Objects;
-
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.PlayerState;
+import it.unibo.javapoly.utils.ValidationUtils;
 
 /**
  * Represents the state of a player when they are free to move.
@@ -49,10 +48,8 @@ public final class FreeState implements PlayerState {
      */
     @Override
     public void playTurn(final Player player, final int potentialDestination, final boolean isDouble) {
-        Objects.requireNonNull(player, "The player cannot be null");
-        if (potentialDestination < 0) {
-            throw new IllegalArgumentException("Potential destination cannot be negative: " + potentialDestination);
-        }
+        ValidationUtils.requireNonNull(player, "The player cannot be null");
+        ValidationUtils.requireNonNegative(potentialDestination, "Potential destination cannot be negative");
         player.move(potentialDestination);
 
         // TODO try to understand if the roll of a double has to be handled in the

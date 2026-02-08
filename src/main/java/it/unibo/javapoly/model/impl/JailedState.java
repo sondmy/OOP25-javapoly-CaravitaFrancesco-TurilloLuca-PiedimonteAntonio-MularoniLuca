@@ -1,9 +1,8 @@
 package it.unibo.javapoly.model.impl;
 
-import java.util.Objects;
-
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.PlayerState;
+import it.unibo.javapoly.utils.ValidationUtils;
 
 /**
  * Represents the state of a {@link Player} when they are in jail.
@@ -56,10 +55,8 @@ public final class JailedState implements PlayerState {
      */
     @Override
     public void playTurn(final Player player, final int potentialDestination, final boolean isDouble) {
-        Objects.requireNonNull(player, "The player cannot be null");
-        if (potentialDestination < 0) {
-            throw new IllegalArgumentException("Potential destination cannot be negative: " + potentialDestination);
-        }
+        ValidationUtils.requireNonNull(player, "The player cannot be null");
+        ValidationUtils.requireNonNegative(potentialDestination, "Potential destination cannot be negative");
 
         turnsInJail++;
         System.out.println("[Prigione] Turno " + turnsInJail + " di detenzione."); // NOPMD
