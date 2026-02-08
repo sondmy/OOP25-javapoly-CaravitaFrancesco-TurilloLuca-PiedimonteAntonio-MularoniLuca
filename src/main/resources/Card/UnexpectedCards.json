@@ -84,7 +84,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 15,
-    "receiverMoney" : "BANK"
+    "receiver" : "BANK"
   },
   "keepUntilUsed" : false
 }, {
@@ -125,7 +125,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 50,
-    "receiverMoney" : "PLAYER"
+    "receiver" : "PLAYER"
   },
   "keepUntilUsed" : false
 }, {
@@ -136,7 +136,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 150,
-    "receiverMoney" : "BANK"
+    "receiver" : "BANK"
   },
   "keepUntilUsed" : false
 }, {
@@ -177,7 +177,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 200,
-    "receiverMoney" : "PLAYER"
+    "receiver" : "PLAYER"
   },
   "keepUntilUsed" : false
 }, {
@@ -188,7 +188,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 50,
-    "receiverMoney" : "BANK"
+    "receiver" : "BANK"
   },
   "keepUntilUsed" : false
 }, {
@@ -199,7 +199,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 50,
-    "receiverMoney" : "PLAYER"
+    "receiver" : "PLAYER"
   },
   "keepUntilUsed" : false
 }, {
@@ -227,7 +227,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 100,
-    "receiverMoney" : "PLAYER"
+    "receiver" : "PLAYER"
   },
   "keepUntilUsed" : false
 }, {
@@ -238,7 +238,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 100,
-    "receiverMoney" : "PLAYER"
+    "receiver" : "PLAYER"
   },
   "keepUntilUsed" : false
 }, {
@@ -249,7 +249,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 20,
-    "receiverMoney" : "PLAYER"
+    "receiver" : "PLAYER"
   },
   "keepUntilUsed" : false
 }, {
@@ -260,7 +260,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 50,
-    "receiverMoney" : "BANK"
+    "receiver" : "BANK"
   },
   "keepUntilUsed" : false
 }, {
@@ -271,7 +271,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 50,
-    "receiverMoney" : "BANK"
+    "receiver" : "BANK"
   },
   "keepUntilUsed" : false
 }, {
@@ -282,7 +282,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 10,
-    "receiverMoney" : "PLAYER"
+    "receiver" : "PLAYER"
   },
   "keepUntilUsed" : false
 }, {
@@ -293,7 +293,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 25,
-    "receiverMoney" : "PLAYER"
+    "receiver" : "PLAYER"
   },
   "keepUntilUsed" : false
 }, {
@@ -315,7 +315,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 10,
-    "receiverMoney" : "PLAYER"
+    "receiver" : "PLAYER"
   },
   "keepUntilUsed" : false
 }, {
@@ -326,7 +326,7 @@
   "payload" : {
     "type" : "PayLoadMoney",
     "amount" : 15,
-    "receiverMoney" : "BANK"
+    "receiver" : "BANK"
   },
   "keepUntilUsed" : false
 } ]
