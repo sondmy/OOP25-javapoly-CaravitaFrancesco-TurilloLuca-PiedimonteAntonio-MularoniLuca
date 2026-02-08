@@ -75,7 +75,7 @@ public class LandPropertyCard extends AbstractPropertyCard {
      */
     public int getBaseRent() {
         if (checkListIsEmpty()) {
-            throw new NoSuchElementException(ERR_LIST_IS_EMPTY);
+            throw new NoSuchElementException(this.ERR_LIST_IS_EMPTY);
         }
         return this.rents.get(0);
     }
@@ -87,7 +87,7 @@ public class LandPropertyCard extends AbstractPropertyCard {
      */
     public int getHotelRent() {
         if (checkListIsEmpty()) {
-            throw new NoSuchElementException(ERR_LIST_IS_EMPTY);
+            throw new NoSuchElementException(this.ERR_LIST_IS_EMPTY);
         }
         return this.rents.get(this.rents.size() - 1);
     }
@@ -118,7 +118,7 @@ public class LandPropertyCard extends AbstractPropertyCard {
      */
     public int getHouseRentByNumber(final int houseNumber) {
         if (checkListIsEmpty()) {
-            throw new NoSuchElementException(ERR_LIST_IS_EMPTY);
+            throw new NoSuchElementException(this.ERR_LIST_IS_EMPTY);
         }
         if (checkIsHotel(houseNumber)) {
             return getHotelRent();
@@ -134,7 +134,7 @@ public class LandPropertyCard extends AbstractPropertyCard {
     public List<Integer> getAllRent() {
         if (checkListIsEmpty()) {
             // FIXME: Valutare se restituire un errore o semplicemente restituire una lista vuota
-            throw new NoSuchElementException(ERR_LIST_IS_EMPTY);
+            throw new NoSuchElementException(this.ERR_LIST_IS_EMPTY);
         }
         return new LinkedList<>(this.rents);
     }
