@@ -181,3 +181,51 @@ p1.removeObserver(observer);
 - **Salvataggio Automatico**: Per salvare lo stato di gioco dopo ogni cambio significativo.
 
 **Nota**: Un singolo giocatore può avere più observer registrati contemporaneamente. Tutti riceveranno le notifiche nello stesso ordine di registrazione.
+
+## 7. Utility di Validazione (ValidationUtils)
+
+Il progetto include la classe `ValidationUtils` (package `it.unibo.javapoly.utils`) per standardizzare i controlli di validazione e le precondizioni.
+
+### Scopo della Classe
+
+`ValidationUtils` serve a rendere il codice più robusto e leggibile, eliminando la ripetizione dei controlli `if` manuali per le eccezioni più comuni. Fornisce metodi statici per verificare la validità degli argomenti e lanciare automaticamente le eccezioni corrette (come `IllegalArgumentException` o `NullPointerException`) in caso di errore.
+
+### Funzionalità Principali
+
+La classe supporta controlli per:
+
+- **Nullità**: `requireNonNull`
+- **Stringhe**: `requireNonBlank` (verifica che non sia null, vuota o blank)
+- **Numeri**: `requireNonNegative` (>= 0), `requirePositive` (> 0), `requireRange`, `requireAtLeast`, `requireAtMost`
+- **Collezioni**: `requireValidIndex`
+- **Uguaglianza**: `requireExpected`, `requireNotExpected`
+
+### Come Usarla
+
+I metodi di validazione restituiscono il valore passato in ingresso, permettendo di validare e assegnare una variabile in un'unica istruzione.
+
+Esempio di utilizzo:
+
+```java
+import it.unibo.javapoly.utils.ValidationUtils;
+
+public class MyClass {
+    private String owner;
+    private int balance;
+
+    public MyClass(String owner, int initialBalance) {
+        // Valida che il nome non sia vuoto e assegna
+        this.owner = ValidationUtils.requireNonBlank(owner, "Name cannot be blank");
+
+        // Valida che il bilancio iniziale non sia negativo e assegna
+        this.balance = ValidationUtils.requireNonNegative(initialBalance, "Balance cannot be negative");
+    }
+
+    public void withdraw(int amount) {
+        // Valida che l'importo sia positivo
+        ValidationUtils.requirePositive(amount, "Amount must be positive");
+
+        // ...logica prelievo...
+    }
+}
+```
