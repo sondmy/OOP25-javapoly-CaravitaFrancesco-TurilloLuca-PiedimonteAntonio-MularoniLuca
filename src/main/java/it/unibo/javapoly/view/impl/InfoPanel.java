@@ -1,8 +1,13 @@
 package it.unibo.javapoly.view.impl;
 
 import java.util.Objects;
+
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import it.unibo.javapoly.controller.api.MatchController;
 import it.unibo.javapoly.model.api.Player;
 
@@ -14,9 +19,6 @@ public class InfoPanel {
 
     private final VBox root;
     private final MatchController matchController;
-    private final Label nameLabel; //shows player name
-    private final Label balanceLabel; //shows player balance
-    private final Label positionLabel; //shows player position on the board
     
     /**
      * Constructor: creates labels and adds them to the panel.
@@ -26,15 +28,10 @@ public class InfoPanel {
     public InfoPanel(final MatchController matchController){
         this.matchController = Objects.requireNonNull(matchController);
 
-        // In JavaFX usiamo i nodi specifici, non estendiamo JPanel
-        this.root = new VBox(10); // Spaziatura verticale di 10px
-
-        this.nameLabel = new Label();
-        this.balanceLabel = new Label();
-        this.positionLabel = new Label();
-
-        // Aggiunta dei figli al contenitore radice
-        this.root.getChildren().addAll(this.nameLabel, this.balanceLabel, this.positionLabel);
+        this.root = new VBox(15); 
+        this.root.setPadding(new Insets(20));
+        this.root.setPrefWidth(280); 
+        this.root.setStyle("-fx-background-color: #EEEEEE; -fx-border-color: #CCCCCC; -fx-border-width: 0 0 0 1;");
 
         this.updateInfo();
     }
@@ -43,11 +40,45 @@ public class InfoPanel {
      * Updates the labels to show current player's info.
      */
     public void updateInfo(){
-        final Player p = this.matchController.getCurrentPlayer();
+        this.root.getChildren().clear();
+        
+        Label title = new Label("GIOCATORI");
+        title.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
+        title.setPadding(new Insets(0, 0, 10, 0));
+        this.root.getChildren().add(title);
+        
+        for (Player p : this.matchController.getPlayers()) {
+            this.root.getChildren().add(createPlayerCard(p));
+        }
+    }
 
-        this.nameLabel.setText("Giocatore: " + p.getName()); 
-        this.balanceLabel.setText("Saldo: " + p.getBalance() + "€"); 
-        this.positionLabel.setText("Posizione: " + p.getCurrentPosition()); 
+    private VBox createPlayerCard(Player p){
+        VBox card = new VBox(5);
+        card.setPadding(new Insets(12));
+
+        Label name = new Label(p.getName());
+        name.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
+
+        Label balance = new Label("Saldo: " + p.getBalance() + "€");
+        balance.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 13));
+
+        Label position = new Label("Posizione: " + p.getCurrentPosition());
+        position.setFont(Font.font("Segoe UI", FontPosture.ITALIC, 11));
+
+        card.getChildren().addAll(name, balance, position);
+
+        String style = "-fx-background-radius: 10; -fx-background-color: white; " +
+                       "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 4);";
+
+        if (p.equals(this.matchController.getCurrentPlayer())) {
+            style += "-fx-border-color: #4CAF50; -fx-border-width: 2.5; -fx-background-color: #F1F8E9;";
+            name.setText("▶ " + p.getName()); 
+        } else {
+            style += "-fx-border-color: #D3D3D3; -fx-border-width: 1;";
+        }
+
+        card.setStyle(style);
+        return card;
     }
 
     /**

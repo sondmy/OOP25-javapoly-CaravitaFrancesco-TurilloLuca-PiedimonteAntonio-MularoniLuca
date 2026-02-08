@@ -1,15 +1,17 @@
 package it.unibo.javapoly.controller.api;
 
+import java.util.List;
+
 import it.unibo.javapoly.model.api.Player;
+import it.unibo.javapoly.model.api.PlayerObserver;
 import it.unibo.javapoly.model.api.board.Board;
-import it.unibo.javapoly.model.impl.PlayerImpl;
 import it.unibo.javapoly.view.impl.MainView;
 
 /**
  * Interface representing the main controller for a Monopoly match.
  * It manages the game loop, player actions, and turn logic.
  */
-public interface MatchController {
+public interface MatchController extends PlayerObserver{
     /**
      * Starts the game, initializing the board and the first player's turn.
      */
@@ -24,7 +26,7 @@ public interface MatchController {
      * Returns the player who is currently taking their turn.
      * * @return the current {@link Player}
      */
-    PlayerImpl getCurrentPlayer();
+    Player getCurrentPlayer();
 
     /**
      * Handles the dice throwing logic, including doubles and consecutive doubles rules.
@@ -54,4 +56,8 @@ public interface MatchController {
     boolean canCurrentPlayerRoll();
 
     MainView getMainView();
+
+    List<Player> getPlayers();
+
+    void payToExitJail();
 }

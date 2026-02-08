@@ -9,6 +9,7 @@ import it.unibo.javapoly.model.api.TokenType;
 import it.unibo.javapoly.model.api.board.Board;
 import it.unibo.javapoly.model.api.board.Tile;
 import it.unibo.javapoly.model.api.economy.Bank;
+import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.impl.PlayerImpl;
 import it.unibo.javapoly.model.impl.board.BoardImpl;
 import it.unibo.javapoly.model.impl.economy.BankImpl;
@@ -33,7 +34,7 @@ public final class App extends Application{
         }
         Board board = new BoardImpl(tiles); 
         Bank bank = new BankImpl();   
-        List<PlayerImpl> players = List.of(
+        List<Player> players = List.of(
             new PlayerImpl("Gigi", 1500, TokenType.CAR),
             new PlayerImpl("Mario", 1500, TokenType.DOG)
         );
