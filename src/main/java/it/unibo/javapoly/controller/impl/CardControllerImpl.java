@@ -1,6 +1,7 @@
 package it.unibo.javapoly.controller.impl;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,37 +31,37 @@ import it.unibo.javapoly.utils.CardLoader;
  */
 public class CardControllerImpl implements CardController {
 
-    final static String BANK_REC = "BANK";
-    final static String PATH_CARD = "src/main/resources/Card/UnexpectedCards.json";
+    private static final String BANK_REC = "BANK";
+    private static final String PATH_CARD = "src/main/resources/Card/UnexpectedCards.json";
+
+    private static final Logger LOGGER = Logger.getLogger(CardController.class.getName());
 
     private final CardDeck cardDeck;
     private final BoardController boardController;
-    private final PropertyController PropertyController;
+    private final PropertyController propertyController;
     private final EconomyController bank;
 
     /**
      * Constructs a new CardControllerImpl.
      *
-     * @param cardDeck the deck of game cards
-     * @param boardController the board controller for movement operations
      * @param bank the bank instance for money transactions
+     * @param boardController the board controller for movement operations
+     * @param propertyController the property controller for property-related actions
      */
-    public CardControllerImpl(final EconomyController bank, final BoardController bc, 
-                              final PropertyController pc) {
-        this.boardController = bc;
+    public CardControllerImpl(final EconomyController bank, final BoardController boardController, 
+                              final PropertyController propertyController) {
+        this.boardController = boardController;
         this.bank = bank;
-        this.PropertyController = pc;
+        this.propertyController = propertyController;
 
         List<GameCard> cardsList = new ArrayList<>();
-        try{
+        try {
             cardsList = loadCardDeck();
-        }
-        catch (IOException exc){
-            System.err.println(exc);
+        } catch (final IOException exc) {
+            LOGGER.severe("Error loading Cards: " + exc.getMessage());
         }
 
         this.cardDeck = new CardDeckImpl(cardsList);
-
     }
 
     /**
@@ -77,11 +78,11 @@ public class CardControllerImpl implements CardController {
     @Override
     public void executeCardEffect(final Player player, final GameCard card, 
                                   final int diceRoll) {
-        final CardPayload payload = card.getPayload();
-
-        if (card.isKeepUntilUsed()){
+        if (card.isKeepUntilUsed()) {
             return;
         }
+
+        final CardPayload payload = card.getPayload();
 
         if (payload instanceof MoneyPayload) {
             handleMoneyPayload(player, (MoneyPayload) payload);
@@ -95,12 +96,8 @@ public class CardControllerImpl implements CardController {
             handleMoneyPerBuilding(player, (BuildingPayload) payload);
         }
 
-        if (CardType.GO_TO_JAIL.equals(card.getType())) {
-
-            if (!useGetOutOfJailFreeCard(player.getName())) {
-                boardController.sendPlayerToJail(player);
-            }
-            
+        if (CardType.GO_TO_JAIL == card.getType() && !useGetOutOfJailFreeCard(player.getName())) {
+            boardController.sendPlayerToJail(player);
         }
     }
 
@@ -109,10 +106,7 @@ public class CardControllerImpl implements CardController {
      */
     @Override
     public boolean useGetOutOfJailFreeCard(final String playerId) {
-        if (this.cardDeck.discardByType(CardType.GET_OUT_OF_JAIL_FREE, playerId)) {
-            return true;
-        }
-        return false;
+        return this.cardDeck.discardByType(CardType.GET_OUT_OF_JAIL_FREE, playerId);
     }
 
     /**
@@ -122,14 +116,12 @@ public class CardControllerImpl implements CardController {
      * @param payload the money payload
      */
     private void handleMoneyPayload(final Player player, final MoneyPayload payload) {
-        
-        if (this.BANK_REC.equals(payload.getReceiverMoney())){
+        if (this.BANK_REC.equals(payload.getReceiverMoney())) {
             this.bank.withdrawFromPlayer(player, payload.getAmount());
             return;
         }
 
         this.bank.depositToPlayer(player, payload.getAmount());
-
     }
 
     /**
@@ -137,15 +129,14 @@ public class CardControllerImpl implements CardController {
      *
      * @param player the player
      * @param payload the move-to payload
+     * @param diceRoll the dice roll value
      */
     private void handleMoveToPayload(final Player player, 
                                      final MoveToPayload payload,
                                      final int diceRoll) {
-
         final int position = payload.getTargetPosition();
         final Tile tile = boardController.movePlayerToTile(player, position);
         this.boardController.executeTileLogic(player, tile, diceRoll);
-
     }
 
     /**
@@ -153,6 +144,7 @@ public class CardControllerImpl implements CardController {
      *
      * @param player the player
      * @param payload the move-relative payload
+     * @param diceRoll the dice roll value
      */
     private void handleMoveRelativePayload(final Player player, 
                                            final MoveRelativePayload payload,
@@ -160,7 +152,6 @@ public class CardControllerImpl implements CardController {
         final int steps = payload.getDelta();
         final Tile tile = boardController.movePlayer(player, steps);
         this.boardController.executeTileLogic(player, tile, diceRoll);
-
     }
 
     /**
@@ -168,42 +159,39 @@ public class CardControllerImpl implements CardController {
      *
      * @param player the player
      * @param payload the move-to-nearest payload
-     * @param diceRoll the current dice roll (for utility rent calculation)
+     * @param diceRoll the dice roll value (for utility rent calculation)
      */
     private void handleMoveToNearestPayload(final Player player, final MoveToNearestPayload payload, 
-                                           final int diceRoll) {
+                                            final int diceRoll) {
         final TileType type = payload.getCategory();
         final Tile tile = boardController.movePlayerToNearestTileOfType(player, type);
         this.boardController.executeTileLogic(player, tile, diceRoll);
     }
 
-        /**
-     * Handles "move to nearest" card effects (go to nearest station/utility).
+    /**
+     * Handles "money per building" card effects (earn money for houses/hotels).
      *
      * @param player the player
-     * @param payload the move-to-nearest payload
-     * @param diceRoll the current dice roll (for utility rent calculation)
+     * @param payload the building payload
      */
     private void handleMoneyPerBuilding(final Player player, final BuildingPayload payload) {
-
-        final List<Property> list = this.PropertyController.getPropertiesWithHouseByOwner(player);
+        final List<Property> list = this.propertyController.getPropertiesWithHouseByOwner(player);
 
         int amount = 0;
-
         for (final Property property : list) {
-            amount += property.hotelIsBuilt() ? payload.getMoltiplierHotel() : property.getBuiltHouses() * payload.getMoltiplierHouse();
+            final int taxHouse = property.getBuiltHouses() * payload.getMoltiplierHouse();
+            amount += property.hotelIsBuilt() ? payload.getMoltiplierHotel() : taxHouse;
         }
 
         handleMoneyPayload(player, new MoneyPayload(amount, BANK_REC));
     }
 
-    private List<GameCard> loadCardDeck() throws IOException{
+    private List<GameCard> loadCardDeck() throws IOException {
         try {
-            return CardLoader.loadCardsFromFile(this.PATH_CARD);            
-        } catch (IOException e) {
-            e.printStackTrace();
+            return CardLoader.loadCardsFromFile(this.PATH_CARD);
+        } catch (final IOException e) {
+            LOGGER.severe("Error loading Cards: " + e.getMessage());
+            throw new IOException(e);
         }
-
-        throw new IOException("Qualcosa è andato storto nel caricamento");
     }
 }

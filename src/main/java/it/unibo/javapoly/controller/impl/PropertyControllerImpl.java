@@ -28,7 +28,7 @@ public class PropertyControllerImpl implements PropertyController {
      * @param properties map of all properties in the game (propertyId -> Property)
      */
     public PropertyControllerImpl(final Map<String, Property> properties) {
-        this.properties = properties;
+        this.properties = new HashMap<>(properties);
         this.propertyOwners = new HashMap<>();
     }
 
@@ -38,14 +38,14 @@ public class PropertyControllerImpl implements PropertyController {
     @Override
     public boolean purchaseProperty(final Player player, final String propertyId) {
         final Property property = properties.get(propertyId);
-        
+
         if (property == null) {
             return false;
         }
 
         this.properties.get(propertyId).assignOwner(player.getName());
         propertyOwners.put(propertyId, player);
-        
+
         return true;
     }
 
@@ -62,9 +62,8 @@ public class PropertyControllerImpl implements PropertyController {
         }
 
         final RentContext context = createRentContext(payer, diceRoll, property);
-        final int rent = property.getRent(context);
 
-        return rent;
+        return property.getRent(context);
     }
 
     /**
@@ -73,13 +72,13 @@ public class PropertyControllerImpl implements PropertyController {
     @Override
     public List<Property> getOwnedProperties(final String playerId) {
         final List<Property> owned = new ArrayList<>();
-        
-        for (String id : propertyOwners.keySet()) {
-            if(this.propertyOwners.get(id).getName().equals(playerId)){
-                owned.add(this.properties.get(id));
+
+        for (final Map.Entry<String, Player> entry : propertyOwners.entrySet()) {
+            if (entry.getValue().getName().equals(playerId)) {
+                owned.add(this.properties.get(entry.getKey()));
             }
         }
-        
+
         return owned;
     }
 
@@ -88,19 +87,18 @@ public class PropertyControllerImpl implements PropertyController {
      */
     @Override
     public boolean buildHouse(final Player playerId, final String propertyId) {
-
         final Property property = properties.get(propertyId);
 
-        if (!ownsCompleteGroup(playerId.getName(), property.getPropertyGroup())){
+        if (!ownsCompleteGroup(playerId.getName(), property.getPropertyGroup())) {
             return false;
         }
 
-        for (Property prop : getPropertiesInGroup(property.getPropertyGroup())) {
-            if(property.getBuiltHouses() >= prop.getBuiltHouses()+1){
+        for (final Property prop : getPropertiesInGroup(property.getPropertyGroup())) {
+            if (property.getBuiltHouses() >= prop.getBuiltHouses() + 1) {
                 return false;
             }
         }
-        
+
         return property.buildHouse(playerId.getName());
     }
 
@@ -110,13 +108,13 @@ public class PropertyControllerImpl implements PropertyController {
     @Override
     public List<Property> getPropertiesWithHouseByOwner(final Player owner) {
         Objects.requireNonNull(owner);
-        final List<Property> properties = getOwnedProperties(owner.getName());
-        for (final Property property : properties) {
+        final List<Property> propertyList = getOwnedProperties(owner.getName());
+        for (final Property property : propertyList) {
             if (property.getState().getHouses() == 0) {
-                properties.remove(property);
+                propertyList.remove(property);
             }
         }
-        return properties;
+        return propertyList;
     }
 
     /**
@@ -132,71 +130,51 @@ public class PropertyControllerImpl implements PropertyController {
     /**
      * {@inheritDoc}
      */
-	@Override
-	public boolean destroydHouse(final Player player, final String propertyId) {        
+    @Override
+    public boolean destroyHouse(final Player player, final String propertyId) {
         return properties.get(propertyId).destroyHouse(player.getName());
     }
 
     /**
      * {@inheritDoc}
      */
-	@Override
-	public boolean checkPayRent(Player player, String propertyId) {
-		if(!this.properties.get(propertyId).isOwnedByPlayer()){
-            return false;
-        }
-
-        if (this.properties.get(propertyId).playerIsTheOwner(player.getName())){
-            return false;
-        }
-
-        return true;
-	}
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public void removeAllPropertyByPlayer(final Player owner) {
-        Objects.requireNonNull(owner);
-        final List<Property> properties = getOwnedProperties(owner.getName());
-        for (final Property property : properties) {
-            returnPropertyToBank(property);
-        }
+    public boolean checkPayRent(final Player player, final String propertyId) {
+        return this.properties.get(propertyId).isOwnedByPlayer()
+        && this.properties.get(propertyId).playerIsTheOwner(player.getName());
     }
 
-    
     /**
      * {@inheritDoc}
      */
     @Override
-    public int getHouseCost(final Property property){
-        if (!(property.getCard() instanceof LandPropertyCard)){
+    public int getHouseCost(final Property property) {
+        if (!(property.getCard() instanceof LandPropertyCard)) {
             return -1;
         }
 
         final LandPropertyCard card = (LandPropertyCard) property.getCard();
         return card.getHouseCost();
     }
+
     //#region Private Method
 
     /**
      * Checks if a player owns all properties in a group (monopoly).
-     *  
-     * @param player the player
+     *
+     * @param playerId the player
      * @param group the property group to check
      * @return true if the player owns all properties in the group
      */
     private boolean ownsCompleteGroup(final String playerId, final PropertyGroup group) {
-
         final List<Property> groupProperties = getPropertiesInGroup(group);
-        
+
         for (final Property property : groupProperties) {
             if (!propertyOwners.get(property.getId()).getName().equals(playerId)) {
                 return false;
             }
         }
-        
+
         return !groupProperties.isEmpty();
     }
 
@@ -208,17 +186,17 @@ public class PropertyControllerImpl implements PropertyController {
      */
     private List<Property> getPropertiesInGroup(final PropertyGroup group) {
         final List<Property> groupProperties = new ArrayList<>();
-        
+
         for (final Property property : properties.values()) {
             if (property.getPropertyGroup() == group) {
                 groupProperties.add(property);
             }
         }
-        
+
         return groupProperties;
     }
 
-    private int getNumOwnedPropertyByGroup(final PropertyGroup group, final String playerId){
+    private int getNumOwnedPropertyByGroup(final PropertyGroup group, final String playerId) {
         final List<Property> groupProperties = getPropertiesInGroup(group);
 
         int i = 0;
@@ -235,26 +213,25 @@ public class PropertyControllerImpl implements PropertyController {
     /**
      * Creates a RentContext for calculating rent.
      *
-     * @param ownerId the ID of the property owner
+     * @param owner the ID of the property owner
      * @param diceRoll the current dice roll
+     * @param prop the property where we need to take the context
      * @return a RentContext with all necessary information
      */
-    private RentContext createRentContext(final Player ownerId, final int diceRoll, final Property prop ) {
+    private RentContext createRentContext(final Player owner, final int diceRoll, final Property prop) {
+        final int numGroup;
 
-        int numGroup;
-        
-        if (prop.getPropertyGroup() == PropertyGroup.UTILITY){
-            numGroup = getNumOwnedPropertyByGroup(PropertyGroup.UTILITY, ownerId.getName());
+        if (prop.getPropertyGroup() == PropertyGroup.UTILITY) {
+            numGroup = getNumOwnedPropertyByGroup(PropertyGroup.UTILITY, owner.getName());
             return RentContext.forUtilities(diceRoll, numGroup);
         }
 
-        if (prop.getPropertyGroup() == PropertyGroup.RAILROAD){
-            numGroup = getNumOwnedPropertyByGroup(PropertyGroup.RAILROAD, ownerId.getName());
+        if (prop.getPropertyGroup() == PropertyGroup.RAILROAD) {
+            numGroup = getNumOwnedPropertyByGroup(PropertyGroup.RAILROAD, owner.getName());
             return RentContext.forStation(numGroup);
         }
 
-        return RentContext.forLand(prop.getBuiltHouses(), ownsCompleteGroup(ownerId.getName(), prop.getPropertyGroup()));
-
+        return RentContext.forLand(prop.getBuiltHouses(), ownsCompleteGroup(owner.getName(), prop.getPropertyGroup()));
     }
 
     //#endregion

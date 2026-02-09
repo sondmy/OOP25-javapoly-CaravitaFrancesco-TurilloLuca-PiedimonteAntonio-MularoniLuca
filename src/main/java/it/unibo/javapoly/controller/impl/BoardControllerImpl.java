@@ -25,27 +25,24 @@ public class BoardControllerImpl implements BoardController {
     private static final int JAIL_POSITION = 10;
 
     private final Board board;
-
-    private final PropertyController PropertyController;
+    private final PropertyController propertyController;
     private final EconomyController bank;
-    private final CardController CardController;
+    private final CardController cardController;
 
     /**
      * Constructs a new BoardControllerImpl.
      *
      * @param board the game board
      * @param bank the bank instance for handling transactions
-     * @param pc the property controller for handling tile property
-     * 
+     * @param propertyController the property controller for handling tile properties
      */
     public BoardControllerImpl(final Board board, 
                                final EconomyController bank,
-                               final PropertyController pc) {
+                               final PropertyController propertyController) {
         this.board = board;
         this.bank = bank;
-
-        this.PropertyController = pc;
-        this.CardController = new CardControllerImpl(bank, this, this.PropertyController);
+        this.propertyController = propertyController;
+        this.cardController = new CardControllerImpl(bank, this, this.propertyController);
     }
 
     /**
@@ -67,18 +64,16 @@ public class BoardControllerImpl implements BoardController {
      * {@inheritDoc}
      */
     @Override
-    public Tile movePlayerToTile(final Player player, int targetPos) {
-        final int currentPos = player.getCurrentPosition();
-
+    public Tile movePlayerToTile(final Player player, final int targetPos) {
         if (targetPos == -1) {
             throw new IllegalArgumentException("Tile with pos " + targetPos + " not found");
         }
 
-        /* It also check if the steps is > 12 and destination is JAIL_POSITION, 
-        this means that the player is going to jail as a prisoner */
-        if (passedThroughGo(currentPos, targetPos) && 
-           (targetPos + (this.BOARD_SIZE- player.getCurrentPosition()) < this.MAX_DICE) &&
-           (targetPos != this.JAIL_POSITION)) {
+        final int currentPos = player.getCurrentPosition();
+
+        if (passedThroughGo(currentPos, targetPos) 
+           && targetPos + this.BOARD_SIZE - currentPos < this.MAX_DICE
+           && targetPos != this.JAIL_POSITION) {
             awardGoBonus(player);
         }
 
@@ -89,7 +84,7 @@ public class BoardControllerImpl implements BoardController {
      * {@inheritDoc}
      */
     @Override
-    public Tile movePlayerToNearestTileOfType(final Player player, TileType tileType) {
+    public Tile movePlayerToNearestTileOfType(final Player player, final TileType tileType) {
         final int currentPos = player.getCurrentPosition();
         final int nearestPos = findNearestTileOfType(currentPos, tileType);
 
@@ -109,10 +104,9 @@ public class BoardControllerImpl implements BoardController {
      */
     @Override
     public void executeTileLogic(final Player player, final Tile tile, final int diceRoll) {
-
         switch (tile.getType()) {
             case TAX:
-                if (tile instanceof TaxTile){
+                if (tile instanceof TaxTile) {
                     final TaxTile tax = (TaxTile) tile;
                     this.bank.withdrawFromPlayer(player, tax.getAmountTax());
                 }
@@ -121,29 +115,22 @@ public class BoardControllerImpl implements BoardController {
                 sendPlayerToJail(player);
                 return;
             case UNEXPECTED:
-                this.CardController.executeCardEffect(player, this.CardController.drawCard(player.getName()), BOARD_SIZE);;
+                this.cardController.executeCardEffect(player, this.cardController.drawCard(player.getName()), BOARD_SIZE);
                 break;
             case PROPERTY:
             case RAILROAD:
             case UTILITY:
-                if (tile instanceof PropertyTile){
-                    PropertyTile prop = (PropertyTile) tile;
+                if (tile instanceof PropertyTile) {
+                    final PropertyTile prop = (PropertyTile) tile;
 
-                    if (this.PropertyController.checkPayRent(player, prop.getPropertyID())){
-                        this.bank.payRent(player.getName(), prop.getProperty().getIdOwner() , diceRoll);
+                    if (this.propertyController.checkPayRent(player, prop.getPropertyID())) {
+                        this.bank.payRent(player.getName(), prop.getProperty().getIdOwner(), diceRoll);
                     }
                 }
-            
                 break;
-            // case START:
-            // case FREE_PARKING:
-            // case JAIL:
-                // break;
             default:
                 break;
         }
-
-
     }
 
     /**
@@ -167,7 +154,7 @@ public class BoardControllerImpl implements BoardController {
      * Awards the "Go" bonus to a player.
      * Uses the bank to transfer money.
      *
-     * @param playerId the ID of the player receiving the bonus
+     * @param player the player receiving the bonus
      */
     private void awardGoBonus(final Player player) {
         this.bank.depositToPlayer(player, this.GO_BONUS);
@@ -186,7 +173,7 @@ public class BoardControllerImpl implements BoardController {
         for (int offset = 1; offset < BOARD_SIZE; offset++) {
             final int pos = this.board.normalizePosition(startPos + offset);
             final Tile tile = board.getTileAt(pos);
-            
+
             if (matchesTileType(tile, tileType)) {
                 return pos;
             }
@@ -202,15 +189,8 @@ public class BoardControllerImpl implements BoardController {
      * @return true if the tile matches the type
      */
     private boolean matchesTileType(final Tile tile, final TileType tileType) {
-        // Gestisce sia TileType enum che stringhe come "STATION", "UTILITY"
-        
-        if (tile.getType() == TileType.RAILROAD && tileType.equals(tile.getType())) {
-            return true;
-        }
-        if (tile.getType() == TileType.UTILITY && tileType.equals(tile.getType())) {
-            return true;
-        }
-        
-        return tile.getType().equals(tileType);
+        return tile.getType() == tileType
+           || tile.getType() == TileType.RAILROAD 
+           || tile.getType() == TileType.UTILITY;
     }
 }

@@ -4,7 +4,6 @@ import it.unibo.javapoly.model.api.player.Player;
 import it.unibo.javapoly.model.api.property.Property;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controller responsible for managing property transactions and rent calculations.
@@ -23,7 +22,7 @@ public interface PropertyController {
     /**
      * Calculates and processes the rent payment when a player lands on an owned property.
      * 
-     * @param tenantId the ID of the player who must pay rent
+     * @param payer the ID of the player who must pay rent
      * @param propertyId the ID of the property landed on
      * @param diceRoll the current dice roll (needed for utilities)
      * @return the amount of rent paid
@@ -54,7 +53,7 @@ public interface PropertyController {
      * @param propertyId the ID of the property
      * @return true if the house was successfully built
      */
-    boolean destroydHouse(Player player, String propertyId);
+    boolean destroyHouse(Player player, String propertyId);
 
     /**
      * Is invoked by BoardController and check if he need to pay the rent.
@@ -75,13 +74,6 @@ public interface PropertyController {
      * @param property the property to return.
      */
     void returnPropertyToBank(Property property);
-
-    /**
-     * Returns all property to the bank.
-     *
-     * @param player the player whose properties will be removed.
-     */
-    void removeAllPropertyByPlayer(Player player);
 
     /**
      * Retrieves all properties owned by a specific player with house built on.
