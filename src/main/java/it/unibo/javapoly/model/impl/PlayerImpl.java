@@ -2,13 +2,13 @@ package it.unibo.javapoly.model.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.PlayerObserver;
 import it.unibo.javapoly.model.api.PlayerState;
 import it.unibo.javapoly.model.api.Token;
 import it.unibo.javapoly.model.api.TokenType;
+import it.unibo.javapoly.utils.ValidationUtils;
 
 /**
  * Concrete implementation of the {@link Player} interface.
@@ -109,14 +109,10 @@ public class PlayerImpl implements Player {
      * @see TokenFactory
      */
     public PlayerImpl(final String name, final int initialBalance, final TokenType tokenType) {
-        Objects.requireNonNull(name, "Name cannot be null");
-        Objects.requireNonNull(tokenType, "Token type cannot be null");
-        if (name.isBlank()) {
-            throw new IllegalArgumentException("Name cannot be blank");
-        }
-        if (initialBalance < 0) {
-            throw new IllegalArgumentException("Initial balance cannot be negative: " + initialBalance);
-        }
+        ValidationUtils.requireNonNull(name, "Name cannot be null");
+        ValidationUtils.requireNonNull(tokenType, "Token type cannot be null");
+        ValidationUtils.requireNonBlank(name, "Name cannot be blank");
+        ValidationUtils.requireNonNegative(initialBalance, "Initial balance cannot be negative");
 
         this.name = name;
         this.balance = initialBalance;
@@ -130,9 +126,7 @@ public class PlayerImpl implements Player {
      */
     @Override
     public void playTurn(final int potentialDestination, final boolean isDouble) {
-        if (potentialDestination < 0) {
-            throw new IllegalArgumentException("Potential destination cannot be negative: " + potentialDestination);
-        }
+        ValidationUtils.requireNonNegative(potentialDestination, "Potential destination cannot be negative");
         this.currentState.playTurn(this, potentialDestination, isDouble);
     }
 
@@ -141,9 +135,7 @@ public class PlayerImpl implements Player {
      */
     @Override
     public void move(final int newPosition) {
-        if (newPosition < 0) {
-            throw new IllegalArgumentException("The position cannot be negative: " + newPosition);
-        }
+        ValidationUtils.requireNonNegative(newPosition, "The position cannot be negative");
 
         final int oldPos = this.currentPosition;
         this.currentPosition = newPosition;
@@ -160,10 +152,7 @@ public class PlayerImpl implements Player {
      */
     @Override
     public boolean tryToPay(final int amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("You cannot pay a negative amount: " + amount);
-        }
-
+        ValidationUtils.requireNonNegative(amount, "You cannot pay a negative amount");
         if (this.balance >= amount) {
             this.balance -= amount;
             notifyBalanceChanged(this.balance);
@@ -177,9 +166,7 @@ public class PlayerImpl implements Player {
      */
     @Override
     public void receiveMoney(final int amount) {
-        if (amount < 0) {
-            throw new IllegalArgumentException("You cannot receive a negative amount: " + amount);
-        }
+        ValidationUtils.requireNonNegative(amount, "You cannot receive a negative amount");
 
         this.balance += amount;
         notifyBalanceChanged(this.balance);
@@ -192,7 +179,7 @@ public class PlayerImpl implements Player {
      */
     @Override
     public void addObserver(final PlayerObserver observer) {
-        this.observers.add(Objects.requireNonNull(observer, "Observer cannot be null"));
+        this.observers.add(ValidationUtils.requireNonNull(observer, "Observer cannot be null"));
     }
 
     /**
@@ -200,7 +187,7 @@ public class PlayerImpl implements Player {
      */
     @Override
     public void removeObserver(final PlayerObserver observer) {
-        this.observers.remove(Objects.requireNonNull(observer, "Observer cannot be null"));
+        this.observers.remove(ValidationUtils.requireNonNull(observer, "Observer cannot be null"));
     }
 
     /**
@@ -286,7 +273,7 @@ public class PlayerImpl implements Player {
     @Override
     public void setState(final PlayerState state) {
         final PlayerState oldState = this.currentState;
-        this.currentState = Objects.requireNonNull(state, "State cannot be null");
+        this.currentState = ValidationUtils.requireNonNull(state, "State cannot be null");
         if (!oldState.getClass().equals(state.getClass())) {
             notifyStateChanged(oldState, state);
         }
