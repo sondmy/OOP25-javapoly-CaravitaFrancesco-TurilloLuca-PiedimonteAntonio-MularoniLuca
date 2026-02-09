@@ -15,7 +15,6 @@ import it.unibo.javapoly.model.api.PlayerState;
 import it.unibo.javapoly.model.api.board.Board;
 import it.unibo.javapoly.model.api.board.Tile;
 import it.unibo.javapoly.model.api.board.TileType;
-import it.unibo.javapoly.model.api.economy.Bank;
 import it.unibo.javapoly.model.api.property.Property;
 import it.unibo.javapoly.model.impl.DiceImpl;
 import it.unibo.javapoly.model.impl.DiceThrow;
@@ -36,8 +35,7 @@ public class MatchControllerImpl implements MatchController {
     
     private final List<Player> players;  
     private final DiceThrow diceThrow;
-    private final Board gameBoard;
-    private final Bank bank;     
+    private final Board gameBoard;    
     private final MainView gui;
     private final Map<Player, Integer> jailTurnCounter = new HashMap<>();
 
@@ -46,7 +44,7 @@ public class MatchControllerImpl implements MatchController {
 
     private int currentPlayerIndex;
     private int consecutiveDoubles;
-
+    private int lastDiceResult;
     private boolean hasRolled = false;
 
     /**
@@ -71,23 +69,8 @@ public class MatchControllerImpl implements MatchController {
         }
     }
 
-    //for test
-    public MatchControllerImpl(final List<Player> players, final Board gameBoard, final Bank bank, final MainView gui) {
-        this.players = List.copyOf(players);
-        this.gameBoard = Objects.requireNonNull(gameBoard);
-        this.bank = Objects.requireNonNull(bank);
-        this.diceThrow = new DiceThrow(new DiceImpl(), new DiceImpl());
-        this.gui = gui;
-        this.currentPlayerIndex = 0;
-        this.consecutiveDoubles = 0;
-
-        for (Player p : this.players) {
-            p.addObserver(this); 
-        }
-    }
-
     public MatchControllerImpl(final List<Player> players){
-        this(players, new BoardImpl(new ArrayList<>()), new EconomyControllerImpl(new ArrayList<>()), new PropertyControllerImpl(new HashMap<>()));
+        this(players, new BoardImpl(new ArrayList<>()), new EconomyControllerImpl(), new PropertyControllerImpl(new HashMap<>()));
     }
 
     /**
@@ -122,14 +105,6 @@ public class MatchControllerImpl implements MatchController {
     }
 
     /**
-     * Returns the current player whose turn it is.
-     */
-    @Override
-    public Player getCurrentPlayer() {
-        return this.players.get(this.currentPlayerIndex);
-    }
-
-    /**
      * Handles the logic when the current player throws the dice.
      */
     @Override
@@ -139,18 +114,18 @@ public class MatchControllerImpl implements MatchController {
         }
 
         final Player currentPlayer = getCurrentPlayer();
-        final int steps = diceThrow.throwAll();
+        this.lastDiceResult = diceThrow.throwAll();
         final boolean isDouble = diceThrow.isDouble();
 
         if(currentPlayer.getState() instanceof JailedState){
             int turns = jailTurnCounter.getOrDefault(currentPlayer, 0);
             if(isDouble){
-                updateGui(g -> g.addLog(currentPlayer.getName() + " esce col DOPPIO (" + steps + ")!"));
+                updateGui(g -> g.addLog(currentPlayer.getName() + " esce col DOPPIO (" + this.lastDiceResult + ")!"));
                 currentPlayer.setState(FreeState.getInstance());
                 jailTurnCounter.remove(currentPlayer);
             }else if(turns >= 2){
                 updateGui(g -> g.addLog(currentPlayer.getName() + " fallisce il 3° tentativo. Paga 50€ ed esce!"));
-                economyController.getBank().withdraw(currentPlayer, JAIL_EXIT_FEE);
+                economyController.withdrawFromPlayer(currentPlayer, JAIL_EXIT_FEE);
                 currentPlayer.setState(FreeState.getInstance());
                 jailTurnCounter.remove(currentPlayer);
             }else{
@@ -161,7 +136,7 @@ public class MatchControllerImpl implements MatchController {
                 }
             }
 
-        updateGui(g -> g.addLog(currentPlayer.getName() + " lancia: " + steps + (isDouble ? " (DOPPIO!)" : "")));
+        updateGui(g -> g.addLog(currentPlayer.getName() + " lancia: " + this.lastDiceResult + (isDouble ? " (DOPPIO!)" : "")));
         
         if(isDouble && !(currentPlayer.getState() instanceof JailedState)){
             this.consecutiveDoubles++;
@@ -176,17 +151,9 @@ public class MatchControllerImpl implements MatchController {
             this.hasRolled = true;
         }
 
-        int potentialPos = gameBoard.normalizePosition(currentPlayer.getCurrentPosition() + steps);
+        int potentialPos = gameBoard.normalizePosition(currentPlayer.getCurrentPosition() + this.lastDiceResult);
         currentPlayer.playTurn(potentialPos, isDouble);
     }
-
-    /* 
-    @Override
-    public List<Player> getPlayers() {
-        // Restituisci la lista di giocatori che hai creato all'inizio
-        return this.players; 
-    }
-    */
 
     /**
      * Moves the current player by 'steps' spaces on the board.
@@ -219,47 +186,82 @@ public class MatchControllerImpl implements MatchController {
     @Override
     public void handlePropertyLanding() {
         final Player currentPlayer = getCurrentPlayer();
+        final Tile currentTile = gameBoard.getTileAt(currentPlayer.getCurrentPosition());
         if(currentTile.getType() == TileType.PROPERTY || currentTile.getType() == TileType.RAILROAD || currentTile.getType() == TileType.UTILITY){
             Property prop = (Property) currentTile;
-            if
-        }
-    }
-
-    /**
-     * Returns the game board.
-     */
-    public Board getBoard() {
-        return this.gameBoard;
-    }
-
-    //descrizione da inserire
-    public boolean canCurrentPlayerRoll() {
-        return !hasRolled;
-    }
-
-    @Override
-    public MainView getMainView() {
-        return this.gui;
-    }
-
-    private void updateGui(Consumer<MainView> action) {
-        if (this.gui != null) {
-            action.accept(this.gui);
+            if(propertyController.checkPayRent(currentPlayer, prop.getId())){
+                economyController.payRent(currentPlayer, prop.getIdOwner(), prop, this.lastDiceResult);
+                updateGui(g -> g.addLog(currentPlayer.getName() + " ha pagato l'affitto su " + prop.getId()));
+            }
+        }else if(currentTile.getType() == TileType.TAX){
+            int tax = (currentPlayer.getCurrentPosition() == 4) ? 200 : 100;
+            economyController.withdrawFromPlayer(currentPlayer, tax);
+            updateGui(g -> g.addLog(currentPlayer.getName() + " paga tassa di " + tax + "€"));
+        }else if(currentTile.getType() == TileType.GO_TO_JAIL){
+            handlePrison();
         }
     }
 
     @Override
     public void onPlayerMoved(Player player, int oldPosition, int newPosition) {
         if(newPosition < oldPosition && newPosition != 10){
-            bank.deposit(player, 200);
+            economyController.depositToPlayer(player, GO_SALARY);
             updateGui(g -> g.addLog(player.getName() + " è passato dal VIA! +200€"));
         }
         updateGui(g -> {
             g.refreshAll();
-            g.addLog(player.getName() + " si è spostato sulla casella " + newPosition);
+            g.addLog(player.getName() + " si è spostato sulla casella " + gameBoard.getTileAt(newPosition).getName());
         });
 
         handlePropertyLanding();
+    }
+
+    @Override
+    public void payToExitJail() {
+        Player p = getCurrentPlayer();
+        if(p.getState() instanceof JailedState && economyController.withdrawFromPlayer(p, JAIL_EXIT_FEE)){
+            p.setState(FreeState.getInstance());
+            jailTurnCounter.remove(p);
+            updateGui(g -> {
+                g.addLog(p.getName() + " paga 50€ ed è libero!");
+                g.refreshAll();
+            });
+        }
+    }
+
+    public EconomyController getEconomyController() {
+        return this.economyController;
+    }
+
+    public PropertyController getPropertyController() {
+        return this.propertyController;
+    }
+
+    @Override
+    public List<Player> getPlayers(){
+        return this.players;
+    }
+
+    @Override
+    public Player getCurrentPlayer() {
+        return this.players.get(this.currentPlayerIndex);
+    }
+
+    @Override
+    public Board getBoard(){
+        return this.gameBoard;
+    }
+    @Override
+    public MainView getMainView(){
+        return this.gui;
+    }
+
+    public boolean canCurrentPlayerRoll(){ 
+        return !hasRolled; 
+    }
+
+    private void updateGui(Consumer<MainView> action) {
+        if (this.gui != null) action.accept(this.gui);
     }
 
     @Override
@@ -273,28 +275,5 @@ public class MatchControllerImpl implements MatchController {
             g.addLog(player.getName() + " ora è in stato: " + newState.getClass().getSimpleName());
             g.refreshAll();;
         });
-    }
-
-    @Override
-    public void payToExitJail() {
-        Player p = getCurrentPlayer();
-        if(p.getState() instanceof JailedState){
-            if(p.tryToPay(50)){
-                p.setState(FreeState.getInstance());
-                jailTurnCounter.remove(p);
-                updateGui(g -> {
-                    g.addLog(p.getName() + " paga 50€ ed è libero!");
-                    g.refreshAll();
-                });
-            }
-        }
-    }
-
-    public EconomyController getEconomyController() {
-        return this.economyController;
-    }
-
-    public PropertyController getPropertyController() {
-        return this.propertyController;
     }
 }
