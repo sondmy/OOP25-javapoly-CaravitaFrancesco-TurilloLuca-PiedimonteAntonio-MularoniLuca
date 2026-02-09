@@ -1,0 +1,699 @@
+{
+  "tiles": [
+  {
+    "type": "START",
+    "position": 0,
+    "name": "Via!",
+    "reward": 200
+  },
+  {
+    "type": "PROPERTY",
+    "position": 1,
+    "name": "Vicolo Corto",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "vicolo_corto",
+      "position": 1,
+      "card": {
+        "type": "street",
+        "id": "vicolo_corto",
+        "name": "Vicolo Corto",
+        "description": "Proprietà marrone, la più economica.",
+        "propertyCost": 60,
+        "group": "BROWN",
+        "baseRent": 2,
+        "houseCost": 50,
+        "hotelCost": 50,
+        "hotelRent": 250,
+        "rents": [2, 10, 30, 90, 160, 250]
+      }
+    }
+  },
+  {
+    "type": "UNEXPECTED",
+    "position": 2,
+    "name": "Probabilità",
+    "deckCardID": "chance"
+  },
+  {
+    "type": "PROPERTY",
+    "position": 3,
+    "name": "Vicolo Stretto",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "vicolo_stretto",
+      "position": 3,
+      "card": {
+        "type": "street",
+        "id": "vicolo_stretto",
+        "name": "Vicolo Stretto",
+        "description": "Proprietà marrone, economica.",
+        "propertyCost": 60,
+        "group": "BROWN",
+        "baseRent": 4,
+        "houseCost": 50,
+        "hotelCost": 50,
+        "hotelRent": 450,
+        "rents": [4, 20, 60, 180, 320, 450]
+      }
+    }
+  },
+  {
+    "type": "TAX",
+    "position": 4,
+    "name": "Tassa Patrimoniale",
+    "amountTax": 200
+  },
+  {
+    "type": "RAILROAD",
+    "position": 5,
+    "name": "Stazione Nord",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "stazione_nord",
+      "position": 5,
+      "card": {
+        "type": "station",
+        "id": "stazione_nord",
+        "name": "Stazione Nord",
+        "description": "Stazione ferroviaria. L'affitto dipende dal numero di stazioni possedute.",
+        "propertyCost": 200,
+        "group": "RAILROAD",
+        "rents": [25, 50, 100, 200]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 6,
+    "name": "Bastioni Gran Sasso",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "bastioni_gran_sasso",
+      "position": 6,
+      "card": {
+        "type": "street",
+        "id": "bastioni_gran_sasso",
+        "name": "Bastioni Gran Sasso",
+        "description": "Proprietà azzurra.",
+        "propertyCost": 100,
+        "group": "LIGHT_BLUE",
+        "baseRent": 6,
+        "houseCost": 50,
+        "hotelCost": 50,
+        "hotelRent": 550,
+        "rents": [6, 30, 90, 270, 400, 550]
+      }
+    }
+  },
+  {
+    "type": "UNEXPECTED",
+    "position": 7,
+    "name": "Imprevisti",
+    "deckCardID": "community_chest"
+  },
+  {
+    "type": "PROPERTY",
+    "position": 8,
+    "name": "Viale Monterosa",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "viale_monterosa",
+      "position": 8,
+      "card": {
+        "type": "street",
+        "id": "viale_monterosa",
+        "name": "Viale Monterosa",
+        "description": "Proprietà azzurra.",
+        "propertyCost": 100,
+        "group": "LIGHT_BLUE",
+        "baseRent": 6,
+        "houseCost": 50,
+        "hotelCost": 50,
+        "hotelRent": 550,
+        "rents": [6, 30, 90, 270, 400, 550]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 9,
+    "name": "Viale Vesuvio",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "viale_vesuvio",
+      "position": 9,
+      "card": {
+        "type": "street",
+        "id": "viale_vesuvio",
+        "name": "Viale Vesuvio",
+        "description": "Proprietà azzurra.",
+        "propertyCost": 120,
+        "group": "LIGHT_BLUE",
+        "baseRent": 8,
+        "houseCost": 50,
+        "hotelCost": 50,
+        "hotelRent": 600,
+        "rents": [8, 40, 100, 300, 450, 600]
+      }
+    }
+  },
+  {
+    "type": "JAIL",
+    "position": 10,
+    "name": "Prigione"
+  },
+  {
+    "type": "PROPERTY",
+    "position": 11,
+    "name": "Via Accademia",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "via_accademia",
+      "position": 11,
+      "card": {
+        "type": "street",
+        "id": "via_accademia",
+        "name": "Via Accademia",
+        "description": "Proprietà rosa.",
+        "propertyCost": 140,
+        "group": "PINK",
+        "baseRent": 10,
+        "houseCost": 100,
+        "hotelCost": 100,
+        "hotelRent": 750,
+        "rents": [10, 50, 150, 450, 625, 750]
+      }
+    }
+  },
+  {
+    "type": "UTILITY",
+    "position": 12,
+    "name": "Società Elettrica",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "societa_elettrica",
+      "position": 12,
+      "card": {
+        "type": "utility",
+        "id": "societa_elettrica",
+        "name": "Società Elettrica",
+        "description": "Utility: l'affitto è un multiplo del lancio dei dadi (4x se una, 10x se entrambe).",
+        "propertyCost": 150,
+        "group": "UTILITY",
+        "oneOwnedMultiplier": 4,
+        "bothOwnedMultiplier": 10,
+        "allMultiplier": [4, 10]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 13,
+    "name": "Corso Ateneo",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "corso_ateneo",
+      "position": 13,
+      "card": {
+        "type": "street",
+        "id": "corso_ateneo",
+        "name": "Corso Ateneo",
+        "description": "Proprietà rosa.",
+        "propertyCost": 140,
+        "group": "PINK",
+        "baseRent": 10,
+        "houseCost": 100,
+        "hotelCost": 100,
+        "hotelRent": 750,
+        "rents": [10, 50, 150, 450, 625, 750]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 14,
+    "name": "Piazza Università",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "piazza_universita",
+      "position": 14,
+      "card": {
+        "type": "street",
+        "id": "piazza_universita",
+        "name": "Piazza Università",
+        "description": "Proprietà rosa.",
+        "propertyCost": 160,
+        "group": "PINK",
+        "baseRent": 12,
+        "houseCost": 100,
+        "hotelCost": 100,
+        "hotelRent": 900,
+        "rents": [12, 60, 180, 500, 700, 900]
+      }
+    }
+  },
+  {
+    "type": "RAILROAD",
+    "position": 15,
+    "name": "Stazione Est",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "stazione_est",
+      "position": 15,
+      "card": {
+        "type": "station",
+        "id": "stazione_est",
+        "name": "Stazione Est",
+        "description": "Stazione ferroviaria. L'affitto dipende dal numero di stazioni possedute.",
+        "propertyCost": 200,
+        "group": "RAILROAD",
+        "rents": [25, 50, 100, 200]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 16,
+    "name": "Via Verdi",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "via_verdi",
+      "position": 16,
+      "card": {
+        "type": "street",
+        "id": "via_verdi",
+        "name": "Via Verdi",
+        "description": "Proprietà arancione.",
+        "propertyCost": 180,
+        "group": "ORANGE",
+        "baseRent": 14,
+        "houseCost": 100,
+        "hotelCost": 100,
+        "hotelRent": 950,
+        "rents": [14, 70, 200, 550, 750, 950]
+      }
+    }
+  },
+  {
+    "type": "UNEXPECTED",
+    "position": 17,
+    "name": "Probabilità",
+    "deckCardID": "chance"
+  },
+  {
+    "type": "PROPERTY",
+    "position": 18,
+    "name": "Corso Raffaello",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "corso_raffaello",
+      "position": 18,
+      "card": {
+        "type": "street",
+        "id": "corso_raffaello",
+        "name": "Corso Raffaello",
+        "description": "Proprietà arancione.",
+        "propertyCost": 180,
+        "group": "ORANGE",
+        "baseRent": 14,
+        "houseCost": 100,
+        "hotelCost": 100,
+        "hotelRent": 950,
+        "rents": [14, 70, 200, 550, 750, 950]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 19,
+    "name": "Piazza Dante",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "piazza_dante",
+      "position": 19,
+      "card": {
+        "type": "street",
+        "id": "piazza_dante",
+        "name": "Piazza Dante",
+        "description": "Proprietà arancione.",
+        "propertyCost": 200,
+        "group": "ORANGE",
+        "baseRent": 16,
+        "houseCost": 100,
+        "hotelCost": 100,
+        "hotelRent": 1000,
+        "rents": [16, 80, 220, 600, 800, 1000]
+      }
+    }
+  },
+  {
+    "type": "FREE_PARKING",
+    "position": 20,
+    "name": "Parcheggio Gratuito"
+  },
+  {
+    "type": "PROPERTY",
+    "position": 21,
+    "name": "Via Marco Polo",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "via_marco_polo",
+      "position": 21,
+      "card": {
+        "type": "street",
+        "id": "via_marco_polo",
+        "name": "Via Marco Polo",
+        "description": "Proprietà rossa.",
+        "propertyCost": 220,
+        "group": "RED",
+        "baseRent": 18,
+        "houseCost": 150,
+        "hotelCost": 150,
+        "hotelRent": 1050,
+        "rents": [18, 90, 250, 700, 875, 1050]
+      }
+    }
+  },
+  {
+    "type": "UNEXPECTED",
+    "position": 22,
+    "name": "Imprevisti",
+    "deckCardID": "community_chest"
+  },
+  {
+    "type": "PROPERTY",
+    "position": 23,
+    "name": "Corso Magellano",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "corso_magellano",
+      "position": 23,
+      "card": {
+        "type": "street",
+        "id": "corso_magellano",
+        "name": "Corso Magellano",
+        "description": "Proprietà rossa.",
+        "propertyCost": 220,
+        "group": "RED",
+        "baseRent": 18,
+        "houseCost": 150,
+        "hotelCost": 150,
+        "hotelRent": 1050,
+        "rents": [18, 90, 250, 700, 875, 1050]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 24,
+    "name": "Largo Colombo",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "largo_colombo",
+      "position": 24,
+      "card": {
+        "type": "street",
+        "id": "largo_colombo",
+        "name": "Largo Colombo",
+        "description": "Proprietà rossa.",
+        "propertyCost": 240,
+        "group": "RED",
+        "baseRent": 20,
+        "houseCost": 150,
+        "hotelCost": 150,
+        "hotelRent": 1100,
+        "rents": [20, 100, 300, 750, 925, 1100]
+      }
+    }
+  },
+  {
+    "type": "RAILROAD",
+    "position": 25,
+    "name": "Stazione Sud",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "stazione_sud",
+      "position": 25,
+      "card": {
+        "type": "station",
+        "id": "stazione_sud",
+        "name": "Stazione Sud",
+        "description": "Stazione ferroviaria. L'affitto dipende dal numero di stazioni possedute.",
+        "propertyCost": 200,
+        "group": "RAILROAD",
+        "rents": [25, 50, 100, 200]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 26,
+    "name": "Viale Costantino",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "viale_costantino",
+      "position": 26,
+      "card": {
+        "type": "street",
+        "id": "viale_costantino",
+        "name": "Viale Costantino",
+        "description": "Proprietà gialla.",
+        "propertyCost": 260,
+        "group": "YELLOW",
+        "baseRent": 22,
+        "houseCost": 150,
+        "hotelCost": 150,
+        "hotelRent": 1150,
+        "rents": [22, 110, 330, 800, 975, 1150]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 27,
+    "name": "Viale Traiano",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "viale_traiano",
+      "position": 27,
+      "card": {
+        "type": "street",
+        "id": "viale_traiano",
+        "name": "Viale Traiano",
+        "description": "Proprietà gialla.",
+        "propertyCost": 260,
+        "group": "YELLOW",
+        "baseRent": 22,
+        "houseCost": 150,
+        "hotelCost": 150,
+        "hotelRent": 1150,
+        "rents": [22, 110, 330, 800, 975, 1150]
+      }
+    }
+  },
+  {
+    "type": "UTILITY",
+    "position": 28,
+    "name": "Società Acqua Potabile",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "societa_acqua_potabile",
+      "position": 28,
+      "card": {
+        "type": "utility",
+        "id": "societa_acqua_potabile",
+        "name": "Società Acqua Potabile",
+        "description": "Utility: l'affitto è un multiplo del lancio dei dadi (4x se una, 10x se entrambe).",
+        "propertyCost": 150,
+        "group": "UTILITY",
+        "oneOwnedMultiplier": 4,
+        "bothOwnedMultiplier": 10,
+        "allMultiplier": [4, 10]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 29,
+    "name": "Piazza Giulio Cesare",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "piazza_giulio_cesare",
+      "position": 29,
+      "card": {
+        "type": "street",
+        "id": "piazza_giulio_cesare",
+        "name": "Piazza Giulio Cesare",
+        "description": "Proprietà gialla.",
+        "propertyCost": 280,
+        "group": "YELLOW",
+        "baseRent": 24,
+        "houseCost": 150,
+        "hotelCost": 150,
+        "hotelRent": 1200,
+        "rents": [24, 120, 360, 850, 1025, 1200]
+      }
+    }
+  },
+  {
+    "type": "GO_TO_JAIL",
+    "position": 30,
+    "name": "Vai in Prigione",
+    "jailPos": 10
+  },
+  {
+    "type": "PROPERTY",
+    "position": 31,
+    "name": "Via Roma",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "via_roma",
+      "position": 31,
+      "card": {
+        "type": "street",
+        "id": "via_roma",
+        "name": "Via Roma",
+        "description": "Proprietà verde.",
+        "propertyCost": 300,
+        "group": "GREEN",
+        "baseRent": 26,
+        "houseCost": 200,
+        "hotelCost": 200,
+        "hotelRent": 1275,
+        "rents": [26, 130, 390, 900, 1100, 1275]
+      }
+    }
+  },
+  {
+    "type": "PROPERTY",
+    "position": 32,
+    "name": "Corso Impero",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "corso_impero",
+      "position": 32,
+      "card": {
+        "type": "street",
+        "id": "corso_impero",
+        "name": "Corso Impero",
+        "description": "Proprietà verde.",
+        "propertyCost": 300,
+        "group": "GREEN",
+        "baseRent": 26,
+        "houseCost": 200,
+        "hotelCost": 200,
+        "hotelRent": 1275,
+        "rents": [26, 130, 390, 900, 1100, 1275]
+      }
+    }
+  },
+  {
+    "type": "UNEXPECTED",
+    "position": 33,
+    "name": "Probabilità",
+    "deckCardID": "chance"
+  },
+  {
+    "type": "PROPERTY",
+    "position": 34,
+    "name": "Parco della Vittoria",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "parco_della_vittoria",
+      "position": 34,
+      "card": {
+        "type": "street",
+        "id": "parco_della_vittoria",
+        "name": "Parco della Vittoria",
+        "description": "Proprietà verde, la più cara del gruppo.",
+        "propertyCost": 320,
+        "group": "GREEN",
+        "baseRent": 28,
+        "houseCost": 200,
+        "hotelCost": 200,
+        "hotelRent": 1400,
+        "rents": [28, 150, 450, 1000, 1200, 1400]
+      }
+    }
+  },
+  {
+    "type": "RAILROAD",
+    "position": 35,
+    "name": "Stazione Ovest",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "stazione_ovest",
+      "position": 35,
+      "card": {
+        "type": "station",
+        "id": "stazione_ovest",
+        "name": "Stazione Ovest",
+        "description": "Stazione ferroviaria. L'affitto dipende dal numero di stazioni possedute.",
+        "propertyCost": 200,
+        "group": "RAILROAD",
+        "rents": [25, 50, 100, 200]
+      }
+    }
+  },
+  {
+    "type": "UNEXPECTED",
+    "position": 36,
+    "name": "Imprevisti",
+    "deckCardID": "community_chest"
+  },
+  {
+    "type": "PROPERTY",
+    "position": 37,
+    "name": "Viale dei Giardini",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "viale_dei_giardini",
+      "position": 37,
+      "card": {
+        "type": "street",
+        "id": "viale_dei_giardini",
+        "name": "Viale dei Giardini",
+        "description": "Proprietà blu scuro, molto costosa.",
+        "propertyCost": 350,
+        "group": "DARK_BLUE",
+        "baseRent": 35,
+        "houseCost": 200,
+        "hotelCost": 200,
+        "hotelRent": 1500,
+        "rents": [35, 175, 500, 1100, 1300, 1500]
+      }
+    }
+  },
+  {
+    "type": "TAX",
+    "position": 38,
+    "name": "Tassa di Lusso",
+    "amountTax": 100
+  },
+  {
+    "type": "PROPERTY",
+    "position": 39,
+    "name": "Parco Sempione",
+    "property": {
+      "type": "PROPERTYIMPL",
+      "id": "parco_sempione",
+      "position": 39,
+      "card": {
+        "type": "street",
+        "id": "parco_sempione",
+        "name": "Parco Sempione",
+        "description": "Proprietà blu scuro, la più costosa del gioco.",
+        "propertyCost": 400,
+        "group": "DARK_BLUE",
+        "baseRent": 50,
+        "houseCost": 200,
+        "hotelCost": 200,
+        "hotelRent": 2000,
+        "rents": [50, 200, 600, 1400, 1700, 2000]
+      }
+    }
+  }
+]
+
+}

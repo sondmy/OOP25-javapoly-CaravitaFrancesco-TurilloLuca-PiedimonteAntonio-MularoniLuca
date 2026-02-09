@@ -1,0 +1,303 @@
+package it.unibo.javapoly.model.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import it.unibo.javapoly.model.api.Player;
+import it.unibo.javapoly.model.api.PlayerObserver;
+import it.unibo.javapoly.model.api.PlayerState;
+import it.unibo.javapoly.model.api.Token;
+import it.unibo.javapoly.model.api.TokenType;
+
+/**
+ * Concrete implementation of the {@link Player} interface.
+ * 
+ * <p>
+ * This class encapsulates the complete status of a player within the game,
+ * including their identity, financial resources (balance), board position, and
+ * the game piece (Token) they use.
+ * </p>
+ * 
+ * <p>
+ * <strong>Behavioral Logic:</strong>
+ * The class employs the <em>State Pattern</em> regarding turn execution.
+ * The {@link #playTurn(int, boolean)} method delegates logic to the current
+ * {@link PlayerState}, allowing the player's capabilities to
+ * change dynamically (e.g., when moving normally vs. when in jail).
+ * </p>
+ * 
+ * <p>
+ * <strong>Event Notification:</strong>
+ * Implementing the <em>Observer Pattern</em>, this class notifies registered
+ * {@link PlayerObserver}s whenever critical properties change (position
+ * updates, balance transactions, or state transitions), facilitating loose
+ * coupling with the UI and Game Controller.
+ * </p>
+ * 
+ * @see Player
+ * @see PlayerState
+ * @see Token
+ * @see TokenType
+ * @see PlayerObserver
+ */
+public class PlayerImpl implements Player {
+
+    private static final int DEFAULT_STARTING_BALANCE = 1500;
+
+    private final String name;
+    private int balance;
+    private final Token token;
+    private PlayerState currentState;
+    private int currentPosition;
+
+    private final List<PlayerObserver> observers = new ArrayList<>();
+
+    /**
+     * Constructs a new {@link PlayerImpl} with a specified name and token type.
+     * This constructor initializes the player with the default starting balance of
+     * {@value #DEFAULT_STARTING_BALANCE}.
+     * 
+     * <p>
+     * This constructor is intended to be used by controllers and views, hiding
+     * rule implementation details (such as the specific starting balance) from
+     * components that do not need to know them, effectively applying standard
+     * game rules.
+     * </p>
+     *
+     * @param name      the name of the player.
+     * @param tokenType the type of token associated with the player.
+     * @throws NullPointerException     if {@code name} or {@code tokenType} is
+     *                                  null.
+     * @throws IllegalArgumentException if {@code name} is blank.
+     */
+    public PlayerImpl(final String name, final TokenType tokenType) {
+        this(name, DEFAULT_STARTING_BALANCE, tokenType);
+    }
+
+    /**
+     * Constructs a new {@link PlayerImpl} with a specified name, initial balance,
+     * and token type.
+     * 
+     * <p>
+     * The player starts in the {@link FreeState} and at position 0.
+     * </p>
+     * 
+     * <p>
+     * <strong>Usage Note:</strong>
+     * Unlike the primary constructor which uses default game values, this
+     * constructor allows full customization of the initial balance. Ideally, it
+     * should be used for:
+     * <ul>
+     * <li><strong>Unit Testing:</strong> To create scenarios with specific balance
+     * conditions.</li>
+     * <li><strong>Serialization/Persistence:</strong> To load a player's state from
+     * a saved game (e.g., via JSON) preserving their exact balance.</li>
+     * <li><strong>Custom Variations:</strong> To support house rules or specific
+     * configurations where starting money differs from the standard rules.</li>
+     * </ul>
+     * </p>
+     *
+     * @param name           the name of the player.
+     * @param initialBalance the starting balance of the player.
+     * @param tokenType      the type of token associated with the player.
+     * @throws NullPointerException     if {@code name} or {@code tokenType} is
+     *                                  null.
+     * @throws IllegalArgumentException if {@code name} is blank or
+     *                                  {@code initialBalance} is negative.
+     * @see FreeState
+     * @see TokenFactory
+     */
+    public PlayerImpl(final String name, final int initialBalance, final TokenType tokenType) {
+        Objects.requireNonNull(name, "Name cannot be null");
+        Objects.requireNonNull(tokenType, "Token type cannot be null");
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("Name cannot be blank");
+        }
+        if (initialBalance < 0) {
+            throw new IllegalArgumentException("Initial balance cannot be negative: " + initialBalance);
+        }
+
+        this.name = name;
+        this.balance = initialBalance;
+        this.token = TokenFactory.createToken(tokenType);
+        this.currentState = FreeState.getInstance();
+        this.currentPosition = 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void playTurn(final int potentialDestination, final boolean isDouble) {
+        if (potentialDestination < 0) {
+            throw new IllegalArgumentException("Potential destination cannot be negative: " + potentialDestination);
+        }
+        this.currentState.playTurn(this, potentialDestination, isDouble);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void move(final int newPosition) {
+        if (newPosition < 0) {
+            throw new IllegalArgumentException("The position cannot be negative: " + newPosition);
+        }
+
+        final int oldPos = this.currentPosition;
+        this.currentPosition = newPosition;
+
+        notifyMoved(oldPos, this.currentPosition);
+
+        System.out.println(// NOPMD
+                "DEBUG: " + this.name + " (" + this.token.getType() + ") si sposta da " + oldPos + " a "
+                        + this.currentPosition);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean tryToPay(final int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("You cannot pay a negative amount: " + amount);
+        }
+
+        if (this.balance >= amount) {
+            this.balance -= amount;
+            notifyBalanceChanged(this.balance);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void receiveMoney(final int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("You cannot receive a negative amount: " + amount);
+        }
+
+        this.balance += amount;
+        notifyBalanceChanged(this.balance);
+    }
+
+    // --- Observer Pattern Methods ---
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addObserver(final PlayerObserver observer) {
+        this.observers.add(Objects.requireNonNull(observer, "Observer cannot be null"));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removeObserver(final PlayerObserver observer) {
+        this.observers.remove(Objects.requireNonNull(observer, "Observer cannot be null"));
+    }
+
+    /**
+     * Notifies all registered observers about the player's movement.
+     * 
+     * @param oldPos the previous position of the player.
+     * @param newPos the new position of the player.
+     */
+    private void notifyMoved(final int oldPos, final int newPos) {
+        for (final PlayerObserver obs : this.observers) {
+            obs.onPlayerMoved(this, oldPos, newPos);
+        }
+    }
+
+    /**
+     * Notifies all registered observers about the player's balance change.
+     * 
+     * @param newBalance the new balance of the player.
+     */
+    private void notifyBalanceChanged(final int newBalance) {
+        for (final PlayerObserver obs : this.observers) {
+            obs.onBalanceChanged(this, newBalance);
+        }
+    }
+
+    /**
+     * Notifies all registered observers about the player's state change.
+     * 
+     * @param oldState the previous state of the player.
+     * @param newState the new state of the player.
+     */
+    private void notifyStateChanged(final PlayerState oldState, final PlayerState newState) {
+        for (final PlayerObserver obs : this.observers) {
+            obs.onStateChanged(this, oldState, newState);
+        }
+    }
+
+    // --- Getter and Setter ---
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getCurrentPosition() {
+        return this.currentPosition;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBalance() {
+        return this.balance;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Token getToken() {
+        return this.token;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PlayerState getState() {
+        return this.currentState;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setState(final PlayerState state) {
+        final PlayerState oldState = this.currentState;
+        this.currentState = Objects.requireNonNull(state, "State cannot be null");
+        if (!oldState.getClass().equals(state.getClass())) {
+            notifyStateChanged(oldState, state);
+        }
+        System.out.println("Stato cambiato in: " + state.getClass().getSimpleName()); // NOPMD
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "Player{" + this.name + ", " + this.balance + "$, " + this.currentState.getClass().getSimpleName() + "}";
+    }
+}

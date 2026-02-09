@@ -5,14 +5,19 @@ plugins {
     // Apply the application plugin to add support for building a CLI application
     // You can run your app via task "run": ./gradlew run
     application
-
+    id("org.openjfx.javafxplugin") version "0.1.0" // Plugin per JavaFX
     /*
      * Adds tasks to export a runnable jar.
      * In order to create it, launch the "shadowJar" task.
      * The runnable jar will be found in build/libs/projectname-all.jar
      */
     id("com.gradleup.shadow") version "9.3.1"
-    id("org.danilopianini.gradle-java-qa") version "1.164.0"
+    id("org.danilopianini.gradle-java-qa") version "1.165.0"
+}
+
+javafx {
+    version = "23.0.2" 
+    modules = listOf("javafx.controls", "javafx.graphics", "javafx.fxml")
 }
 
 repositories {
@@ -52,6 +57,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     // The engine that must be available at runtime to run the tests.
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
     // The library JACKSON: is a json formatter for data
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
 }
@@ -61,9 +67,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-val main: String by project
-
 application {
-    // Define the main class for the application
-    mainClass.set(main)
+    mainClass.set("it.unibo.javapoly.Main") 
 }
