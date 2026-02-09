@@ -19,6 +19,8 @@ import it.unibo.javapoly.model.impl.card.AbstractPropertyCard;
 @JsonTypeName("PROPERTYIMPL")
 public final class PropertyImpl implements Property {
 
+    private static final int IS_HOTEL = 5;
+
     private final String id;
     private final int position;
     private final AbstractPropertyCard card;
@@ -210,6 +212,14 @@ public final class PropertyImpl implements Property {
     @Override
     public boolean playerIsTheOwner(final String playerID) {
         return this.state.getOwnerId().equals(playerID);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Boolean hotelIsBuilt() {
+        return this.getBuiltHouses() == this.IS_HOTEL;
     }
 
     /** 

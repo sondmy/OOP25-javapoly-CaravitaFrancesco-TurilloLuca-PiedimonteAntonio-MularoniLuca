@@ -71,6 +71,13 @@ public interface Property {
     int getPosition();
 
     /**
+     * Check if an hotel is built on proerty.
+     * 
+     * @return true if there is, false otherwise
+     */
+    Boolean hotelIsBuilt();
+
+    /**
      * Assigns the owner via ID.
      *
      * @param ownerId the ID of the player
