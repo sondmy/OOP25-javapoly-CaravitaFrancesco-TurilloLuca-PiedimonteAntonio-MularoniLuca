@@ -1,5 +1,6 @@
 package it.unibo.javapoly.controller.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +15,12 @@ import it.unibo.javapoly.model.api.board.Board;
 import it.unibo.javapoly.model.api.board.Tile;
 import it.unibo.javapoly.model.api.board.TileType;
 import it.unibo.javapoly.model.api.economy.Bank;
+import it.unibo.javapoly.model.api.property.Property;
 import it.unibo.javapoly.model.impl.DiceImpl;
 import it.unibo.javapoly.model.impl.DiceThrow;
 import it.unibo.javapoly.model.impl.FreeState;
 import it.unibo.javapoly.model.impl.JailedState;
+import it.unibo.javapoly.model.impl.board.BoardImpl;
 import it.unibo.javapoly.view.impl.MainView;
 
 /**
@@ -27,6 +30,8 @@ import it.unibo.javapoly.view.impl.MainView;
 public class MatchControllerImpl implements MatchController {
 
     private static final int MAX_DOUBLES = 3;
+    private static final int GO_SALARY = 200;
+    private static final int JAIL_EXIT_FEE = 50;
 
     private final List<Player> players;  
     private final DiceThrow diceThrow;
@@ -35,8 +40,8 @@ public class MatchControllerImpl implements MatchController {
     private final MainView gui;
     private final Map<Player, Integer> jailTurnCounter = new HashMap<>();
 
-    private EconomyController economyController;
-    private PropertyController propertyController;
+    private final EconomyController economyController;
+    private final PropertyController propertyController;
 
     private int currentPlayerIndex;
     private int consecutiveDoubles;
@@ -50,10 +55,11 @@ public class MatchControllerImpl implements MatchController {
      * @param gameBoard the game board implementation
      * @param bank      the bank implementation
      */
-    public MatchControllerImpl(final List<Player> players, final Board gameBoard, final Bank bank){
+    public MatchControllerImpl(final List<Player> players, final Board gameBoard, final EconomyController economyController, final PropertyController propertyController){
         this.players = List.copyOf(players);
         this.gameBoard = Objects.requireNonNull(gameBoard);
-        this.bank = Objects.requireNonNull(bank);
+        this.economyController = Objects.requireNonNull(economyController);
+        this.propertyController = Objects.requireNonNull(propertyController);
         this.diceThrow = new DiceThrow(new DiceImpl(), new DiceImpl());
         this.gui = new MainView(this);
         this.currentPlayerIndex = 0;
@@ -80,7 +86,7 @@ public class MatchControllerImpl implements MatchController {
     }
 
     public MatchControllerImpl(final List<Player> players){
-        this.players = players;
+        this(players, new BoardImpl(new ArrayList<>()), new EconomyControllerImpl(new ArrayList<>()), new PropertyControllerImpl(new HashMap<>()));
     }
 
     /**
@@ -143,7 +149,7 @@ public class MatchControllerImpl implements MatchController {
                 jailTurnCounter.remove(currentPlayer);
             }else if(turns >= 2){
                 updateGui(g -> g.addLog(currentPlayer.getName() + " fallisce il 3° tentativo. Paga 50€ ed esce!"));
-                currentPlayer.tryToPay(50);
+                economyController.getBank().withdraw(currentPlayer, JAIL_EXIT_FEE);
                 currentPlayer.setState(FreeState.getInstance());
                 jailTurnCounter.remove(currentPlayer);
             }else{
@@ -173,11 +179,13 @@ public class MatchControllerImpl implements MatchController {
         currentPlayer.playTurn(potentialPos, isDouble);
     }
 
+    /* 
     @Override
     public List<Player> getPlayers() {
         // Restituisci la lista di giocatori che hai creato all'inizio
         return this.players; 
     }
+    */
 
     /**
      * Moves the current player by 'steps' spaces on the board.
@@ -212,15 +220,9 @@ public class MatchControllerImpl implements MatchController {
         final Player currentPlayer = getCurrentPlayer();
         final Tile currentTile = gameBoard.getTileAt(currentPlayer.getCurrentPosition());
 
-        if (currentTile.getType() == TileType.TAX && currentPlayer.getCurrentPosition() == 4) {
-            currentPlayer.tryToPay(200);
-            updateGui(g -> g.addLog(currentPlayer.getName() + " paga la Tassa Patrimoniale di 200€"));
-        }else if(currentTile.getType() == TileType.TAX){
-            currentPlayer.tryToPay(100);
-            updateGui(g -> g.addLog(currentPlayer.getName() + " paga la Tassa di Lusso di 100€"));
-        }
-        if (currentTile.getType() == TileType.GO_TO_JAIL) {
-            handlePrison();
+        if(currentTile.getType() == TileType.PROPERTY || currentTile.getType() == TileType.RAILROAD || currentTile.getType() == TileType.UTILITY){
+            Property prop = (Property) currentTile;
+            if
         }
     }
 
