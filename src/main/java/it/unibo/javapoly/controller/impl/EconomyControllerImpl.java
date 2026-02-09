@@ -1,6 +1,7 @@
 package it.unibo.javapoly.controller.impl;
 
 import it.unibo.javapoly.controller.api.EconomyController;
+import it.unibo.javapoly.controller.api.LiquidationObserver;
 import it.unibo.javapoly.controller.api.PropertyController;
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.economy.Bank;
@@ -31,6 +32,7 @@ public final class EconomyControllerImpl implements EconomyController {
     private final PropertyController propertyController;
     private final List<Transaction> transactionHistory = new ArrayList<>();
     private int nextTransactionId = 1;
+    private final List<LiquidationObserver> liquidationObservers = new ArrayList<>();
 
     /**
      * Creates an EconomyController with the given list of properties.
@@ -78,6 +80,7 @@ public final class EconomyControllerImpl implements EconomyController {
                     amount));
             return true;
         }
+        //TODO bankrupt
         return false;
     }
 
@@ -86,7 +89,7 @@ public final class EconomyControllerImpl implements EconomyController {
      */
     @Override
     public boolean payRent(final Player payer, final Player payee, final Property property, final int diceRoll) {
-        final int rent = this.propertyController.payRent(payer, property.getId(), diceRoll);
+        final int rent = this.propertyController.getRent(payer, property.getId(), diceRoll);
         if (this.bank.transferFunds(payer, payee, rent)) {
             recordTransaction(new Transaction(this.nextTransactionId,
                     PAY_RENT,
@@ -139,7 +142,6 @@ public final class EconomyControllerImpl implements EconomyController {
             }
             throw new IllegalStateException("You don't own all the properties of the same color/ te house are not homogeneous");
         }
-        //TODO bankrupt
         return false;
     }
 
@@ -149,7 +151,7 @@ public final class EconomyControllerImpl implements EconomyController {
     @Override
     public boolean sellHouse(final Player owner, final Property property) {
         final int price = this.propertyController.getHouseCost(property) / 2;
-        if (this.propertyController.destroydHouse(owner, property.getId())) {
+        if (this.propertyController.destroyHouse(owner, property.getId())) {
             this.bank.deposit(owner, price);
             recordTransaction(new Transaction(this.nextTransactionId,
                     SELL_HOUSE,
@@ -193,5 +195,21 @@ public final class EconomyControllerImpl implements EconomyController {
     private void recordTransaction(final Transaction transaction) {
         this.transactionHistory.add(transaction);
         this.nextTransactionId++;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addLiquidationObserver(final LiquidationObserver observer) {
+        this.liquidationObservers.add(observer);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removeLiquidationObserver(final LiquidationObserver observer) {
+        this.liquidationObservers.remove(observer);
     }
 }
