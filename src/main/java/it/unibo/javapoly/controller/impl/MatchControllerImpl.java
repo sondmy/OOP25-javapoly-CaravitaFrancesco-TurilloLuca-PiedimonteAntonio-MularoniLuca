@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import it.unibo.javapoly.controller.api.EconomyController;
 import it.unibo.javapoly.controller.api.MatchController;
+import it.unibo.javapoly.controller.api.PropertyController;
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.PlayerState;
 import it.unibo.javapoly.model.api.board.Board;
@@ -32,7 +33,7 @@ public class MatchControllerImpl implements MatchController {
     private static final int MAX_DOUBLES = 3;
     private static final int GO_SALARY = 200;
     private static final int JAIL_EXIT_FEE = 50;
-
+    
     private final List<Player> players;  
     private final DiceThrow diceThrow;
     private final Board gameBoard;

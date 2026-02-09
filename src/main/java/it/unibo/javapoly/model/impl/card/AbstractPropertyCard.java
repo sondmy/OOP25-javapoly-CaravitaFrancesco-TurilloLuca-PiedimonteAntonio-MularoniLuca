@@ -1,4 +1,4 @@
-package it.unibo.javapoly.model.impl.Card;
+package it.unibo.javapoly.model.impl.card;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

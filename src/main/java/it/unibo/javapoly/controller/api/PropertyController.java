@@ -1,6 +1,6 @@
 package it.unibo.javapoly.controller.api;
 
-import it.unibo.javapoly.model.api.player.Player;
+import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.property.Property;
 
 import java.util.List;

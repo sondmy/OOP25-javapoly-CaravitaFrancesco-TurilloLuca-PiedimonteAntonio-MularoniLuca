@@ -5,7 +5,7 @@ import it.unibo.javapoly.model.api.property.Property;
 import it.unibo.javapoly.model.api.property.PropertyGroup;
 import it.unibo.javapoly.model.impl.card.LandPropertyCard;
 import it.unibo.javapoly.model.api.RentContext;
-import it.unibo.javapoly.model.api.player.Player;
+import it.unibo.javapoly.model.api.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;

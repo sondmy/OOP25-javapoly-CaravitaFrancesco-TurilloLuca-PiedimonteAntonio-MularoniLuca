@@ -1,4 +1,4 @@
-package it.unibo.javapoly.model.impl.Card;
+package it.unibo.javapoly.model.impl.card;
 
 import java.util.Objects;
 

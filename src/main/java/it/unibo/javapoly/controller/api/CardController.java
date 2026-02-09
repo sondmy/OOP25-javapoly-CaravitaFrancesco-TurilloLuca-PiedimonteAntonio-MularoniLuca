@@ -1,7 +1,7 @@
 package it.unibo.javapoly.controller.api;
 
 import it.unibo.javapoly.model.api.card.GameCard;
-import it.unibo.javapoly.model.api.player.Player;
+import it.unibo.javapoly.model.api.Player;
 
 /**
  * Controller responsible for managing game cards (Chance/Community Chest).

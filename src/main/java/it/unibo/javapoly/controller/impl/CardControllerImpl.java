@@ -20,7 +20,7 @@ import it.unibo.javapoly.model.api.card.payload.MoneyPayload;
 import it.unibo.javapoly.model.api.card.payload.MoveRelativePayload;
 import it.unibo.javapoly.model.api.card.payload.MoveToNearestPayload;
 import it.unibo.javapoly.model.api.card.payload.MoveToPayload;
-import it.unibo.javapoly.model.api.player.Player;
+import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.property.Property;
 import it.unibo.javapoly.model.impl.card.CardDeckImpl;
 import it.unibo.javapoly.utils.CardLoader;

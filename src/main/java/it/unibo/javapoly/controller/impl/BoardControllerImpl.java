@@ -4,13 +4,13 @@ import it.unibo.javapoly.controller.api.BoardController;
 import it.unibo.javapoly.controller.api.CardController;
 import it.unibo.javapoly.controller.api.EconomyController;
 import it.unibo.javapoly.controller.api.PropertyController;
-import it.unibo.javapoly.model.api.player.Player;
+import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.board.Board;
 import it.unibo.javapoly.model.api.board.Tile;
 import it.unibo.javapoly.model.api.board.TileType;
 import it.unibo.javapoly.model.impl.board.tile.PropertyTile;
 import it.unibo.javapoly.model.impl.board.tile.TaxTile;
-import it.unibo.javapoly.model.impl.player.JailedState;
+import it.unibo.javapoly.model.impl.JailedState;
 
 /**
  * Implementation of the BoardController interface.
@@ -124,7 +124,7 @@ public class BoardControllerImpl implements BoardController {
                     final PropertyTile prop = (PropertyTile) tile;
 
                     if (this.propertyController.checkPayRent(player, prop.getPropertyID())) {
-                        this.bank.payRent(player.getName(), prop.getProperty().getIdOwner(), diceRoll);
+                        this.bank.payRent(player, prop.getProperty().getIdOwner(), prop.getProperty(), diceRoll);
                     }
                 }
                 break;
