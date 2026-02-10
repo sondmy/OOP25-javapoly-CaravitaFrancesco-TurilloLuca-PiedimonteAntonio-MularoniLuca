@@ -1,9 +1,9 @@
 package it.unibo.javapoly.controller.api;
 
-import it.unibo.javapoly.model.api.TokenType;
-
 import java.io.File;
 import java.util.List;
+
+import it.unibo.javapoly.model.api.TokenType;
 
 /**
  * Controller interface for handling user interaction from the main menu view.
@@ -13,7 +13,7 @@ public interface MenuController {
     /**
      * Initiates a new game session using the provided validated player name.
      *
-     * @param names list of player names.
+     * @param names  list of player names.
      * @param tokens list of tokens choose by player.
      */
     void playerSetupConfirmed(List<String> names, List<TokenType> tokens);
