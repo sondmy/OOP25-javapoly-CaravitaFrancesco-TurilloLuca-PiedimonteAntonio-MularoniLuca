@@ -84,14 +84,6 @@ public final class JailedState implements PlayerState {
         } else {
             System.out.println("Resta in prigione."); // NOPMD
         }
-
-        // TODO understand if there are other release conditions, such as paying a
-        // fine or using a "Get Out of Jail Free" card.
-        // Understand if I need to handle this, especially for the "Get Out of Jail
-        // Free" card, or if it is the player who decides when to use it, and in that
-        // case how do I communicate it to them, since they do not manage their state,
-        // but the state manages them. Or if it should be handled by who manages all
-        // the cards, that is Francesco.
     }
 
     /**
