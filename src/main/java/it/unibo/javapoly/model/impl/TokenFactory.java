@@ -36,20 +36,35 @@ public final class TokenFactory {
         ValidationUtils.requireNonNull(type, "The token type cannot be null");
 
         switch (type) {
+            case BOAT -> {
+                return new TokenImpl("Boat");
+            }
+            case BOOT -> {
+                return new TokenImpl("Boot");
+            }
             case CAR -> {
                 return new TokenImpl("Car");
             }
-            case HAT -> {
-                return new TokenImpl("Hat");
+            case CAT -> {
+                return new TokenImpl("Cat");
             }
             case DOG -> {
                 return new TokenImpl("Dog");
             }
-            case SHOE -> {
-                return new TokenImpl("Shoe");
+            case DUCK -> {
+                return new TokenImpl("Duck");
             }
-            case SHIP -> {
-                return new TokenImpl("Ship");
+            case HAT -> {
+                return new TokenImpl("Hat");
+            }
+            case IRON -> {
+                return new TokenImpl("Iron");
+            }
+            case THIMBLE -> {
+                return new TokenImpl("Thimble");
+            }
+            case WHEELBARROW -> {
+                return new TokenImpl("Wheelbarrow");
             }
             default -> throw new IllegalArgumentException("Unsupported token type: " + type);
         }
