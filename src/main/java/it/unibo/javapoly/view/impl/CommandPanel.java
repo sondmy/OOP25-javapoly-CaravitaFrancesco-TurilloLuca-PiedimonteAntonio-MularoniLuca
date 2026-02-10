@@ -1,6 +1,14 @@
 package it.unibo.javapoly.view.impl;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
+
+import it.unibo.javapoly.controller.impl.MatchControllerImpl;
+import it.unibo.javapoly.controller.impl.MatchSnapshotter;
+import it.unibo.javapoly.controller.impl.MatchSnapshot;
+import it.unibo.javapoly.utils.JsonUtils;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import it.unibo.javapoly.controller.api.MatchController;
@@ -18,6 +26,7 @@ public class CommandPanel {
     private final Button throwDice;
     private final Button endTurnButton;
     private final Button payJailButton;
+    private final Button saveButton;
 
     /**
      * Constructor: creates the panel and its buttons.
@@ -32,6 +41,7 @@ public class CommandPanel {
         this.throwDice = new Button("Lancia dadi");
         this.endTurnButton = new Button("Fine turno");
         this.payJailButton = new Button("Paga 50€");
+        this.saveButton = new Button("Save");
 
         this.payJailButton.setStyle("-fx-base: #e74c3c; -fx-text-fill: white;");
 
@@ -46,13 +56,17 @@ public class CommandPanel {
         this.endTurnButton.setOnAction(e -> {
             this.matchController.nextTurn();
             updateState();
+            saveStateGame();
         });
-        this.root.getChildren().addAll(this.throwDice, this.payJailButton, this.endTurnButton);
+        this.saveButton.setOnAction(e -> {
+            saveStateGame();
+        });
+        this.root.getChildren().addAll(this.throwDice, this.payJailButton, this.endTurnButton, this.saveButton);
 
-        updateState();
+        //updateState();
     }
 
-    public void updateState(){
+    public void updateState() {
         Player current = matchController.getCurrentPlayer();
         boolean canRoll = matchController.canCurrentPlayerRoll();
         this.throwDice.setDisable(!canRoll);
@@ -72,5 +86,22 @@ public class CommandPanel {
      */
     public HBox getRoot() {
         return this.root;
+    }
+
+    /**
+     * Method to save the game state on javapoly_save.json file in user directory.
+     */
+    public void saveStateGame() {
+        try {
+            final String userHome = System.getProperty("user.home");
+            final Path saveDir = Paths.get(userHome);
+            final Path saveFile = saveDir.resolve("javapoly_save.json");
+            if (matchController instanceof MatchControllerImpl impl) {
+                final MatchSnapshot snapshot = MatchSnapshotter.toSnapshot(impl);
+                JsonUtils.getInstance().mapper().writeValue(saveFile.toFile(), snapshot);
+            }
+        } catch (final IOException ex) {
+            System.err.println("Failed to save game " + ex.getMessage());
+        }
     }
 }
