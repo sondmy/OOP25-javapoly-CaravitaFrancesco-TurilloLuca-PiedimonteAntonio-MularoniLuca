@@ -35,7 +35,13 @@ public final class JailedState implements PlayerState {
 
     /**
      * Constructs a new {@link JailedState} with the turn counter equal turnsInJail.
-     *
+     * 
+     * <p>
+     * This method is intended to be used for JSON serialization/deserialization to
+     * restore the number of turns a player has already spent in jail when loading a
+     * saved game from a JSON file.
+     * </p>
+     * 
      * @param turnsInJail number of turns in jail.
      */
     public JailedState(final Integer turnsInJail) {
@@ -100,6 +106,12 @@ public final class JailedState implements PlayerState {
 
     /**
      * Gets the number of turns spent in jail.
+     * 
+     * <p>
+     * This getter is intended to be used for JSON serialization/deserialization to
+     * save and restore the number of turns a player has already spent in jail when
+     * loading a saved game from a JSON file.
+     * </p>
      *
      * @return the number of turns spent in jail.
      */
