@@ -233,7 +233,12 @@ public class MatchControllerImpl implements MatchController {
 
     @Override
     public void onPlayerMoved(Player player, int oldPosition, int newPosition) {
-        
+        updateGui(g -> {
+            g.refreshAll();
+            g.addLog(player.getName() + " si è spostato sulla casella " + gameBoard.getTileAt(newPosition).getName());
+        });
+
+        handlePropertyLanding();
     }
 
     @Override
@@ -336,6 +341,4 @@ public class MatchControllerImpl implements MatchController {
     private void handleBankRuptcy(Player bankruptPlayer){
         updateGui(g -> g.addLog("!!! BANCAROTTA per " + bankruptPlayer.getName() + " !!!"));
     }
-
-
 }
