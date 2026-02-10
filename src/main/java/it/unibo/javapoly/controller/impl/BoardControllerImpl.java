@@ -147,7 +147,6 @@ public class BoardControllerImpl implements BoardController {
         return movePlayerToTile(player, this.JAIL_POSITION);
     }
 
-    
     /**
      * {@inheritDoc}
      */

@@ -20,6 +20,7 @@ public final class GoToJailTile extends AbstractTile {
      * @param position the position of the tile on the board
      * @param name the tile name
      * @param jailPos the position of the jail tile
+     * @param desc the tile description
      */
     @JsonCreator
     public GoToJailTile(
