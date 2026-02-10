@@ -4,12 +4,14 @@
     "type": "START",
     "position": 0,
     "name": "Via!",
+    "description": "Ritirate 200 ogni volta che passate di qua",
     "reward": 200
   },
   {
     "type": "PROPERTY",
     "position": 1,
     "name": "Vicolo Corto",
+    "description": "Proprietà marrone, la più economica.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "vicolo_corto",
@@ -32,13 +34,15 @@
   {
     "type": "UNEXPECTED",
     "position": 2,
-    "name": "Probabilità",
-    "deckCardID": "chance"
+    "name": "Imprevisti",
+    "description": "Devi pescare una carta imprevisti",
+    "deckCardID": "Imprevisti"
   },
   {
     "type": "PROPERTY",
     "position": 3,
     "name": "Vicolo Stretto",
+    "description": "Proprietà marrone, economica.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "vicolo_stretto",
@@ -62,12 +66,14 @@
     "type": "TAX",
     "position": 4,
     "name": "Tassa Patrimoniale",
+    "description": "Tassa Patrimoniale, dovete pagare 200 alla banca",
     "amountTax": 200
   },
   {
     "type": "RAILROAD",
     "position": 5,
     "name": "Stazione Nord",
+    "description": "Stazione ferroviaria. L'affitto dipende dal numero di stazioni possedute.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "stazione_nord",
@@ -87,6 +93,7 @@
     "type": "PROPERTY",
     "position": 6,
     "name": "Bastioni Gran Sasso",
+    "description": "Proprietà azzurra.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "bastioni_gran_sasso",
@@ -110,12 +117,14 @@
     "type": "UNEXPECTED",
     "position": 7,
     "name": "Imprevisti",
-    "deckCardID": "community_chest"
+    "description": "Devi pescare una carta imprevisti",
+    "deckCardID": "Imprevisti"
   },
   {
     "type": "PROPERTY",
     "position": 8,
     "name": "Viale Monterosa",
+    "description": "Proprietà azzurra.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "viale_monterosa",
@@ -139,6 +148,7 @@
     "type": "PROPERTY",
     "position": 9,
     "name": "Viale Vesuvio",
+    "description": "Proprietà azzurra.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "viale_vesuvio",
@@ -161,12 +171,14 @@
   {
     "type": "JAIL",
     "position": 10,
-    "name": "Prigione"
+    "name": "Prigione",
+    "description": "Questa è la prigione"
   },
   {
     "type": "PROPERTY",
     "position": 11,
     "name": "Via Accademia",
+    "description": "Proprietà rosa.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "via_accademia",
@@ -190,6 +202,7 @@
     "type": "UTILITY",
     "position": 12,
     "name": "Società Elettrica",
+    "description": "Utility: l'affitto è un multiplo del lancio dei dadi (4x se una, 10x se entrambe).",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "societa_elettrica",
@@ -211,6 +224,7 @@
     "type": "PROPERTY",
     "position": 13,
     "name": "Corso Ateneo",
+    "description": "Proprietà rosa.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "corso_ateneo",
@@ -234,6 +248,7 @@
     "type": "PROPERTY",
     "position": 14,
     "name": "Piazza Università",
+    "description": "Proprietà rosa.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "piazza_universita",
@@ -257,6 +272,7 @@
     "type": "RAILROAD",
     "position": 15,
     "name": "Stazione Est",
+    "description": "Stazione ferroviaria. L'affitto dipende dal numero di stazioni possedute.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "stazione_est",
@@ -276,6 +292,7 @@
     "type": "PROPERTY",
     "position": 16,
     "name": "Via Verdi",
+    "description": "Proprietà arancione.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "via_verdi",
@@ -298,13 +315,15 @@
   {
     "type": "UNEXPECTED",
     "position": 17,
-    "name": "Probabilità",
-    "deckCardID": "chance"
+    "name": "Imprevisti",
+    "description": "Devi pescare una carta imprevisti",
+    "deckCardID": "Imprevisti"
   },
   {
     "type": "PROPERTY",
     "position": 18,
     "name": "Corso Raffaello",
+    "description": "Proprietà arancione.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "corso_raffaello",
@@ -328,6 +347,7 @@
     "type": "PROPERTY",
     "position": 19,
     "name": "Piazza Dante",
+    "description": "Proprietà arancione.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "piazza_dante",
@@ -350,12 +370,14 @@
   {
     "type": "FREE_PARKING",
     "position": 20,
-    "name": "Parcheggio Gratuito"
+    "name": "Parcheggio Gratuito",
+    "description": ""
   },
   {
     "type": "PROPERTY",
     "position": 21,
     "name": "Via Marco Polo",
+    "description": "Proprietà rossa.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "via_marco_polo",
@@ -379,12 +401,14 @@
     "type": "UNEXPECTED",
     "position": 22,
     "name": "Imprevisti",
-    "deckCardID": "community_chest"
+    "description": "Devi pescare una carta imprevisti",
+    "deckCardID": "Imprevisti"
   },
   {
     "type": "PROPERTY",
     "position": 23,
     "name": "Corso Magellano",
+    "description": "Proprietà rossa.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "corso_magellano",
@@ -408,6 +432,7 @@
     "type": "PROPERTY",
     "position": 24,
     "name": "Largo Colombo",
+    "description": "Proprietà rossa.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "largo_colombo",
@@ -431,6 +456,7 @@
     "type": "RAILROAD",
     "position": 25,
     "name": "Stazione Sud",
+    "description": "Stazione ferroviaria. L'affitto dipende dal numero di stazioni possedute.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "stazione_sud",
@@ -450,6 +476,7 @@
     "type": "PROPERTY",
     "position": 26,
     "name": "Viale Costantino",
+    "description": "Proprietà gialla.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "viale_costantino",
@@ -473,6 +500,7 @@
     "type": "PROPERTY",
     "position": 27,
     "name": "Viale Traiano",
+    "description": "Proprietà gialla.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "viale_traiano",
@@ -496,6 +524,7 @@
     "type": "UTILITY",
     "position": 28,
     "name": "Società Acqua Potabile",
+    "description": "Utility: l'affitto è un multiplo del lancio dei dadi (4x se una, 10x se entrambe).",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "societa_acqua_potabile",
@@ -517,6 +546,7 @@
     "type": "PROPERTY",
     "position": 29,
     "name": "Piazza Giulio Cesare",
+    "description": "Proprietà gialla.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "piazza_giulio_cesare",
@@ -540,12 +570,14 @@
     "type": "GO_TO_JAIL",
     "position": 30,
     "name": "Vai in Prigione",
+    "description": "Vai in prigione",
     "jailPos": 10
   },
   {
     "type": "PROPERTY",
     "position": 31,
     "name": "Via Roma",
+    "description": "Proprietà verde.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "via_roma",
@@ -569,6 +601,7 @@
     "type": "PROPERTY",
     "position": 32,
     "name": "Corso Impero",
+    "description": "Proprietà verde.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "corso_impero",
@@ -591,13 +624,15 @@
   {
     "type": "UNEXPECTED",
     "position": 33,
-    "name": "Probabilità",
-    "deckCardID": "chance"
+    "name": "Imprevisti",
+    "description": "Devi pescare una carta imprevisti",
+    "deckCardID": "Imprevisti"
   },
   {
     "type": "PROPERTY",
     "position": 34,
     "name": "Parco della Vittoria",
+    "description": "Proprietà verde, la più cara del gruppo.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "parco_della_vittoria",
@@ -621,6 +656,7 @@
     "type": "RAILROAD",
     "position": 35,
     "name": "Stazione Ovest",
+    "description": "Stazione ferroviaria. L'affitto dipende dal numero di stazioni possedute.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "stazione_ovest",
@@ -640,12 +676,14 @@
     "type": "UNEXPECTED",
     "position": 36,
     "name": "Imprevisti",
-    "deckCardID": "community_chest"
+    "description": "Devi pescare una carta imprevisti",
+    "deckCardID": "Imprevisti"
   },
   {
     "type": "PROPERTY",
     "position": 37,
     "name": "Viale dei Giardini",
+    "description": "Proprietà blu scuro, molto costosa.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "viale_dei_giardini",
@@ -669,12 +707,14 @@
     "type": "TAX",
     "position": 38,
     "name": "Tassa di Lusso",
+    "description": "Tassa di Lusso, dovete pagare 100 alla banca",
     "amountTax": 100
   },
   {
     "type": "PROPERTY",
     "position": 39,
     "name": "Parco Sempione",
+    "description": "Proprietà blu scuro, la più costosa del gioco.",
     "property": {
       "type": "PROPERTYIMPL",
       "id": "parco_sempione",
