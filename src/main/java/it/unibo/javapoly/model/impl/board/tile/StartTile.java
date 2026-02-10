@@ -20,6 +20,7 @@ public final class StartTile extends AbstractTile {
      * @param position the position of the tile on the board
      * @param name the tile name
      * @param reward the reward gained when passing the tile
+     * @param desc the tile description
      */
     @JsonCreator
     public StartTile(

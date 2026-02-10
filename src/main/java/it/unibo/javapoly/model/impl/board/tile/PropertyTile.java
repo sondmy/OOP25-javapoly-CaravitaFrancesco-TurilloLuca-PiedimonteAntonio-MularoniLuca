@@ -25,6 +25,7 @@ public class PropertyTile extends AbstractTile {
      * @param position the position of the tile on the board
      * @param name the tile name
      * @param property the property associated with this tile
+     * @param desc the tile description
      */
     @JsonCreator
     public PropertyTile(@JsonProperty("position") final int position,

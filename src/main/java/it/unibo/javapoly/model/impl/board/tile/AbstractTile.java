@@ -22,6 +22,7 @@ public abstract class AbstractTile implements Tile {
      * @param position the position of the tile on the board
      * @param type the tile type
      * @param name the tile name
+     * @param desc the tile description
      */
     protected AbstractTile(final int position, final TileType type, final String name, final String desc) {
         this.position = position;

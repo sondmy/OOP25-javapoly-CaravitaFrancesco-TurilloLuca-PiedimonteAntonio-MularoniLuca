@@ -20,6 +20,7 @@ public final class TaxTile extends AbstractTile {
      * @param position the position of the tile on the board
      * @param name the tile name
      * @param amount the tax amount to be paid
+     * @param desc the tile description
      */
     @JsonCreator
     public TaxTile(

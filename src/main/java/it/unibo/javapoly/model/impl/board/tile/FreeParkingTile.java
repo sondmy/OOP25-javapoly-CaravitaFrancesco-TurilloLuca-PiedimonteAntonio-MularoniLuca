@@ -17,6 +17,7 @@ public final class FreeParkingTile extends AbstractTile {
      *
      * @param position the position of the tile on the board
      * @param name the tile name
+     * @param desc the tile description
      */
     @JsonCreator
     public FreeParkingTile(@JsonProperty("position") final int position,

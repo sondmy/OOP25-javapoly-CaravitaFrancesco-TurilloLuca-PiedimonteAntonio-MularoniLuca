@@ -20,6 +20,7 @@ public final class UnexpectedTile extends AbstractTile {
      * @param position the position of the tile on the board
      * @param deckCardID the ID of the deck
      * @param name the tile name
+     * @param desc the tile description
      */
     @JsonCreator
     public UnexpectedTile(
