@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class MenuViewImpl implements MenuView {
     public static final String BG_COLOR = "-fx-background-color: #edfbea;";
-    private static final String TITLE = "Javapoly";
+    public static final String TITLE = "Javapoly";
     private static final String MENU = " - Menu";
     private static final String SETUP = " - Setup player";
     private static final String ICON_PATH = "/images/javapolyICON.png";
@@ -210,8 +210,9 @@ public class MenuViewImpl implements MenuView {
     }
 
     /**
-     * Create file picker dialog.
+     * {@inheritDoc}
      */
+    @Override
     public void showLoadGameView() {
         final FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Save Game");
@@ -222,5 +223,13 @@ public class MenuViewImpl implements MenuView {
         if (selectedFile != null) {
             controller.loadGame(selectedFile);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Stage getStage() {
+        return this.stage;
     }
 }
