@@ -49,8 +49,15 @@ public final class PropertyImpl implements Property {
      *
      * @param property instance from which to create a copy
      */
-    public PropertyImpl(final Property property) { // FIXME: non aggiunge lo state.
+    public PropertyImpl(final Property property) {
         this(property.getId(), property.getPosition(), property.getCard());
+        
+        if(!property.getState().isOwnedByPlayer()){
+            return;
+        }
+        
+        this.state.setNewOwnerID(property.getState().getOwnerId());
+        this.state.setHouse(property.getState().getHouses());
     }
 
     //#region Getter
