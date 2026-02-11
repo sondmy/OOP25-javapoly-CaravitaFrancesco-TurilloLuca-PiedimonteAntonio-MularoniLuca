@@ -190,6 +190,11 @@ public interface Player {
 
     /**
      * Set the position of the player.
+     * 
+     * <p>
+     * This method is intended to be used for JSON serialization/deserialization to
+     * restore the player's position when loading a saved game from a JSON file.
+     * </p>
      *
      * @param position in the board of the player
      */
@@ -197,6 +202,12 @@ public interface Player {
 
     /**
      * Get the token type chose by the player.
+     * 
+     * <p>
+     * This method is intended to be used for JSON serialization/deserialization to
+     * identify the specific token type associated with the player when loading a
+     * saved game from a JSON file.
+     * </p>
      *
      * @return token type chose by the player
      */

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.PlayerObserver;
 import it.unibo.javapoly.model.api.PlayerState;
@@ -84,6 +85,8 @@ public class PlayerImpl implements Player {
      * 
      * <p>
      * The player starts in the {@link FreeState} and at position 0.
+     * The parameters passed to this constructor are used for saving and loading
+     * the player's state from a JSON file.
      * </p>
      * 
      * <p>
@@ -101,9 +104,11 @@ public class PlayerImpl implements Player {
      * </ul>
      * </p>
      *
-     * @param name           the name of the player.
-     * @param initialBalance the starting balance of the player.
-     * @param tokenType      the type of token associated with the player.
+     * @param name           the name of the player (JSON property "name").
+     * @param initialBalance the starting balance of the player (JSON property
+     *                       "balance").
+     * @param tokenType      the type of token associated with the player (JSON
+     *                       property "tokenType").
      * @throws NullPointerException     if {@code name} or {@code tokenType} is
      *                                  null.
      * @throws IllegalArgumentException if {@code name} is blank or
@@ -112,9 +117,9 @@ public class PlayerImpl implements Player {
      * @see TokenFactory
      */
     @JsonCreator
-    public PlayerImpl(@JsonProperty("name") final String name,
-                      @JsonProperty("balance") final int initialBalance,
-                      @JsonProperty("tokenType") final TokenType tokenType) {
+    public PlayerImpl(@JsonProperty("name") final String name, @JsonProperty("balance") final int initialBalance,
+            @JsonProperty("tokenType") final TokenType tokenType) {
+
         ValidationUtils.requireNonNull(name, "Name cannot be null");
         ValidationUtils.requireNonNull(tokenType, "Token type cannot be null");
         ValidationUtils.requireNonBlank(name, "Name cannot be blank");
