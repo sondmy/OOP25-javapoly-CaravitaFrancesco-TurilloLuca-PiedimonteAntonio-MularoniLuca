@@ -131,9 +131,12 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
 
         playerFields.spacingProperty().bind(root.heightProperty().multiply(SPACING));
 
+        final TokenType[] availableTokens = TokenType.values();
+
         for (int i = 1; i <= count; i++) {
             final int playerIndex = i - 1;
-            HBox row = new HBox(10);
+
+            final HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER);
 
             final TextField field = new TextField();
@@ -142,35 +145,46 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
             field.prefHeightProperty().bind(this.stage.heightProperty().multiply(HEIGHT_TEXT_FIELDS));
 
             final ComboBox<TokenType> tokenBox = new ComboBox<>();
-            tokenBox.getItems().addAll(TokenType.values());
+            tokenBox.getItems().addAll(availableTokens);
             tokenBox.setPromptText("Token");
             tokenBox.prefHeightProperty().bind(this.stage.heightProperty().multiply(HEIGHT_TEXT_FIELDS));
-            if (i - 1 < TokenType.values().length) {
-                tokenBox.setValue(TokenType.values()[i - 1]);
+
+            // --- smart default logic ---
+            final int tokenIndex = i - 1;
+            if (tokenIndex < availableTokens.length) {
+                final TokenType candidate = availableTokens[tokenIndex];
+                if (candidate != TokenType.CUSTOM) {
+                    tokenBox.setValue(candidate);
+                } else {
+                    tokenBox.setValue(TokenType.BOAT);
+                }
+            } else {
+                // fallback if there are more players than available tokens excluding CUSTOM.
+                tokenBox.setValue(TokenType.BOAT);
             }
 
-            // file chooser logic for custom token selection.
+            // --- listener for custom selection ---
             tokenBox.setOnAction(e -> {
                 if (tokenBox.getValue() == TokenType.CUSTOM) {
-                    FileChooser fileChooser = new FileChooser();
+                    final FileChooser fileChooser = new FileChooser();
                     fileChooser.setTitle("Choose token image");
                     fileChooser.getExtensionFilters().add(
                             new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
 
-                    File file = fileChooser.showOpenDialog(this.stage);
+                    final File file = fileChooser.showOpenDialog(this.stage);
 
                     if (file != null) {
-                        // save the absolute path as a URI string.
+                        // save the absolute path as URI
                         customTokenPaths.set(playerIndex, file.toURI().toString());
-                        // visual feedback change color.
-                        tokenBox.setStyle("-fx-border-color: green;");
+                        // visual feedback to indicate a custom token has been selected
+                        tokenBox.setStyle("-fx-border-color: green; -fx-border-width: 2px;");
                     } else {
-                        // if canceled reset to default token and clear path.
-                        tokenBox.setValue(TokenType.CAR);
+                        // if canceled, reset to a safe value
+                        tokenBox.setValue(TokenType.CAR); // this trigger setOnAction again but goes to the else
                         customTokenPaths.set(playerIndex, null);
                     }
                 } else {
-                    // if change idea and choose a normal enum, reset the path.
+                    // if the user selects a normal enum reset the path and style
                     customTokenPaths.set(playerIndex, null);
                     tokenBox.setStyle("");
                 }
