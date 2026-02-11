@@ -11,15 +11,11 @@ import it.unibo.javapoly.model.api.TokenType;
 public interface MenuController {
 
     /**
-     * Initiates a new game session using the provided validated player name, token
-     * type lists and custom token paths.
-     * The method is called after the user confirms their player setup in the menu,
-     * and it receives the necessary information to create player instances and
-     * start the game.
+     * Initiates a new game session using the provided validated player name.
      *
-     * @param names       list of player names.
-     * @param tokens      list of player token types.
-     * @param customPaths list of custom token image paths.
+     * @param names  list of player names.
+     * @param tokens list of tokens choose by player.
+     * @param customPaths for custom token.
      */
     void playerSetupConfirmed(List<String> names, List<TokenType> tokens, List<String> customPaths);
 
