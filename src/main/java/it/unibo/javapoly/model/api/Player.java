@@ -1,5 +1,8 @@
 package it.unibo.javapoly.model.api;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import it.unibo.javapoly.model.impl.DiceImpl;
+
 /**
  * Represents a player in the Javapoly game.
  * This interface defines the core behaviors and properties of a player,
@@ -32,6 +35,7 @@ package it.unibo.javapoly.model.api;
  * @see TokenType
  * @see PlayerObserver
  */
+@JsonDeserialize(as = Player.class)
 public interface Player {
 
     /**
@@ -190,11 +194,6 @@ public interface Player {
 
     /**
      * Set the position of the player.
-     * 
-     * <p>
-     * This method is intended to be used for JSON serialization/deserialization to
-     * restore the player's position when loading a saved game from a JSON file.
-     * </p>
      *
      * @param position in the board of the player
      */
@@ -202,39 +201,8 @@ public interface Player {
 
     /**
      * Get the token type chose by the player.
-     * 
-     * <p>
-     * This method is intended to be used for JSON serialization/deserialization to
-     * identify the specific token type associated with the player when loading a
-     * saved game from a JSON file.
-     * </p>
      *
      * @return token type chose by the player
      */
     TokenType getTokenType();
-
-    /**
-     * Retrieves the file path associated with a custom token.
-     * 
-     * <p>
-     * This is used for the choice of the custom token, specifically
-     * when the player selects {@link TokenType#CUSTOM}. It provides the location of
-     * the image file representing the player's custom piece.
-     * </p>
-     * 
-     * @return the file path of the custom token image.
-     */
-    public String getCustomTokenPath();
-
-    /**
-     * Sets the file path for the custom token.
-     * 
-     * <p>
-     * This method allows updating the choice of the custom token by
-     * specifying the path to the desired image.
-     * </p>
-     * 
-     * @param path the file path of the custom token image.
-     */
-    public void setCustomTokenPath(final String path);
 }

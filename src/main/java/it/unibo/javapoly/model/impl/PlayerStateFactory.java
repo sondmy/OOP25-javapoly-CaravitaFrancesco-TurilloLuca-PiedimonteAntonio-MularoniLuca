@@ -1,10 +1,12 @@
 package it.unibo.javapoly.model.impl;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import it.unibo.javapoly.model.api.PlayerState;
 
 /**
  * Utility class for creating PlayerState instances from class names.
  */
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public final class PlayerStateFactory {
 
     private PlayerStateFactory() {
