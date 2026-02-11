@@ -35,7 +35,7 @@ public class BoardPanel {
     private final Board board;
     private List<Player> players;
 
-    public BoardPanel(final Board board, List<Player> players){
+    public BoardPanel(final Board board, List<Player> players) {
         this.board = Objects.requireNonNull(board);
         this.players = Objects.requireNonNull(players);
         this.root = new GridPane();
@@ -46,21 +46,21 @@ public class BoardPanel {
         this.renderBoard();
     }
 
-    private String getColorForOwner(String ownerId){
+    private String getColorForOwner(String ownerId) {
         int hash = ownerId.hashCode();
-        String[] colors = {"#e74c3c", "#3498db", "#f1c40f", "#9b59b6", "#e67e22"};
+        String[] colors = { "#e74c3c", "#3498db", "#f1c40f", "#9b59b6", "#e67e22" };
         return colors[Math.abs(hash) % colors.length];
     }
 
-    private StackPane createTileUI(final Tile tile, final int index){
+    private StackPane createTileUI(final Tile tile, final int index) {
         final StackPane container = new StackPane();
         final VBox tileDesign = new VBox();
         tileDesign.setStyle("-fx-border-color: black; -fx-background-color: white;");
         tileDesign.setAlignment(Pos.TOP_CENTER);
 
-        if(tile instanceof PropertyTile pt){
+        if (tile instanceof PropertyTile pt) {
             Property prop = pt.getProperty();
-            if(prop.getIdOwner() != null){
+            if (prop.getIdOwner() != null) {
                 Pane ownerBar = new Pane();
                 ownerBar.setPrefHeight(10);
                 ownerBar.setStyle("-fx-background-color: " + getColorForOwner(prop.getIdOwner()) + ";");
@@ -78,7 +78,7 @@ public class BoardPanel {
             }
             tileDesign.getChildren().add(houseContainer);
         }
-        if(tile != null){
+        if (tile != null) {
             Label nameLabel = new Label(tile.getName());
             nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 9px;");
             nameLabel.setWrapText(true);
@@ -89,7 +89,7 @@ public class BoardPanel {
         tokenLayer.setAlignment(Pos.CENTER);
         tokenLayer.setPickOnBounds(false);
         for (Player p : players) {
-            if(p.getCurrentPosition() == index){
+            if (p.getCurrentPosition() == index) {
                 tokenLayer.getChildren().add(createToken(p));
             }
         }
@@ -109,58 +109,64 @@ public class BoardPanel {
             imageView.setPreserveRatio(true);
             imageView.setSmooth(true);
 
-            // 3. EFFETTO OMBRA 
+            // 3. EFFETTO OMBRA
             DropShadow ds = new DropShadow();
             ds.setRadius(5.0);
             ds.setOffsetX(3.0);
             ds.setOffsetY(3.0);
             ds.setColor(Color.color(0, 0, 0, 0.4)); // Ombra semi-trasparente
-            
+
             imageView.setEffect(ds);
-            
+
             return imageView;
- 
+
         } catch (Exception e) {
             Circle circle = new Circle(10);
-            circle.setFill(Color.RED); 
+            circle.setFill(Color.RED);
             circle.setStroke(Color.BLACK);
             return circle;
-            }
         }
+    }
 
-    private int calculateX(int i){
-        if(i <= 10) return 10 - i;
-        if(i <= 20) return 0;
-        if(i <= 30) return i - 20;
+    private int calculateX(int i) {
+        if (i <= 10)
+            return 10 - i;
+        if (i <= 20)
+            return 0;
+        if (i <= 30)
+            return i - 20;
         return 10;
     }
 
-    private int calculateY(int i){
-        if(i <= 10) return 10;
-        if(i <= 20) return 10 - (i - 10);
-        if(i <= 30) return 0;
+    private int calculateY(int i) {
+        if (i <= 10)
+            return 10;
+        if (i <= 20)
+            return 10 - (i - 10);
+        if (i <= 30)
+            return 0;
         return i - 30;
     }
 
-    private void renderBoard(){
+    private void renderBoard() {
         this.root.getChildren().clear();
         this.root.getRowConstraints().clear();
         this.root.getColumnConstraints().clear();
 
         for (int i = 0; i < 11; i++) {
             ColumnConstraints col = new ColumnConstraints();
-            col.setPercentWidth(100.0 / 11); 
-            
+            col.setPercentWidth(100.0 / 11);
+
             RowConstraints row = new RowConstraints();
-            row.setPercentHeight(100.0 / 11); 
-            
+            row.setPercentHeight(100.0 / 11);
+
             this.root.getColumnConstraints().add(col);
             this.root.getRowConstraints().add(row);
         }
 
         final int size = board.size();
 
-        for(int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             final Tile tile = board.getTileAt(i);
             final StackPane tileUI = createTileUI(tile, i);
 
