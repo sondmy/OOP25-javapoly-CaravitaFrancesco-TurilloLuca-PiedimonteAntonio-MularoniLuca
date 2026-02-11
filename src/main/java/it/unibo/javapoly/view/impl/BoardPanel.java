@@ -97,10 +97,8 @@ public class BoardPanel {
         return container;
     }
 
-    // Metodo per creare la pedina (già pronto per le ombre)
     private Node createToken(Player p) {
         // 1. CARICAMENTO IMMAGINE
-        // Supponendo che le immagini siano in src/main/resources/tokens/ e si chiamino come il Token (es. CAR.png)
         try {
             String imageName = p.getToken().getType().toString().toUpperCase() + ".png";
             Image img = new Image(getClass().getResourceAsStream("/images/tokens/" + imageName));
@@ -121,15 +119,8 @@ public class BoardPanel {
             imageView.setEffect(ds);
             
             return imageView;
-
-            //FIXME
-            /*Cosa devi fare adesso:
-            Cartella Resources: Crea una cartella chiamata tokens dentro src/main/resources.
-            Nomi file: Quando Francesco ti manda i file, rinominali esattamente come i tuoi TokenType (es: CAR.png, DOG.png, HAT.png).
-            Pulizia: Ho aggiunto il try-catch così, se provi a lanciare il gioco adesso e le immagini non ci sono, vedrai dei pallini rossi invece di un errore "NullPointerException". */
+ 
         } catch (Exception e) {
-            // FALLBACK: Se l'immagine non esiste ancora, disegna un cerchio colorato
-            // così il gioco funziona anche mentre aspetti i file di Francesco
             Circle circle = new Circle(10);
             circle.setFill(Color.RED); 
             circle.setStroke(Color.BLACK);

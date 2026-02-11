@@ -27,6 +27,7 @@ import it.unibo.javapoly.model.impl.JailedState;
 import it.unibo.javapoly.model.impl.board.BoardImpl;
 import it.unibo.javapoly.model.impl.board.tile.PropertyTile;
 import it.unibo.javapoly.view.impl.MainView;
+import javafx.application.Platform;
 
 /**
  * MatchControllerImpl manages the flow of the game, including turns, 
@@ -100,18 +101,10 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
      */
     @Override
     public void nextTurn() {
-        this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.size();
+        do{
+            this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.size();
+        }while(getCurrentPlayer().getState() instanceof BankruptState);
 
-        if(getCurrentPlayer().getState() instanceof BankruptState){
-            long active = players.stream()
-                                .filter(p -> !(p.getState() instanceof BankruptState))
-                                .count();
-
-            if(active > 1){
-                nextTurn();
-                return;
-            }
-        }
         this.hasRolled = false;
         this.consecutiveDoubles = 0;
 
@@ -166,6 +159,9 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
                 handlePrison(); 
                 this.hasRolled = true;
                 return;
+            }else {
+                this.hasRolled = false;
+                updateGui(g -> g.addLog("Puoi lanciare ancora!"));
             }
         } else {
             this.consecutiveDoubles = 0;
@@ -185,12 +181,14 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
     @Override
     public void handleMove(int steps) {
         final Player currentPlayer = getCurrentPlayer();
-        // this.boardController.movePlayer(currentPlayer, steps);
-        currentPlayer.setPosition(this.boardController.movePlayer(currentPlayer, steps).getPosition());
+        int oldPos = currentPlayer.getCurrentPosition();
 
-        updateGui(g -> {
-            g.refreshAll();
-        });
+        int newPos = this.boardController.movePlayer(currentPlayer, steps).getPosition();
+        currentPlayer.setPosition(newPos);
+
+        this.onPlayerMoved(currentPlayer, oldPos, newPos);
+
+        updateGui(g -> g.refreshAll());
     }
 
     /**
@@ -221,8 +219,6 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
             Property prop =  ((PropertyTile) currentTile).getProperty();
             if(prop.getIdOwner() == null){
                 updateGui(g -> g.addLog("Puoi acquistare " + prop.getId() + " per " + prop.getPurchasePrice() + "€"));
-                // Qui la GUI dovrebbe abilitare il tasto "Acquista"
-                // g.enableBuyButton(true); // Esempio di chiamata alla GUI
             }else if(prop.getIdOwner().equals(currentPlayer.getName())){
                 updateGui(g -> {
                     g.addLog("Sei a casa tua (" + prop.getId() + ").");
@@ -286,8 +282,10 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
                                         .filter(p -> p.getName().equals(ownerId))
                                         .findFirst()
                                         .orElse(null);
-            if(this.propertyController.checkPayRent(player, prop.getId())){
-                this.economyController.payRent(player, ownerId, prop, this.lastDiceResult);
+            if(ownerId != null && ownerId.equals(player.getName())){
+                if(this.propertyController.checkPayRent(player, prop.getId())){
+                    this.economyController.payRent(player, ownerId, prop, this.lastDiceResult);
+                }
             }
         }else {
             this.currentCreditor = null;
@@ -349,7 +347,7 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
     }
 
     private void updateGui(Consumer<MainView> action) {
-        if (this.gui != null) action.accept(this.gui);
+        if (this.gui != null) Platform.runLater(() -> action.accept(this.gui));
     }
 
     @Override

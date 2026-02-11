@@ -102,23 +102,24 @@ public class CommandPanel {
 
         Tile currentTile = matchController.getBoard().getTileAt(current.getCurrentPosition());
         
+        this.buyButton.setVisible(false);
+        this.buyButton.setManaged(false);
+        this.buildButton.setVisible(false);
+        this.buildButton.setManaged(false);
+
         if(currentTile instanceof PropertyTile pt){
             Property prop = pt.getProperty();
+            boolean isUnowned = (prop.getIdOwner() == null);
 
-            boolean canBuy = prop.getIdOwner() == null;
-            this.buyButton.setVisible(canBuy);
-            this.buyButton.setManaged(canBuy);
-            this.buyButton.setDisable(!hasRolled);
-
-            boolean isOwner = current.getName().equals(prop.getIdOwner());
-            this.buildButton.setVisible(isOwner);
-            this.buildButton.setManaged(isOwner);
-            this.buildButton.setDisable(!hasRolled);
-        }else{
-            this.buyButton.setVisible(false);
-            this.buyButton.setManaged(false);
-            this.buildButton.setVisible(false);
-            this.buildButton.setManaged(false);
+            if(isUnowned){
+                this.buyButton.setVisible(true);
+                this.buyButton.setManaged(true);
+                this.buyButton.setDisable(!hasRolled);
+            }else if(current.getName().equals(prop.getIdOwner())){
+                this.buildButton.setVisible(true);
+                this.buildButton.setManaged(true);
+                this.buildButton.setDisable(!hasRolled);
+            }
         }
 
         boolean isJailed = current.getState() instanceof JailedState;
@@ -126,6 +127,8 @@ public class CommandPanel {
         this.payJailButton.setVisible(isJailed);
         this.payJailButton.setManaged(isJailed);
         this.payJailButton.setDisable(hasRolled);
+
+        this.root.requestLayout();
     }
 
     /**
