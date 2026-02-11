@@ -76,7 +76,26 @@ public class PlayerImpl implements Player {
      * @throws IllegalArgumentException if {@code name} is blank.
      */
     public PlayerImpl(final String name, final TokenType tokenType) {
-        this(name, DEFAULT_STARTING_BALANCE, tokenType);// TODO
+        this(name, DEFAULT_STARTING_BALANCE, tokenType, null);
+    }
+
+    /**
+     * Constructs a new {@link PlayerImpl} with a specified name, token type, and a
+     * path for a custom token image.
+     * 
+     * <p>
+     * This constructor is intended for use when the player selects the
+     * {@link TokenType#CUSTOM} token type and uploads or selects a specific file
+     * to represent their token in the game. It initializes the player with the
+     * default starting balance.
+     * </p>
+     *
+     * @param name            the name of the player.
+     * @param tokenType       the type of token associated with the player.
+     * @param customTokenPath the file path to the custom token image.
+     */
+    public PlayerImpl(final String name, final TokenType tokenType, final String customTokenPath) {
+        this(name, DEFAULT_STARTING_BALANCE, tokenType, customTokenPath);
     }
 
     /**
@@ -123,7 +142,7 @@ public class PlayerImpl implements Player {
     public PlayerImpl(@JsonProperty("name") final String name,
             @JsonProperty("balance") final int initialBalance,
             @JsonProperty("tokenType") final TokenType tokenType,
-            @JsonProperty("customTokenPath") String customTokenPath) {
+            @JsonProperty("customTokenPath") final String customTokenPath) {
 
         ValidationUtils.requireNonNull(name, "Name cannot be null");
         ValidationUtils.requireNonNull(tokenType, "Token type cannot be null");
@@ -298,14 +317,33 @@ public class PlayerImpl implements Player {
         return this.currentState;
     }
 
-    // TODO
+    /**
+     * Retrieves the file path associated with a custom token.
+     * 
+     * <p>
+     * This is used for the choice of the custom token, specifically
+     * when the player selects {@link TokenType#CUSTOM}. It provides the location of
+     * the image file representing the player's custom piece.
+     * </p>
+     * 
+     * @return the file path of the custom token image.
+     */
     @JsonProperty
     public String getCustomTokenPath() {
         return customTokenPath;
     }
 
-    // TODO
-    public void setCustomTokenPath(String path) {
+    /**
+     * Sets the file path for the custom token.
+     * 
+     * <p>
+     * This method allows updating the choice of the custom token by
+     * specifying the path to the desired image.
+     * </p>
+     * 
+     * @param path the file path of the custom token image.
+     */
+    public void setCustomTokenPath(final String path) {
         this.customTokenPath = path;
     }
 
