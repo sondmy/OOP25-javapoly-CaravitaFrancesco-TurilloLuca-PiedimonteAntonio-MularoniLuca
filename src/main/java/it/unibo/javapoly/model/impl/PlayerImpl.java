@@ -119,7 +119,7 @@ public class PlayerImpl implements Player {
     @JsonCreator
     public PlayerImpl(@JsonProperty("name") final String name, @JsonProperty("balance") final int initialBalance,
             @JsonProperty("tokenType") final TokenType tokenType) {
-                
+
         ValidationUtils.requireNonNull(name, "Name cannot be null");
         ValidationUtils.requireNonNull(tokenType, "Token type cannot be null");
         ValidationUtils.requireNonBlank(name, "Name cannot be blank");
