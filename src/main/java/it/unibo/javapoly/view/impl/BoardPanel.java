@@ -6,6 +6,8 @@ import java.util.Objects;
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.board.Board;
 import it.unibo.javapoly.model.api.board.Tile;
+import it.unibo.javapoly.model.api.property.Property;
+import it.unibo.javapoly.model.impl.board.tile.PropertyTile;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -15,6 +17,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
@@ -43,12 +46,38 @@ public class BoardPanel {
         this.renderBoard();
     }
 
+    private String getColorForOwner(String ownerId){
+        int hash = ownerId.hashCode();
+        String[] colors = {"#e74c3c", "#3498db", "#f1c40f", "#9b59b6", "#e67e22"};
+        return colors[Math.abs(hash) % colors.length];
+    }
+
     private StackPane createTileUI(final Tile tile, final int index){
         final StackPane container = new StackPane();
         final VBox tileDesign = new VBox();
         tileDesign.setStyle("-fx-border-color: black; -fx-background-color: white;");
-        tileDesign.setAlignment(Pos.CENTER);
+        tileDesign.setAlignment(Pos.TOP_CENTER);
 
+        if(tile instanceof PropertyTile pt){
+            Property prop = pt.getProperty();
+            if(prop.getIdOwner() != null){
+                Pane ownerBar = new Pane();
+                ownerBar.setPrefHeight(10);
+                ownerBar.setStyle("-fx-background-color: " + getColorForOwner(prop.getIdOwner()) + ";");
+                tileDesign.getChildren().add(ownerBar);
+            }
+
+            HBox houseContainer = new HBox(2);
+            houseContainer.setAlignment(Pos.CENTER);
+            houseContainer.setPrefHeight(15);
+
+            int houseCount = prop.getBuiltHouses();
+            for (int i = 0; i < houseCount; i++) {
+                Circle house = new Circle(4, Color.GREEN);
+                houseContainer.getChildren().add(house);
+            }
+            tileDesign.getChildren().add(houseContainer);
+        }
         if(tile != null){
             Label nameLabel = new Label(tile.getName());
             nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 9px;");
@@ -58,16 +87,12 @@ public class BoardPanel {
         }
         FlowPane tokenLayer = new FlowPane();
         tokenLayer.setAlignment(Pos.CENTER);
-        tokenLayer.setHgap(2);
-        tokenLayer.setVgap(2);
         tokenLayer.setPickOnBounds(false);
-
         for (Player p : players) {
             if(p.getCurrentPosition() == index){
                 tokenLayer.getChildren().add(createToken(p));
             }
         }
-
         container.getChildren().addAll(tileDesign, tokenLayer);
         return container;
     }
@@ -78,7 +103,7 @@ public class BoardPanel {
         // Supponendo che le immagini siano in src/main/resources/tokens/ e si chiamino come il Token (es. CAR.png)
         try {
             String imageName = p.getToken().getType().toString().toUpperCase() + ".png";
-            Image img = new Image(getClass().getResourceAsStream("/tokens/" + imageName));
+            Image img = new Image(getClass().getResourceAsStream("/images/tokens/" + imageName));
             ImageView imageView = new ImageView(img);
 
             // 2. DIMENSIONI
