@@ -76,7 +76,7 @@ public class PlayerImpl implements Player {
      * @throws IllegalArgumentException if {@code name} is blank.
      */
     public PlayerImpl(final String name, final TokenType tokenType) {
-        this(name, DEFAULT_STARTING_BALANCE, tokenType);
+        this(name, DEFAULT_STARTING_BALANCE, tokenType);// TODO
     }
 
     /**
@@ -298,11 +298,13 @@ public class PlayerImpl implements Player {
         return this.currentState;
     }
 
+    // TODO
     @JsonProperty
     public String getCustomTokenPath() {
         return customTokenPath;
     }
 
+    // TODO
     public void setCustomTokenPath(String path) {
         this.customTokenPath = path;
     }
