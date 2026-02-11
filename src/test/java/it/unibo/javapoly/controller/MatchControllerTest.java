@@ -35,8 +35,8 @@ public class MatchControllerTest {
 
         Board board = new BoardImpl(tiles);
         Map<String, Property> properties = new HashMap<>();
-        p1 = new PlayerImpl("Gigi", 1500, TokenType.CAR);
-        p2 = new PlayerImpl("Mario", 1500, TokenType.DOG);
+        p1 = new PlayerImpl("Gigi", TokenType.CAR);
+        p2 = new PlayerImpl("Mario", TokenType.DOG);
 
         // PASSIAMO 'null' ALLA GUI: così JUnit non proverà ad aprire finestre!
         controller = new MatchControllerImpl(List.of(p1, p2), board, properties);

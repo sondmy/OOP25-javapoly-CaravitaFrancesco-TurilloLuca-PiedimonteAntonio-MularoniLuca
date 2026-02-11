@@ -28,8 +28,8 @@ class TestBank {
     @BeforeEach
     void setUp() {
         this.bank = new BankImpl();
-        this.player1 = new PlayerImpl("Mario", INITIAL_BALANCE, TokenType.CAR);
-        this.player2 = new PlayerImpl("Luigi", INITIAL_BALANCE, TokenType.DOG);
+        this.player1 = new PlayerImpl("Mario", TokenType.CAR);
+        this.player2 = new PlayerImpl("Luigi", TokenType.DOG);
     }
 
     /**

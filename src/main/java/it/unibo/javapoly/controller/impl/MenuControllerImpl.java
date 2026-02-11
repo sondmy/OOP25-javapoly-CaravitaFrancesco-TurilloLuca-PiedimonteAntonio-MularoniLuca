@@ -46,7 +46,7 @@ public class MenuControllerImpl implements MenuController {
      * {@inheritDoc}
      */
     @Override
-    public void playerSetupConfirmed(final List<String> names, final List<TokenType> tokens) {
+    public void playerSetupConfirmed(List<String> names, List<TokenType> tokens, List<String> customPaths) {
         ValidationUtils.requireNonNull(names, NON_NULL);
         ValidationUtils.requireNonNull(tokens, "Player tokens list cannot be null");
         if (names.size() != tokens.size()) {
@@ -120,4 +120,5 @@ public class MenuControllerImpl implements MenuController {
             System.err.println("Error loading board from file: " + e.getMessage());
         }
     }
+    
 }
