@@ -1,5 +1,6 @@
 package it.unibo.javapoly.view.impl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
@@ -38,7 +40,8 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
     private final List<TextField> playerTextFields;
     private final ChoiceBox<Integer> playerCountChoice;
     private final Button confirmButton;
-    private final List<ComboBox<TokenType>> playerTokenSelectors; // T
+    private final List<ComboBox<TokenType>> playerTokenSelectors;
+    private final List<String> customTokenPaths = new ArrayList<>();
 
     private Stage stage;
     private MenuController controller;
@@ -52,7 +55,7 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
         playerFields.setAlignment(Pos.CENTER);
         playerFields.setSpacing(0);
         this.playerTextFields = new ArrayList<>();
-        this.playerTokenSelectors = new ArrayList<>(); // T
+        this.playerTokenSelectors = new ArrayList<>();
         this.playerCountChoice = new ChoiceBox<>();
         this.confirmButton = new Button("Confirm");
         initializeUI();
@@ -114,17 +117,22 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
 
     /**
      * Updates the player name input fields based on the selected count.
-     *
+     * 
      * @param count the number of player.
      */
     private void updatePlayerFields(final int count) {
         playerFields.getChildren().clear();
         playerTextFields.clear();
-        playerTokenSelectors.clear(); // T
+        playerTokenSelectors.clear();
+        customTokenPaths.clear();
+        for (int k = 0; k < count; k++) {
+            customTokenPaths.add(null);
+        }
 
         playerFields.spacingProperty().bind(root.heightProperty().multiply(SPACING));
 
         for (int i = 1; i <= count; i++) {
+            final int playerIndex = i - 1;
             HBox row = new HBox(10);
             row.setAlignment(Pos.CENTER);
 
@@ -133,19 +141,46 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
             field.maxWidthProperty().bind(this.stage.widthProperty().multiply(WIDTH_TEXT_FIELDS));
             field.prefHeightProperty().bind(this.stage.heightProperty().multiply(HEIGHT_TEXT_FIELDS));
 
-            final ComboBox<TokenType> tokenBox = new ComboBox<>(); // T >
+            final ComboBox<TokenType> tokenBox = new ComboBox<>();
             tokenBox.getItems().addAll(TokenType.values());
             tokenBox.setPromptText("Token");
             tokenBox.prefHeightProperty().bind(this.stage.heightProperty().multiply(HEIGHT_TEXT_FIELDS));
             if (i - 1 < TokenType.values().length) {
                 tokenBox.setValue(TokenType.values()[i - 1]);
-            } // < T
+            }
+
+            // file chooser logic for custom token selection.
+            tokenBox.setOnAction(e -> {
+                if (tokenBox.getValue() == TokenType.CUSTOM) {
+                    FileChooser fileChooser = new FileChooser();
+                    fileChooser.setTitle("Choose token image");
+                    fileChooser.getExtensionFilters().add(
+                            new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
+
+                    File file = fileChooser.showOpenDialog(this.stage);
+
+                    if (file != null) {
+                        // save the absolute path as a URI string.
+                        customTokenPaths.set(playerIndex, file.toURI().toString());
+                        // visual feedback change color.
+                        tokenBox.setStyle("-fx-border-color: green;");
+                    } else {
+                        // if canceled reset to default token and clear path.
+                        tokenBox.setValue(TokenType.CAR);
+                        customTokenPaths.set(playerIndex, null);
+                    }
+                } else {
+                    // if change idea and choose a normal enum, reset the path.
+                    customTokenPaths.set(playerIndex, null);
+                    tokenBox.setStyle("");
+                }
+            });
 
             playerTextFields.add(field);
-            playerTokenSelectors.add(tokenBox); // T
+            playerTokenSelectors.add(tokenBox);
 
-            row.getChildren().addAll(field, tokenBox); // T
-            playerFields.getChildren().add(row); // T
+            row.getChildren().addAll(field, tokenBox);
+            playerFields.getChildren().add(row);
         }
     }
 
@@ -154,11 +189,11 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
      * 
      * @return list of tokens.
      */
-    private List<TokenType> getTokenList() { // T >
+    private List<TokenType> getTokenList() {
         return playerTokenSelectors.stream()
                 .map(ComboBox::getValue)
                 .toList();
-    } // < T
+    }
 
     /**
      * Validates all player names.
@@ -185,7 +220,7 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
             return false;
         }
 
-        final List<TokenType> tokens = getTokenList(); // T >
+        final List<TokenType> tokens = getTokenList();
 
         if (tokens.stream().anyMatch(Objects::isNull)) {
             showError("All players must select a token");
@@ -196,7 +231,7 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
         if (uniqueTokens.size() != tokens.size()) {
             showError("Players cannot choose the same token");
             return false;
-        } // < T
+        }
 
         return true;
     }
@@ -219,7 +254,7 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
                 return;
             }
             if (this.controller != null) {
-                controller.playerSetupConfirmed(getNameList());
+                controller.playerSetupConfirmed(getNameList(), getTokenList(), this.customTokenPaths);
             }
         });
     }
