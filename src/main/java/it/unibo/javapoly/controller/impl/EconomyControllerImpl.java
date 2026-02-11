@@ -74,16 +74,23 @@ public final class EconomyControllerImpl implements EconomyController {
      */
     @Override
     public boolean withdrawFromPlayer(final Player player, final int amount) {
-        if (this.bank.withdraw(player, amount)) {
+        final int currentBalance = player.getBalance();
+        final int amountToPay = Math.min(currentBalance, amount);
+        if (amountToPay > 0) {
+        if (this.bank.withdraw(player, amountToPay)) {
             recordTransaction(new Transaction(this.nextTransactionId,
                     WITHDRAW_TO_BANK,
                     Optional.of(player.getName()),
                     Optional.empty(),
                     Optional.empty(),
-                    amount));
+                    amountToPay));
+            }
+        }
+        if (currentBalance >= amount) {
             return true;
         }
-        //TODO bankrupt
+        final int remainingDebt = amount - currentBalance;
+        liquidationObservers.forEach(liquidationObserver -> liquidationObserver.onInsufficientFunds(player, remainingDebt));
         return false;
     }
 
@@ -92,18 +99,23 @@ public final class EconomyControllerImpl implements EconomyController {
      */
     @Override
     public boolean payRent(final Player payer, final String payeeId, final Property property, final int diceRoll) {
+        final int currentBalance = payer.getBalance();
         final Player payee = getPlayerByID(payeeId);
         final int rent = this.propertyController.getRent(payer, property.getId(), diceRoll);
-        if (this.bank.transferFunds(payer, payee, rent)) {
+        final int amountToPay = Math.min(currentBalance, rent);
+        if (amountToPay > 0 && this.bank.transferFunds(payer, payee, amountToPay)) {
             recordTransaction(new Transaction(this.nextTransactionId,
                     PAY_RENT,
                     Optional.of(payer.getName()),
                     Optional.of(payee.getName()),
                     Optional.of(property.getId()),
-                    rent));
+                    amountToPay));
+        }
+        if (currentBalance >= rent) {
             return true;
         }
-        //TODO bankrupt
+        final int remainingDebt = rent - currentBalance;
+        liquidationObservers.forEach(liquidationObserver -> liquidationObserver.onInsufficientFunds(payer, remainingDebt));
         return false;
     }
 
@@ -113,15 +125,17 @@ public final class EconomyControllerImpl implements EconomyController {
     @Override
     public boolean purchaseProperty(final Player buyer, final Property property) {
         final int price = property.getPurchasePrice();
-        if (this.bank.withdraw(buyer, price)) {
-            this.propertyController.purchaseProperty(buyer, property.getId());
-            recordTransaction(new Transaction(this.nextTransactionId,
-                    BUY_PROPERTY,
-                    Optional.of(buyer.getName()),
-                    Optional.empty(),
-                    Optional.of(property.getId()),
-                    price));
-            return true;
+        if (bank.canAfford(buyer, price)) {
+            if (this.propertyController.purchaseProperty(buyer, property.getId())) {
+                this.bank.withdraw(buyer, price);
+                recordTransaction(new Transaction(this.nextTransactionId,
+                        BUY_PROPERTY,
+                        Optional.of(buyer.getName()),
+                        Optional.empty(),
+                        Optional.of(property.getId()),
+                        price));
+                return true;
+            }
         }
         return false;
     }
@@ -144,7 +158,7 @@ public final class EconomyControllerImpl implements EconomyController {
                         houseCost));
                 return true;
             }
-            throw new IllegalStateException("You don't own all the properties of the same color/ te house are not homogeneous");
+            throw new IllegalStateException("You don't own all the properties of the same color/ house are not homogeneous");
         }
         return false;
     }
@@ -215,6 +229,27 @@ public final class EconomyControllerImpl implements EconomyController {
     @Override
     public void removeLiquidationObserver(final LiquidationObserver observer) {
         this.liquidationObservers.remove(observer);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<LiquidationObserver> getLiquidationObservers() {
+        return new ArrayList<>(this.liquidationObservers);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean payPlayer(final Player payer, final Player payee, final int amount) {
+        if (payer.getBalance() < amount) {
+            return false;
+        }
+        this.bank.withdraw(payer, amount);
+        this.bank.deposit(payee, amount);
+        return true;
     }
 
     /**
