@@ -11,16 +11,17 @@ import org.junit.jupiter.api.Test;
 class PropertyStateImplTest {
 
     private static final int PURCHASE_PRICE = 250;
+    private static final String BANK = "BANK";
     private static final int HOTEL_CAP = 5;
     private static final int SOME_PRICE = 120;
 
     @Test
     void initialStateHasBankOwnerZeroHousesAndPurchasePriceSet() {
         final PropertyStateImpl s = new PropertyStateImpl(PURCHASE_PRICE);
-        assertEquals("Bank", s.getOwnerId());
+        assertEquals(BANK, s.getOwnerId());
         assertEquals(0, s.getHouses());
         assertEquals(PURCHASE_PRICE, s.getPurchasePrice());
-        assertFalse(s.isOwnedByPlayer());
+        assertFalse(!s.getOwnerId().equals(BANK));
     }
 
     @Test
@@ -47,11 +48,11 @@ class PropertyStateImplTest {
         final PropertyStateImpl s = new PropertyStateImpl(150);
         s.setNewOwnerID("player-123");
         assertEquals("player-123", s.getOwnerId());
-        assertTrue(s.isOwnedByPlayer());
+        assertTrue(!s.getOwnerId().equals(BANK));
 
         s.bankIsNewOwnerID();
-        assertEquals("Bank", s.getOwnerId());
-        assertFalse(s.isOwnedByPlayer());
+        assertEquals("BANK", s.getOwnerId());
+        assertFalse(!s.getOwnerId().equals(BANK));
         // bankIsNewOwnerID should reset houses to 0 as implemented
         assertEquals(0, s.getHouses());
     }
