@@ -144,6 +144,27 @@ public class MainView {
             alert.showAndWait();
         });
     }
+
+    public void showWinner(String winnerName){
+        Platform.runLater(() -> {
+            this.infoPanel.getRoot().setDisable(true);
+            this.commandPanel.getRoot().setDisable(true);
+            this.boardPanel.getRoot().setDisable(true);
+
+            this.addLog("---------------------------");
+            this.addLog("   PLAYER " + winnerName.toUpperCase() + " WON!   ");
+            this.addLog("---------------------------");
+            
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Victory!!");
+            alert.setHeaderText("🏆 We have a Winner!");
+            alert.setContentText("Congratulations" + winnerName + ", you are the tycoon of JavaPoly!");
+
+            alert.getDialogPane().setStyle("-fx-border-color: #f1c40f; -fx-border-width: 5px;");
+
+            alert.showAndWait();
+        });
+    }
     /**
      * Get info panel.
      *

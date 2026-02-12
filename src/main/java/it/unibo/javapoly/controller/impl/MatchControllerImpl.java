@@ -7,7 +7,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import it.unibo.javapoly.controller.api.BoardController;
 import it.unibo.javapoly.controller.api.EconomyController;
@@ -34,9 +39,9 @@ import javafx.application.Platform;
  * MatchControllerImpl manages the flow of the game, including turns,
  * movement, and GUI updates.
  */
-@JsonIgnoreProperties(value = {"gui","economyController", "mainView", ""}, ignoreUnknown = true)
+@JsonIgnoreProperties(value = { "gui", "economyController", "mainView", "" }, ignoreUnknown = true)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class MatchControllerImpl implements MatchController{
+public class MatchControllerImpl implements MatchController {
     private static final int MAX_DOUBLES = 3;
     private static final int JAIL_EXIT_FEE = 50;
 
@@ -55,25 +60,26 @@ public class MatchControllerImpl implements MatchController{
 
     private int currentPlayerIndex;
     private int consecutiveDoubles;
-    private boolean hasRolled = false;
+    private boolean hasRolled;
     private Player currentCreditor;
     @JsonIgnore
     private LiquidationObserver liquidationObserver;
 
     /**
-     * Constructor
+     * Constructor for MatchControllerImpl.
      *
-     * @param players   list of players (already created)
-     * @param gameBoard the game board implementation
-     * @param bank      the bank implementation
+     * @param players    list of players (already created).
+     * @param gameBoard  the game board implementation.
+     * @param properties the map of properties in the game.
      */
-    @JsonIgnoreProperties({"gui", "economyController"})
-    public MatchControllerImpl(final List<Player> players, final Board gameBoard, final Map<String, Property> properties){
+    @JsonIgnoreProperties({ "gui", "economyController" })
+    public MatchControllerImpl(final List<Player> players, final Board gameBoard,
+            final Map<String, Property> properties) {
         this.players = List.copyOf(players);
         this.gameBoard = Objects.requireNonNull(gameBoard);
         this.liquidationObserver = new LiquidationObserverImpl(this);
         this.propertyController = new PropertyControllerImpl(properties);
-        this.economyController = new EconomyControllerImpl(propertyController, this.players);
+        this.economyController = new EconomyControllerImpl(propertyController);
         this.economyController.setLiquidationObserver(this.liquidationObserver);
 
         this.boardController = new BoardControllerImpl(gameBoard, economyController, propertyController);
@@ -87,29 +93,33 @@ public class MatchControllerImpl implements MatchController{
         }
     }
 
+    /**
+     * JSON Creator for loading a saved match state.
+     * * @param players the list of players.
+     * 
+     * @param gameBoard           the game board.
+     * @param propertyController  the property controller.
+     * @param currentPlayerIndex  index of the current player.
+     * @param consecutiveDoubles  number of consecutive doubles.
+     * @param hasRolled           if player has already rolled.
+     * @param jailTurnCounterJson map of players in jail.
+     * @param diceThrow           the dice state.
+     */
     @JsonCreator
     public MatchControllerImpl(
-            @JsonProperty("players")
-            final List<Player> players,
-            @JsonProperty("gameBoard")
-            final Board gameBoard,
-            @JsonProperty("propertyController")
-            final PropertyController propertyController,
-            @JsonProperty("currentPlayerIndex")
-            int currentPlayerIndex,
-            @JsonProperty("consecutiveDoubles")
-            int consecutiveDoubles,
-            @JsonProperty("hasRolled")
-            boolean hasRolled,
-            @JsonProperty("jailTurnCounter")
-            Map<String, Integer> jailTurnCounterJson,
-            @JsonProperty("diceThrow")
-            DiceThrow diceThrow) {
+            @JsonProperty("players") final List<Player> players,
+            @JsonProperty("gameBoard") final Board gameBoard,
+            @JsonProperty("propertyController") final PropertyController propertyController,
+            @JsonProperty("currentPlayerIndex") int currentPlayerIndex,
+            @JsonProperty("consecutiveDoubles") int consecutiveDoubles,
+            @JsonProperty("hasRolled") boolean hasRolled,
+            @JsonProperty("jailTurnCounter") Map<String, Integer> jailTurnCounterJson,
+            @JsonProperty("diceThrow") DiceThrow diceThrow) {
         this.players = players != null ? List.copyOf(players) : new ArrayList<>();
         this.gameBoard = gameBoard != null ? gameBoard : new BoardImpl(new ArrayList<>());
         this.propertyController = propertyController != null ? propertyController : new PropertyControllerImpl(new HashMap<>());
         this.liquidationObserver = new LiquidationObserverImpl(this);
-        this.economyController = new EconomyControllerImpl(this.propertyController, this.players);
+        this.economyController = new EconomyControllerImpl(this.propertyController);
         this.economyController.setLiquidationObserver(this.liquidationObserver);
         this.boardController = new BoardControllerImpl(this.gameBoard, this.economyController, this.propertyController);
         this.diceThrow = diceThrow != null ? diceThrow : new DiceThrow(new DiceImpl(), new DiceImpl());
@@ -129,11 +139,15 @@ public class MatchControllerImpl implements MatchController{
                 }
             }
         }
-        for (Player p: this.players) {
+        for (Player p : this.players) {
             p.addObserver(this);
         }
     }
 
+    /**
+     * Returns a JSON-compatible map of the jail turn counter.
+     * @return map of player names and turn counts.
+     */
     @JsonGetter("jailTurnCounter")
     public Map<String, Integer> getJailTurnCounterJson() {
         Map<String, Integer> result = new HashMap<>();
@@ -162,9 +176,9 @@ public class MatchControllerImpl implements MatchController{
      */
     @Override
     public void nextTurn() {
-        do{
+        do {
             this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.size();
-        }while(getCurrentPlayer().getState() instanceof BankruptState);
+        } while (getCurrentPlayer().getState() instanceof BankruptState);
 
         this.hasRolled = false;
         this.consecutiveDoubles = 0;
@@ -185,7 +199,7 @@ public class MatchControllerImpl implements MatchController{
     @Override
     public void handleDiceThrow() {
 
-        if(this.hasRolled){
+        if (this.hasRolled) {
             return;
         }
 
@@ -193,32 +207,34 @@ public class MatchControllerImpl implements MatchController{
         diceThrow.throwAll();
         final boolean isDouble = diceThrow.isDouble();
 
-        if(currentPlayer.getState() instanceof JailedState){
+        if (currentPlayer.getState() instanceof JailedState) {
             int turns = jailTurnCounter.getOrDefault(currentPlayer, 0);
-            if(isDouble){
-                updateGui(g -> g.addLog(currentPlayer.getName() + " leaves jail with a DOUBLE (" + this.diceThrow.getLastThrow() + ")!"));
+            if (isDouble) {
+                updateGui(g -> g.addLog(currentPlayer.getName() + " leaves jail with a DOUBLE ("
+                        + this.diceThrow.getLastThrow() + ")!"));
                 currentPlayer.setState(FreeState.getInstance());
                 jailTurnCounter.remove(currentPlayer);
-            }else if(turns >= 2){
+            } else if (turns >= 2) {
                 updateGui(g -> g.addLog(currentPlayer.getName() + " fails the 3rd attempt. Pays €50 and leaves jail!"));
                 economyController.withdrawFromPlayer(currentPlayer, JAIL_EXIT_FEE);
                 currentPlayer.setState(FreeState.getInstance());
                 jailTurnCounter.remove(currentPlayer);
-            }else{
+            } else {
                 jailTurnCounter.put(currentPlayer, turns + 1);
                 updateGui(g -> g.addLog(currentPlayer.getName() + " remains in jail (Attempt " + (turns + 1) + "/3)"));
                 this.hasRolled = true;
                 return;
-                }
             }
+        }
 
-        updateGui(g -> g.addLog(currentPlayer.getName() + " throws: " + this.diceThrow.getLastThrow() + (isDouble ? " (DOUBLE!)" : "")));
+        updateGui(g -> g.addLog(currentPlayer.getName() + " throws: " + this.diceThrow.getLastThrow()
+                + (isDouble ? " (DOUBLE!)" : "")));
         this.hasRolled = true;
-        if(isDouble && !(currentPlayer.getState() instanceof JailedState)){
+        if (isDouble && !(currentPlayer.getState() instanceof JailedState)) {
             this.consecutiveDoubles++;
-            if(this.consecutiveDoubles == MAX_DOUBLES){
+            if (this.consecutiveDoubles == MAX_DOUBLES) {
                 updateGui(g -> g.addLog("3 doubles in a row! Go to jail."));
-                handlePrison(); 
+                handlePrison();
                 return;
             }
         } else {
@@ -226,17 +242,15 @@ public class MatchControllerImpl implements MatchController{
         }
 
         this.handleMove(this.diceThrow.getLastThrow());
-        if(isDouble && this.consecutiveDoubles < MAX_DOUBLES){
+        if (isDouble && this.consecutiveDoubles < MAX_DOUBLES) {
             this.hasRolled = false;
         }
         updateGui(g -> g.refreshAll());
     }
 
     /**
-     * Moves the current player by 'steps' spaces on the board.
-     * Updates board and info panels.
-     *
-     * @param steps number of spaces to move
+     * Moves the current player.
+     * @param steps number of steps.
      */
     public void handleMove(int steps) {
         final Player currentPlayer = getCurrentPlayer();
@@ -251,8 +265,7 @@ public class MatchControllerImpl implements MatchController{
     }
 
     /**
-     * Handles the logic when a player is in prison.
-     * For simplicity, we can just log it here.
+     * Sends the current player to prison.
      */
     public void handlePrison() {
         final Player currentPlayer = getCurrentPlayer();
@@ -266,7 +279,8 @@ public class MatchControllerImpl implements MatchController{
 
     @Override
     public void onPlayerMoved(Player player, int oldPosition, int newPosition) {
-        final Tile currentTile = this.boardController.executeTileLogic(player, newPosition, this.diceThrow.getLastThrow());
+        final Tile currentTile = this.boardController.executeTileLogic(player, newPosition,
+                this.diceThrow.getLastThrow());
 
         if (newPosition != currentTile.getPosition()) {
             player.setPosition(currentTile.getPosition());
@@ -289,56 +303,11 @@ public class MatchControllerImpl implements MatchController{
             g.refreshAll();
         });
     }
-    /* 
-    @Override
-    public void onPlayerMoved(Player player, int oldPosition, int newPosition) {
-        updateGui(g -> g.refreshAll());
-
-        final Tile currentTile = this.boardController.executeTileLogic(player, newPosition, this.diceThrow.getLastThrow());
-
-        if ( newPosition != currentTile.getPosition()) {
-            player.setPosition(currentTile.getPosition());
-        }
-
-        if(currentTile instanceof PropertyTile pt){
-            this.currentCreditor = players.stream()
-                                          .filter(p -> p.getName().equals(pt.getProperty().getIdOwner()))
-                                          .findFirst()
-                                          .orElse(null);
-                                          // Se c'è un proprietario ed è diverso dal giocatore corrente, paga!
-                                            if (this.currentCreditor != null && !this.currentCreditor.equals(player)) {
-                                                int lastRoll = this.diceThrow.getLastThrow();
-                                                // CHIAMATA CRUCIALE: usa il metodo che hai già in EconomyController
-                                                this.economyController.payRent(player, this.currentCreditor, pt.getProperty(), lastRoll);
-                                            }
-            handlePropertyLanding();
-        }else {
-            this.currentCreditor = null;
-
-            if(currentTile instanceof UnexpectedTile){
-                String cardDescription = boardController.getMessagePrint();
-                if(cardDescription != null && !cardDescription.isEmpty()){
-                    updateGui(g -> {
-                        g.showCard("CHANCE", cardDescription, true);
-                        g.addLog("[Chance]" + cardDescription);
-                        g.refreshAll();
-                    });
-                }
-            }
-        }
-
-        updateGui(g -> {
-            g.refreshAll();
-            String msg = boardController.getMessagePrint();
-            if (msg != null && !msg.isEmpty()) g.addLog(msg);
-        });
-    }
-    */
 
     @Override
     public void payToExitJail() {
         Player p = getCurrentPlayer();
-        if(p.getState() instanceof JailedState && economyController.withdrawFromPlayer(p, JAIL_EXIT_FEE)){
+        if (p.getState() instanceof JailedState && economyController.withdrawFromPlayer(p, JAIL_EXIT_FEE)) {
             p.setState(FreeState.getInstance());
             jailTurnCounter.remove(p);
             updateGui(g -> {
@@ -348,25 +317,28 @@ public class MatchControllerImpl implements MatchController{
         }
     }
 
+    /** @return the current player index. */
     @Override
-    public List<Player> getPlayers(){
+    public List<Player> getPlayers() {
         return this.players;
     }
 
+    /** @return the number of consecutive doubles. */
     @Override
     public Player getCurrentPlayer() {
         return this.players.get(this.currentPlayerIndex);
     }
 
+    /** @param i the new current player index. */
     @Override
     @JsonIgnore
-    public Board getBoard(){
+    public Board getBoard() {
         return this.gameBoard;
     }
 
     @Override
     @JsonIgnore
-    public MainView getMainView(){
+    public MainView getMainView() {
         return this.gui;
     }
 
@@ -383,7 +355,7 @@ public class MatchControllerImpl implements MatchController{
         });
     }
 
-    //#region public method
+    // #region public method
     public int getCurrentPlayerIndex() {
         return this.currentPlayerIndex;
     }
@@ -404,7 +376,7 @@ public class MatchControllerImpl implements MatchController{
         this.hasRolled = b;
     }
 
-    public boolean canCurrentPlayerRoll(){
+    public boolean canCurrentPlayerRoll() {
         return !hasRolled;
     }
 
@@ -419,38 +391,39 @@ public class MatchControllerImpl implements MatchController{
     public PropertyController getPropertyController() {
         return this.propertyController;
     }
-    
-    public void buyCurrentProperty(){
+
+    public void buyCurrentProperty() {
         final Player currentPlayer = getCurrentPlayer();
         final Tile currentTile = gameBoard.getTileAt(currentPlayer.getCurrentPosition());
 
-        if(currentTile instanceof PropertyTile pt){
+        if (currentTile instanceof PropertyTile pt) {
             Property prop = pt.getProperty();
 
-            if (prop.getIdOwner() != null && !prop.getIdOwner().isEmpty() && !prop.getIdOwner().equals("BANK")){
+            if (prop.getIdOwner() != null && !prop.getIdOwner().isEmpty() && !prop.getIdOwner().equals("BANK")) {
                 updateGui(g -> g.addLog("You cannot buy a property that already has an owner!"));
                 return;
             }
 
-            if(this.economyController.purchaseProperty(currentPlayer, prop)){
+            if (this.economyController.purchaseProperty(currentPlayer, prop)) {
                 updateGui(g -> {
-                    g.addLog(currentPlayer.getName() + " purchased " + prop.getCard().getName() + " for € " + prop.getPurchasePrice());
+                    g.addLog(currentPlayer.getName() + " purchased " + prop.getCard().getName() + " for € "
+                            + prop.getPurchasePrice());
                     g.refreshAll();
                 });
-            }else {
+            } else {
                 updateGui(g -> g.addLog("You don't have enough money to buy " + prop.getId()));
             }
         }
     }
 
-    public void buildHouseOnProperty(Property property){
+    public void buildHouseOnProperty(Property property) {
         try {
-            if(this.economyController.purchaseHouse(getCurrentPlayer(), property)){
+            if (this.economyController.purchaseHouse(getCurrentPlayer(), property)) {
                 updateGui(g -> {
                     g.addLog("Built a house on " + property.getId());
                     g.refreshAll();
                 });
-            }else {
+            } else {
                 updateGui(g -> g.addLog("Cannot build on " + property.getId()));
             }
         } catch (IllegalStateException e) {
@@ -461,14 +434,14 @@ public class MatchControllerImpl implements MatchController{
         }
     }
 
-    public void finalizeLiquidation(Player p){
-        if(p.getBalance() >= 0){
+    public void finalizeLiquidation(Player p) {
+        if (p.getBalance() >= 0) {
             updateGui(g -> {
                 g.addLog("✅ Debt settled! " + p.getName() + " can continue.");
                 g.refreshAll();
             });
             this.currentCreditor = null;
-        }else{
+        } else {
             this.liquidationObserver.onBankruptcyDeclared(p, this.currentCreditor, Math.abs(p.getBalance()));
             this.currentCreditor = null;
         }
@@ -489,26 +462,25 @@ public class MatchControllerImpl implements MatchController{
         }
     }
 
-    //#endregion
+    // #endregion
 
-
-    //#region Private method
-    private void checkWinCondition(){
+    // #region Private method
+    private void checkWinCondition() {
         List<Player> activePlayers = players.stream()
-                                            .filter(p -> !(p.getState() instanceof BankruptState))
-                                            .toList();
-        if(activePlayers.size() == 1){
+                .filter(p -> !(p.getState() instanceof BankruptState))
+                .toList();
+        if (activePlayers.size() == 1) {
             Player winner = activePlayers.get(0);
             updateGui(g -> {
                 g.addLog("🏆 GAME OVER! The winner is " + winner.getName());
-                //alert per mostrare il vincitore
-                //disabilito i tasti
+                g.showWinner(winner.getName());
             });
         }
     }
 
     private void updateGui(Consumer<MainView> action) {
-        if (this.gui != null) Platform.runLater(() -> action.accept(this.gui));
+        if (this.gui != null)
+            Platform.runLater(() -> action.accept(this.gui));
     }
 
     /**
@@ -519,24 +491,24 @@ public class MatchControllerImpl implements MatchController{
         final Player currentPlayer = getCurrentPlayer();
         final Tile currentTile = gameBoard.getTileAt(currentPlayer.getCurrentPosition());
 
-        if(currentTile instanceof PropertyTile){
-            Property prop =  ((PropertyTile) currentTile).getProperty();
-            if(prop.getIdOwner() == null){
+        if (currentTile instanceof PropertyTile) {
+            Property prop = ((PropertyTile) currentTile).getProperty();
+            if (prop.getIdOwner() == null) {
                 updateGui(g -> g.addLog("You can buy " + prop.getId() + " for €" + prop.getPurchasePrice()));
-            }else if(prop.getIdOwner().equals(currentPlayer.getName())){
+            } else if (prop.getIdOwner().equals(currentPlayer.getName())) {
                 updateGui(g -> {
                     g.addLog("You are at home (" + prop.getId() + ").");
                 });
             }
             updateGui(g -> g.refreshAll());
         }
-        
+
     }
 
     @Override
     public void handleEndTurn() {
 
     }
-    //#endregion
+    // #endregion
 
 }
