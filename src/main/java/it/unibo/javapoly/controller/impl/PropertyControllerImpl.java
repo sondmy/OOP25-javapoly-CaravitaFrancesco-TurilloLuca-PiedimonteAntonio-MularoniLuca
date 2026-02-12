@@ -1,5 +1,8 @@
 package it.unibo.javapoly.controller.impl;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import it.unibo.javapoly.controller.api.PropertyController;
 import it.unibo.javapoly.model.api.property.Property;
 import it.unibo.javapoly.model.api.property.PropertyGroup;
@@ -17,6 +20,7 @@ import java.util.Objects;
  * Implementation of the PropertyController interface.
  * Manages property ownership, purchases, rent payments, and building construction.
  */
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class PropertyControllerImpl implements PropertyController {
 
     private final Map<String, Property> properties;
@@ -38,9 +42,11 @@ public class PropertyControllerImpl implements PropertyController {
      * @param properties map of all properties in the game (propertyId -> Property)
      * @param propertyOwners map of all owned property (propertyId -> Player)
      */
-    public PropertyControllerImpl(final Map<String, Property> properties, final Map<String, Player> propertyOwners) {
-        this.properties = new HashMap<>(properties);
-        this.propertyOwners = new HashMap<>(propertyOwners);
+    @JsonCreator
+    public PropertyControllerImpl(@JsonProperty("properties") final Map<String, Property> properties,
+                                  @JsonProperty("propertyOwners") final Map<String, Player> propertyOwners) {
+        this.properties = properties == null ? new HashMap<>() : new HashMap<>(properties);
+        this.propertyOwners = propertyOwners == null ? new HashMap<>() : new HashMap<>(propertyOwners);
     }
 
     /**

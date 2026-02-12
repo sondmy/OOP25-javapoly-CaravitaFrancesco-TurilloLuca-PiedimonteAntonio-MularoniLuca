@@ -1,5 +1,7 @@
 package it.unibo.javapoly.controller.api;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import it.unibo.javapoly.controller.impl.PropertyControllerImpl;
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.property.Property;
 
@@ -8,6 +10,7 @@ import java.util.List;
 /**
  * Controller responsible for managing property transactions and rent calculations.
  */
+@JsonDeserialize(as = PropertyControllerImpl.class)
 public interface PropertyController {
 
     /**

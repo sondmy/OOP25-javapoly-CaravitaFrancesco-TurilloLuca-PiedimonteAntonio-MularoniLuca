@@ -1,5 +1,6 @@
 package it.unibo.javapoly.model.impl.property;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -17,6 +18,7 @@ import it.unibo.javapoly.model.impl.card.AbstractPropertyCard;
  *
  */
 @JsonTypeName("PROPERTYIMPL")
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public final class PropertyImpl implements Property {
 
     private static final int IS_HOTEL = 5;
@@ -67,7 +69,6 @@ public final class PropertyImpl implements Property {
      * 
      * @return the unique identifier of the property
      */
-    @JsonProperty
     @Override
     public String getId() {
         return this.id;

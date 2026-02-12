@@ -39,7 +39,9 @@ public class StationPropertyCard extends AbstractPropertyCard {
             @JsonProperty("propertyCost") final int propetyCost,
             @JsonProperty("rents") final List<Integer> rents) {
         super(id, name, description, propetyCost, PropertyGroup.RAILROAD);
-        this.rentNumberSation = new ArrayList<>(rents);
+        this.rentNumberSation = rents == null
+                ? new ArrayList<>()
+                : new ArrayList<>(rents);
     }
 
     //#region Getter
