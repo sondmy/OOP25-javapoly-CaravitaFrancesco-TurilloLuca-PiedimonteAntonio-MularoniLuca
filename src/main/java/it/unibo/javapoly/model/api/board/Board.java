@@ -1,8 +1,12 @@
 package it.unibo.javapoly.model.api.board;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import it.unibo.javapoly.model.impl.board.BoardImpl;
+
 /**
  * Represents the game board.
  */
+@JsonDeserialize(as = BoardImpl.class)
 public interface Board {
 
     /**
