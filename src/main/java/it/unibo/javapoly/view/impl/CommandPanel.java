@@ -30,6 +30,8 @@ public class CommandPanel {
     private final Button buyButton;
     private final Button buildButton;
 
+    private boolean actionDone = false;
+
     /**
      * Constructor: creates the panel and its buttons.
      *
@@ -53,6 +55,7 @@ public class CommandPanel {
         this.payJailButton.setStyle("-fx-base: #e74c3c; -fx-text-fill: white;");
 
         this.throwDice.setOnAction(e -> {
+            this.actionDone = false;
             this.matchController.handleDiceThrow();
             updateState();
         });
@@ -61,6 +64,7 @@ public class CommandPanel {
             updateState();
         });
         this.endTurnButton.setOnAction(e -> {
+            this.actionDone = false;
             this.matchController.nextTurn();
             updateState();
             saveStateGame();
@@ -69,6 +73,7 @@ public class CommandPanel {
             saveStateGame();
         });
         this.buyButton.setOnAction(e -> {
+            this.actionDone = true;
             this.matchController.buyCurrentProperty();
             updateState();
         });
@@ -76,6 +81,7 @@ public class CommandPanel {
             Player p = matchController.getCurrentPlayer();
             Tile t = matchController.getBoard().getTileAt(p.getCurrentPosition());
             if (t instanceof PropertyTile pt) {
+                this.actionDone = true;
                 this.matchController.buildHouseOnProperty(pt.getProperty());
                 updateState();
             }
@@ -106,17 +112,16 @@ public class CommandPanel {
 
         if(currentTile instanceof PropertyTile pt){
             Property prop = pt.getProperty();
-            boolean isUnowned = prop.isOwnedByPlayer() == false;
-            //qui da cambiare
+            boolean isUnowned = !prop.isOwnedByPlayer();
 
             if(isUnowned){
                 this.buyButton.setVisible(true);
                 this.buyButton.setManaged(true);
-                this.buyButton.setDisable(!hasRolled);
+                this.buyButton.setDisable(!hasRolled || actionDone);
             }else if(current.getName().equals(prop.getIdOwner())){
                 this.buildButton.setVisible(true);
                 this.buildButton.setManaged(true);
-                this.buildButton.setDisable(!hasRolled);
+                this.buildButton.setDisable(!hasRolled || actionDone);
             }
         }
 

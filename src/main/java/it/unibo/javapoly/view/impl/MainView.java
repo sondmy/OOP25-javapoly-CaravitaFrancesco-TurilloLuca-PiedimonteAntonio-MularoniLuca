@@ -111,19 +111,23 @@ public class MainView {
     }
 
     public void showLiquidation(Player p, int amount){
-        SellAssetViewImpl liquidationView = new SellAssetViewImpl(this.matchController);
-        liquidationView.show(p, amount);
+        Platform.runLater(() -> {
+            SellAssetViewImpl liquidationView = new SellAssetViewImpl(this.matchController);
+            liquidationView.show(p, amount);
 
-        this.root.setCenter(liquidationView.getRoot());
+            this.root.setCenter(liquidationView.getRoot());
 
-        Button backButton = new Button("Torna al gioco");
-        backButton.setStyle("-fx-base: #3498db; -fx-text-fill: white; -fx-font-weight: bold;");
-        backButton.setOnAction(e -> {
-            if(this.matchController instanceof MatchController impl){
-                impl.finalizeLiquidation(p);
-            }
+            Button backButton = new Button("Torna al gioco");
+            backButton.setStyle("-fx-base: #3498db; -fx-text-fill: white; -fx-font-weight: bold;");
+            backButton.setOnAction(e -> {
+                if(this.matchController instanceof MatchController impl){
+                    impl.finalizeLiquidation(p);
+                }
+                this.root.setCenter(this.boardPanel.getRoot());
+                this.refreshAll();
+            });
+            liquidationView.getRoot().setBottom(backButton);
         });
-        liquidationView.getRoot().setBottom(backButton);
     }
 
     public void showCard(final String title, final String description, final boolean isImprevisto){
