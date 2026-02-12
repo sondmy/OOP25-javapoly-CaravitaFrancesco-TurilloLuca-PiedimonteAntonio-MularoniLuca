@@ -3,7 +3,9 @@ package it.unibo.javapoly.model.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import it.unibo.javapoly.model.api.Player;
@@ -44,17 +46,20 @@ import it.unibo.javapoly.utils.ValidationUtils;
  * @see TokenType
  * @see PlayerObserver
  */
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class PlayerImpl implements Player {
 
     private static final int DEFAULT_STARTING_BALANCE = 1500;
 
     private final String name;
     private int balance;
+    @JsonIgnore
     private final Token token;
     private final TokenType tokenType;
     private PlayerState currentState;
     private int currentPosition;
     private String customTokenPath;
+    @JsonIgnore
     private final List<PlayerObserver> observers = new ArrayList<>();
 
     /**

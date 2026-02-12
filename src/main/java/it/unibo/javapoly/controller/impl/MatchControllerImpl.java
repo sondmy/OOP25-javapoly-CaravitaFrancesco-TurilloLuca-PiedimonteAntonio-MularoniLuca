@@ -43,12 +43,15 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
     
     private final List<Player> players;  
     private final DiceThrow diceThrow;
-    private final Board gameBoard;    
+    private final Board gameBoard;
+    @JsonIgnore
     private final MainView gui;
     private final Map<Player, Integer> jailTurnCounter = new HashMap<>();
 
+    @JsonIgnore
     private final EconomyController economyController;
     private final PropertyController propertyController;
+    @JsonIgnore
     private final BoardController boardController;
 
     private int currentPlayerIndex;
@@ -83,7 +86,7 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
 
     @JsonCreator
     public MatchControllerImpl(
-            @JsonProperty("player")
+            @JsonProperty("players")
             final List<Player> players,
             @JsonProperty("gameBoard")
             final Board gameBoard,
@@ -110,10 +113,10 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
         this.currentPlayerIndex = currentPlayerIndex;
         this.consecutiveDoubles = consecutiveDoubles;
         this.hasRolled = hasRolled;
-        if(jailTurnCounterJson != null){
+        if (jailTurnCounterJson != null) {
             for (Map.Entry<String, Integer> entry : jailTurnCounterJson.entrySet()) {
-                String playerName = entry.getKey();
-                Player player = this.players.stream()
+                final String playerName = entry.getKey();
+                final Player player = this.players.stream()
                         .filter(p -> p.getName().equals(playerName))
                         .findFirst()
                         .orElse(null);

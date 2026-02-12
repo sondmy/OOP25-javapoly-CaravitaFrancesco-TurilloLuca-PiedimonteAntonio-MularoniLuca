@@ -1,5 +1,8 @@
 package it.unibo.javapoly.model.api;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import it.unibo.javapoly.model.impl.PlayerImpl;
+
 /**
  * Represents a player in the Javapoly game.
  * This interface defines the core behaviors and properties of a player,
@@ -32,6 +35,7 @@ package it.unibo.javapoly.model.api;
  * @see TokenType
  * @see PlayerObserver
  */
+@JsonDeserialize(as = PlayerImpl.class)
 public interface Player {
 
     /**

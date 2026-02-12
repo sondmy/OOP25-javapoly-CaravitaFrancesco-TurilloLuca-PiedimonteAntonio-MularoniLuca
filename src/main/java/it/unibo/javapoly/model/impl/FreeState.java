@@ -1,5 +1,7 @@
 package it.unibo.javapoly.model.impl;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.PlayerState;
 import it.unibo.javapoly.utils.ValidationUtils;
@@ -13,6 +15,8 @@ import it.unibo.javapoly.utils.ValidationUtils;
  * 
  * @see PlayerState
  */
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeName("FreeState")
 public final class FreeState implements PlayerState {
 
     /**
