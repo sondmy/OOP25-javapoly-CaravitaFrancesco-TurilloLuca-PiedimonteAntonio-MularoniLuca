@@ -126,7 +126,7 @@ public class PropertyControllerImpl implements PropertyController {
     public List<Property> getPropertiesWithHouseByOwner(final Player owner) {
         Objects.requireNonNull(owner);
         final List<Property> propertyList = getOwnedProperties(owner.getName());
-        propertyList.removeIf(p -> p.getState().getHouses() == 0);
+        propertyList.removeIf(p -> p.getState().getHouses() == 0); 
         return propertyList;
     }
 

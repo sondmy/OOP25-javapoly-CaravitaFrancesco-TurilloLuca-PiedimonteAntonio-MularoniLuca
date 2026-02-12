@@ -107,7 +107,9 @@ public class BoardControllerImpl implements BoardController {
      * {@inheritDoc}
      */
     @Override
-    public void executeTileLogic(final Player player, final Tile tile, final int diceRoll) {
+    public Tile executeTileLogic(final Player player, final int pos, final int diceRoll) {
+        
+        final Tile tile = this.board.getTileAt(pos);
         switch (tile.getType()) {
             case TAX:
                 if (tile instanceof TaxTile) {
@@ -116,13 +118,12 @@ public class BoardControllerImpl implements BoardController {
                 }
                 break;
             case GO_TO_JAIL:
-                sendPlayerToJail(player);
-                return;
+                return sendPlayerToJail(player);
             case UNEXPECTED:
                 final GameCard cardDrawed = this.cardController.drawCard(player.getName());
-                this.message = cardDrawed.getName();
-                this.cardController.executeCardEffect(player, cardDrawed, BOARD_SIZE);
-                return;
+                this.message = tile.getDescription() + "\n" + cardDrawed.getName();
+                final int destPos = this.cardController.executeCardEffect(player, cardDrawed, BOARD_SIZE);
+                return destPos != -1 ? this.board.getTileAt(destPos) : tile;
             case PROPERTY:
             case RAILROAD:
             case UTILITY:
@@ -139,6 +140,7 @@ public class BoardControllerImpl implements BoardController {
         }
 
         this.message = tile.getDescription();
+        return tile;
     }
 
     /**
