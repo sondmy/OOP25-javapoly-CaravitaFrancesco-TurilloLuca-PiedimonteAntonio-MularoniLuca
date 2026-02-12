@@ -29,7 +29,6 @@ import static it.unibo.javapoly.model.api.economy.TransactionType.BUY_PROPERTY;
 public final class EconomyControllerImpl implements EconomyController {
 
     private final Bank bank;
-    private final List<Player> players;
     private final PropertyController propertyController;
     private final List<Transaction> transactionHistory = new ArrayList<>();
     private int nextTransactionId = 1;
@@ -39,12 +38,10 @@ public final class EconomyControllerImpl implements EconomyController {
      * Creates an EconomyController with the given list of properties.
      *
      * @param propertyController property controller.
-     * @param players list of all player.
      */
-    public EconomyControllerImpl(final PropertyController propertyController, final List<Player> players) {
+    public EconomyControllerImpl(final PropertyController propertyController) {
         this.bank = new BankImpl();
         this.propertyController = propertyController;
-        this.players = players;
     }
 
     /**
@@ -97,11 +94,9 @@ public final class EconomyControllerImpl implements EconomyController {
      */
     @Override
     public boolean payRent(final Player payer, final Player payee, final Property property, final int diceRoll) {
-
         if (payee == null) {
             return true; 
         }
-        
         final int currentBalance = payer.getBalance();
         final int rent = this.propertyController.getRent(payer, property.getId(), diceRoll);
         if (currentBalance >= rent) {
@@ -151,7 +146,7 @@ public final class EconomyControllerImpl implements EconomyController {
         ValidationUtils.requirePositive(houseCost, "Is not a land");
         if (this.bank.canAfford(owner, houseCost)) {
             if (this.propertyController.buildHouse(owner, property.getId())) {
-                this.bank.withdraw(owner, houseCost); //it cant fail because with the first if we see that player have money
+                this.bank.withdraw(owner, houseCost);
                 recordTransaction(new Transaction(this.nextTransactionId,
                         BUY_HOUSE,
                         Optional.of(owner.getName()),
@@ -160,7 +155,7 @@ public final class EconomyControllerImpl implements EconomyController {
                         houseCost));
                 return true;
             }
-            throw new IllegalStateException("You don't own all the properties of the same color/ house are not homogeneous");
+            throw new IllegalStateException("You don't own all the properties of the same color/house are not homogeneous");
         }
         return false;
     }
@@ -245,18 +240,5 @@ public final class EconomyControllerImpl implements EconomyController {
         this.bank.withdraw(payer, amount);
         this.bank.deposit(payee, amount);
         return true;
-    }
-
-    /**
-     * Return player with the same playerID from input.
-     *
-     * @param playerId id of the player
-     * @return player with the same playerID from input.
-     */
-    private Player getPlayerByID(final String playerId) {
-        return players.stream()
-                .filter(p -> p.getName().equals(playerId))
-                .findFirst()
-                .orElse(null);
     }
 }

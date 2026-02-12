@@ -42,9 +42,7 @@ public class LiquidationObserverImpl implements LiquidationObserver {
         matchController.getMainView().showLiquidation();
         final SellAssetView view = matchController.getMainView().getSellAssetView();
         view.show(this.player, this.currentDebt);
-        view.setCallBack((success, remainingDebt) -> {
-            onLiquidationCompleted(success, remainingDebt);
-        });
+        view.setCallBack(this::onLiquidationCompleted);
     }
 
     private void onLiquidationCompleted(final boolean success, final int remainingDebt) {
