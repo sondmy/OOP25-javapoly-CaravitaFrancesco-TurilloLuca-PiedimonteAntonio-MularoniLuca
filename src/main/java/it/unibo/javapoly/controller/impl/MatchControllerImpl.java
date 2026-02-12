@@ -26,6 +26,7 @@ import it.unibo.javapoly.model.impl.FreeState;
 import it.unibo.javapoly.model.impl.JailedState;
 import it.unibo.javapoly.model.impl.board.BoardImpl;
 import it.unibo.javapoly.model.impl.board.tile.PropertyTile;
+import it.unibo.javapoly.model.impl.board.tile.UnexpectedTile;
 import it.unibo.javapoly.view.impl.MainView;
 import javafx.application.Platform;
 
@@ -50,7 +51,6 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
 
     private int currentPlayerIndex;
     private int consecutiveDoubles;
-    private int lastDiceResult;
     private boolean hasRolled = false;
     private Player currentCreditor;
 
@@ -123,18 +123,19 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
      */
     @Override
     public void handleDiceThrow() {
+
         if(this.hasRolled){
             return;
         }
 
         final Player currentPlayer = getCurrentPlayer();
-        this.lastDiceResult = diceThrow.throwAll();
+        diceThrow.throwAll();
         final boolean isDouble = diceThrow.isDouble();
 
         if(currentPlayer.getState() instanceof JailedState){
             int turns = jailTurnCounter.getOrDefault(currentPlayer, 0);
             if(isDouble){
-                updateGui(g -> g.addLog(currentPlayer.getName() + " esce col DOPPIO (" + this.lastDiceResult + ")!"));
+                updateGui(g -> g.addLog(currentPlayer.getName() + " esce col DOPPIO (" + this.diceThrow.getLastThrow() + ")!"));
                 currentPlayer.setState(FreeState.getInstance());
                 jailTurnCounter.remove(currentPlayer);
             }else if(turns >= 2){
@@ -150,7 +151,7 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
                 }
             }
 
-        updateGui(g -> g.addLog(currentPlayer.getName() + " lancia: " + this.lastDiceResult + (isDouble ? " (DOPPIO!)" : "")));
+        updateGui(g -> g.addLog(currentPlayer.getName() + " lancia: " + this.diceThrow.getLastThrow() + (isDouble ? " (DOPPIO!)" : "")));
         
         if(isDouble && !(currentPlayer.getState() instanceof JailedState)){
             this.consecutiveDoubles++;
@@ -168,7 +169,7 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
             this.hasRolled = true;
         }
         
-        this.handleMove(this.lastDiceResult);
+        this.handleMove(this.diceThrow.getLastThrow());
         //this.boardController.movePlayer(currentPlayer, this.lastDiceResult);
     }
 
@@ -199,35 +200,162 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
     public void handlePrison() {
         final Player currentPlayer = getCurrentPlayer();
 
-        currentPlayer.setPosition(this.boardController.sendPlayerToJail(getCurrentPlayer()).getPosition());
+        currentPlayer.setPosition(this.boardController.sendPlayerToJail(currentPlayer).getPosition());
 
         updateGui(g -> {
             g.refreshAll();
         });
     }
 
-    /**
-     * Handles actions when a player lands on a property.
-     * For now, just logs the event.
-     */
     @Override
-    public void handlePropertyLanding() {
-        final Player currentPlayer = getCurrentPlayer();
-        final Tile currentTile = gameBoard.getTileAt(currentPlayer.getCurrentPosition());
+    public void onPlayerMoved(Player player, int oldPosition, int newPosition) {
+        updateGui(g -> g.refreshAll());
 
-        if(currentTile instanceof PropertyTile){
-            Property prop =  ((PropertyTile) currentTile).getProperty();
-            if(prop.getIdOwner() == null){
-                updateGui(g -> g.addLog("Puoi acquistare " + prop.getId() + " per " + prop.getPurchasePrice() + "€"));
-            }else if(prop.getIdOwner().equals(currentPlayer.getName())){
+        final Tile currentTile = gameBoard.getTileAt(newPosition);
+
+        this.boardController.executeTileLogic(player, currentTile, this.diceThrow.getLastThrow());
+
+        if(currentTile instanceof PropertyTile pt){
+            this.currentCreditor = players.stream()
+                                          .filter(p -> p.getName().equals(pt.getProperty().getIdOwner()))
+                                          .findFirst()
+                                          .orElse(null);
+            handlePropertyLanding();
+            /*
+            Property prop = pt.getProperty();
+            String ownerId = prop.getIdOwner();
+
+            this.currentCreditor = players.stream()
+                                        .filter(p -> p.getName().equals(ownerId))
+                                        .findFirst()
+                                        .orElse(null);
+            if(ownerId != null && ownerId.equals(player.getName())){
+                if(this.propertyController.checkPayRent(player, prop.getId())){
+                    this.economyController.payRent(player, ownerId, prop, this.lastDiceResult);
+                }
+            } */
+        }else {
+            this.currentCreditor = null;
+
+            if(currentTile instanceof UnexpectedTile){
                 updateGui(g -> {
-                    g.addLog("Sei a casa tua (" + prop.getId() + ").");
-                    // Qui la GUI potrebbe abilitare il tasto "Costruisci" 
-                    // se l'EconomyController.canBuild (o simile) è true
+                    g.refreshAll();
+                    g.addLog("Sei finito su una casella imprevesti, hai pescato una carta");
                 });
             }
         }
+
+        updateGui(g -> {
+            g.refreshAll();
+            String msg = boardController.getMessagePrint();
+            if (msg != null && !msg.isEmpty()) g.addLog(msg);
+        });
+    }
+
+    @Override
+    public void payToExitJail() {
+        Player p = getCurrentPlayer();
+        if(p.getState() instanceof JailedState && economyController.withdrawFromPlayer(p, JAIL_EXIT_FEE)){
+            p.setState(FreeState.getInstance());
+            jailTurnCounter.remove(p);
+            updateGui(g -> {
+                g.addLog(p.getName() + " paga 50€ ed è libero!");
+                g.refreshAll();
+            });
+        }
+    }
+
+    @Override
+    public List<Player> getPlayers(){
+        return this.players;
+    }
+
+    @Override
+    public Player getCurrentPlayer() {
+        return this.players.get(this.currentPlayerIndex);
+    }
+
+    @Override
+    public Board getBoard(){
+        return this.gameBoard;
+    }
+
+    
+    @Override
+    public MainView getMainView(){
+        return this.gui;
+    }
+
+    @Override
+    public void onBalanceChanged(Player player, int newBalance) {
         updateGui(g -> g.refreshAll());
+    }
+
+    @Override
+    public void onStateChanged(Player player, PlayerState oldState, PlayerState newState) {
+        updateGui(g -> {
+            g.addLog(player.getName() + " ora è in stato: " + newState.getClass().getSimpleName());
+            g.refreshAll();
+        });
+    }
+
+    @Override
+    public void onInsufficientFunds(Player player, int requiredAmount) {
+       updateGui(g -> {
+            g.addLog("⚠️ FONDI INSUFFICIENTI: " + player.getName() + " deve recuperare " + requiredAmount + "€");
+            g.showLiquidation(player, requiredAmount);
+        });
+    }
+
+    @Override
+    public void onBankruptcyDeclared(Player bankruptPlayer, Player creditor, int totalDebt) {
+        updateGui(g -> {
+            g.addLog("❌ BANCAROTTA: " + bankruptPlayer.getName() + " è fuori dai giochi!");
+            if(creditor != null){
+                g.addLog("I suoi beni passano a " + creditor.getName());
+            }else{
+                g.addLog("I suoi beni tornano alla banca.");
+            }
+        });
+        bankruptPlayer.setState(BankruptState.getInstance());
+        checkWinCondition();
+    }
+
+    //#region public method
+    public int getCurrentPlayerIndex() {
+        return this.currentPlayerIndex;
+    }
+
+    public int getConsecutiveDoubles() {
+        return this.consecutiveDoubles;
+    }
+
+    public void setCurrentPlayerIndex(int i) {
+        this.currentPlayerIndex = i;
+    }
+
+    public void setConsecutiveDoubles(int d) {
+        this.consecutiveDoubles = d;
+    }
+
+    public void setHasRolled(boolean b) {
+        this.hasRolled = b;
+    }
+    
+    public boolean canCurrentPlayerRoll(){ 
+        return !hasRolled; 
+    }
+
+    public Map<Player, Integer> getJailTurnCounter() {
+        return this.jailTurnCounter;
+    }
+
+    public EconomyController getEconomyController() {
+        return this.economyController;
+    }
+
+    public PropertyController getPropertyController() {
+        return this.propertyController;
     }
 
     public void buyCurrentProperty(){
@@ -266,121 +394,17 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
         }
     }
 
-    @Override
-    public void onPlayerMoved(Player player, int oldPosition, int newPosition) {
-        updateGui(g -> g.refreshAll());
-
-        final Tile currentTile = gameBoard.getTileAt(newPosition);
-
-        this.boardController.executeTileLogic(player, currentTile, this.lastDiceResult);
-
-        if(currentTile instanceof PropertyTile pt){
-            Property prop = pt.getProperty();
-            String ownerId = prop.getIdOwner();
-
-            this.currentCreditor = players.stream()
-                                        .filter(p -> p.getName().equals(ownerId))
-                                        .findFirst()
-                                        .orElse(null);
-            if(ownerId != null && ownerId.equals(player.getName())){
-                if(this.propertyController.checkPayRent(player, prop.getId())){
-                    this.economyController.payRent(player, ownerId, prop, this.lastDiceResult);
-                }
-            }
-        }else {
-            this.currentCreditor = null;
-        }
-        updateGui(g -> {
-            g.refreshAll();
-            String msg = boardController.getMessagePrint();
-            if (msg != null && !msg.isEmpty()) g.addLog(msg);
-        });
-        handlePropertyLanding();
-    }
-
-    @Override
-    public void payToExitJail() {
-        Player p = getCurrentPlayer();
-        if(p.getState() instanceof JailedState && economyController.withdrawFromPlayer(p, JAIL_EXIT_FEE)){
-            p.setState(FreeState.getInstance());
-            jailTurnCounter.remove(p);
+    public void finalizeLiquidation(Player p){
+        if(p.getBalance() >= 0){
             updateGui(g -> {
-                g.addLog(p.getName() + " paga 50€ ed è libero!");
+                g.addLog("✅ Debito saldato! " + p.getName() + " può continuare.");
                 g.refreshAll();
             });
+            this.currentCreditor = null;
+        }else{
+            this.onBankruptcyDeclared(p, this.currentCreditor, Math.abs(p.getBalance()));
+            this.currentCreditor = null;
         }
-    }
-
-    public EconomyController getEconomyController() {
-        return this.economyController;
-    }
-
-    public PropertyController getPropertyController() {
-        return this.propertyController;
-    }
-
-    @Override
-    public List<Player> getPlayers(){
-        return this.players;
-    }
-
-    @Override
-    public Player getCurrentPlayer() {
-        return this.players.get(this.currentPlayerIndex);
-    }
-
-    @Override
-    public Board getBoard(){
-        return this.gameBoard;
-    }
-    @Override
-    public MainView getMainView(){
-        return this.gui;
-    }
-
-    public boolean canCurrentPlayerRoll(){ 
-        return !hasRolled; 
-    }
-
-    public Map<Player, Integer> getJailTurnCounter() {
-        return this.jailTurnCounter;
-    }
-
-    private void updateGui(Consumer<MainView> action) {
-        if (this.gui != null) Platform.runLater(() -> action.accept(this.gui));
-    }
-
-    @Override
-    public void onBalanceChanged(Player player, int newBalance) {
-        updateGui(g -> g.refreshAll());
-    }
-
-    @Override
-    public void onStateChanged(Player player, PlayerState oldState, PlayerState newState) {
-        updateGui(g -> {
-            g.addLog(player.getName() + " ora è in stato: " + newState.getClass().getSimpleName());
-            g.refreshAll();
-        });
-    }
-
-    public int getCurrentPlayerIndex() {
-        return this.currentPlayerIndex;
-    }
-
-    public int getConsecutiveDoubles() {
-        return this.consecutiveDoubles;
-    }
-
-    public void setCurrentPlayerIndex(int i) {
-        this.currentPlayerIndex = i;
-    }
-
-    public void setConsecutiveDoubles(int d) {
-        this.consecutiveDoubles = d;
-    }
-
-    public void setHasRolled(boolean b) {
-        this.hasRolled = b;
     }
 
     // For jail turn counter restoration
@@ -398,6 +422,10 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
         }
     }
 
+    //#endregion
+
+
+    //#region Private method
     private void checkWinCondition(){
         List<Player> activePlayers = players.stream()
                                             .filter(p -> !(p.getState() instanceof BankruptState))
@@ -410,38 +438,32 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
         }
     }
 
-    @Override
-    public void onInsufficientFunds(Player player, int requiredAmount) {
-       updateGui(g -> {
-            g.addLog("⚠️ FONDI INSUFFICIENTI: " + player.getName() + " deve recuperare " + requiredAmount + "€");
-            g.showLiquidation(player, requiredAmount);
-        });
+    private void updateGui(Consumer<MainView> action) {
+        if (this.gui != null) Platform.runLater(() -> action.accept(this.gui));
     }
 
-    @Override
-    public void onBankruptcyDeclared(Player bankruptPlayer, Player creditor, int totalDebt) {
-        updateGui(g -> {
-            g.addLog("❌ BANCAROTTA: " + bankruptPlayer.getName() + " è fuori dai giochi!");
-            if(creditor != null){
-                g.addLog("I suoi beni passano a " + creditor.getName());
-            }else{
-                g.addLog("I suoi beni tornano alla banca.");
+    /**
+     * Handles actions when a player lands on a property.
+     * For now, just logs the event.
+     */
+    private void handlePropertyLanding() {
+        final Player currentPlayer = getCurrentPlayer();
+        final Tile currentTile = gameBoard.getTileAt(currentPlayer.getCurrentPosition());
+
+        if(currentTile instanceof PropertyTile){
+            Property prop =  ((PropertyTile) currentTile).getProperty();
+            if(prop.getIdOwner() == null){
+                updateGui(g -> g.addLog("Puoi acquistare " + prop.getId() + " per " + prop.getPurchasePrice() + "€"));
+            }else if(prop.getIdOwner().equals(currentPlayer.getName())){
+                updateGui(g -> {
+                    g.addLog("Sei a casa tua (" + prop.getId() + ").");
+                    // Qui la GUI potrebbe abilitare il tasto "Costruisci" 
+                    // se l'EconomyController.canBuild (o simile) è true
+                });
             }
-        });
-        bankruptPlayer.setState(BankruptState.getInstance());
-        checkWinCondition();
-    }
-
-    public void finalizeLiquidation(Player p){
-        if(p.getBalance() >= 0){
-            updateGui(g -> {
-                g.addLog("✅ Debito saldato! " + p.getName() + " può continuare.");
-                g.refreshAll();
-            });
-            this.currentCreditor = null;
-        }else{
-            this.onBankruptcyDeclared(p, this.currentCreditor, Math.abs(p.getBalance()));
-            this.currentCreditor = null;
         }
+        updateGui(g -> g.refreshAll());
     }
+//#endregion
+
 }
