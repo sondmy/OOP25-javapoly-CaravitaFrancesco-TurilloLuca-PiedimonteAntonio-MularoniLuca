@@ -121,7 +121,7 @@ public class CommandPanel {
                 this.buyButton.setVisible(true);
                 this.buyButton.setManaged(true);
                 this.buyButton.setDisable(!hasMoved || actionDone);
-            }else if(current.getName().equals(prop.getIdOwner())){
+            }else if(prop.playerIsTheOwner(current.getName())){
                 this.buildButton.setVisible(true);
                 this.buildButton.setManaged(true);
                 this.buildButton.setDisable(!hasMoved || actionDone);

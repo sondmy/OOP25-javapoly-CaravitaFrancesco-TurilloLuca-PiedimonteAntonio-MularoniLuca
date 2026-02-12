@@ -37,8 +37,8 @@ import javafx.application.Platform;
 @JsonIgnoreProperties(value = {"gui","economyController", "mainView", ""}, ignoreUnknown = true)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class MatchControllerImpl implements MatchController{
-    private static final int MAX_DOUBLES = 1;
-    private static final int JAIL_EXIT_FEE = 1400;
+    private static final int MAX_DOUBLES = 3;
+    private static final int JAIL_EXIT_FEE = 50;
 
     private final List<Player> players;
     private final DiceThrow diceThrow;
@@ -150,9 +150,9 @@ public class MatchControllerImpl implements MatchController{
     @Override
     public void startGame() {
         updateGui(g -> {
-            g.addLog("Partita avviata");
+            g.addLog("Game started");
             g.refreshAll();
-            g.addLog("E' il turno di: " + getCurrentPlayer().getName());
+            g.addLog("It's " + getCurrentPlayer().getName() + "'s turn");
         });
     }
 
@@ -172,7 +172,7 @@ public class MatchControllerImpl implements MatchController{
         final Player current = getCurrentPlayer();
 
         updateGui(g -> {
-            g.addLog("Ora e' il turno di: " + current.getName());
+            g.addLog("Now it's " + current.getName() + "'s turn");
             g.refreshAll();
         });
 
@@ -196,28 +196,28 @@ public class MatchControllerImpl implements MatchController{
         if(currentPlayer.getState() instanceof JailedState){
             int turns = jailTurnCounter.getOrDefault(currentPlayer, 0);
             if(isDouble){
-                updateGui(g -> g.addLog(currentPlayer.getName() + " esce col DOPPIO (" + this.diceThrow.getLastThrow() + ")!"));
+                updateGui(g -> g.addLog(currentPlayer.getName() + " leaves jail with a DOUBLE (" + this.diceThrow.getLastThrow() + ")!"));
                 currentPlayer.setState(FreeState.getInstance());
                 jailTurnCounter.remove(currentPlayer);
             }else if(turns >= 2){
-                updateGui(g -> g.addLog(currentPlayer.getName() + " fallisce il 3° tentativo. Paga 50€ ed esce!"));
+                updateGui(g -> g.addLog(currentPlayer.getName() + " fails the 3rd attempt. Pays €50 and leaves jail!"));
                 economyController.withdrawFromPlayer(currentPlayer, JAIL_EXIT_FEE);
                 currentPlayer.setState(FreeState.getInstance());
                 jailTurnCounter.remove(currentPlayer);
             }else{
                 jailTurnCounter.put(currentPlayer, turns + 1);
-                updateGui(g -> g.addLog(currentPlayer.getName() + " resta in prigione (Tentativo " + (turns + 1) + "/3)"));
+                updateGui(g -> g.addLog(currentPlayer.getName() + " remains in jail (Attempt " + (turns + 1) + "/3)"));
                 this.hasRolled = true;
                 return;
                 }
             }
 
-        updateGui(g -> g.addLog(currentPlayer.getName() + " lancia: " + this.diceThrow.getLastThrow() + (isDouble ? " (DOPPIO!)" : "")));
+        updateGui(g -> g.addLog(currentPlayer.getName() + " throws: " + this.diceThrow.getLastThrow() + (isDouble ? " (DOUBLE!)" : "")));
         this.hasRolled = true;
         if(isDouble && !(currentPlayer.getState() instanceof JailedState)){
             this.consecutiveDoubles++;
             if(this.consecutiveDoubles == MAX_DOUBLES){
-                updateGui(g -> g.addLog("3 doppi! In prigione."));
+                updateGui(g -> g.addLog("3 doubles! Go to jail."));
                 handlePrison(); 
                 //this.hasRolled = true;
                 return;
@@ -271,6 +271,37 @@ public class MatchControllerImpl implements MatchController{
     }
 
     @Override
+public void onPlayerMoved(Player player, int oldPosition, int newPosition) {
+    // 1. Esegue la logica della casella (PAGAMENTO AFFITTO, TASSE, ecc.)
+    final Tile currentTile = this.boardController.executeTileLogic(player, newPosition, this.diceThrow.getLastThrow());
+
+    // 2. Se la casella ha spostato il player (es. prigione o carta movimento)
+    if (newPosition != currentTile.getPosition()) {
+        player.setPosition(currentTile.getPosition());
+    }
+
+    handlePropertyLanding();
+
+    // 3. Recupera il messaggio generato dal BoardController (es. "Paga l'affitto")
+    final String msg = boardController.getMessagePrint();
+
+    updateGui(g -> {
+        // 4. Se è una carta Imprevisto, mostra il pop-up grafico
+        if (currentTile instanceof UnexpectedTile) {
+            if (msg != null && !msg.isEmpty()) {
+                g.showCard("CHANCE", msg, true);
+            }
+        }
+
+        // 5. Stampa sempre l'esito nel log e aggiorna tutto
+        if (msg != null && !msg.isEmpty()) {
+            g.addLog(msg);
+        }
+        g.refreshAll();
+    });
+}
+    /* 
+    @Override
     public void onPlayerMoved(Player player, int oldPosition, int newPosition) {
         updateGui(g -> g.refreshAll());
 
@@ -285,6 +316,12 @@ public class MatchControllerImpl implements MatchController{
                                           .filter(p -> p.getName().equals(pt.getProperty().getIdOwner()))
                                           .findFirst()
                                           .orElse(null);
+                                          // Se c'è un proprietario ed è diverso dal giocatore corrente, paga!
+                                            if (this.currentCreditor != null && !this.currentCreditor.equals(player)) {
+                                                int lastRoll = this.diceThrow.getLastThrow();
+                                                // CHIAMATA CRUCIALE: usa il metodo che hai già in EconomyController
+                                                this.economyController.payRent(player, this.currentCreditor, pt.getProperty(), lastRoll);
+                                            }
             handlePropertyLanding();
         }else {
             this.currentCreditor = null;
@@ -293,8 +330,8 @@ public class MatchControllerImpl implements MatchController{
                 String cardDescription = boardController.getMessagePrint();
                 if(cardDescription != null && !cardDescription.isEmpty()){
                     updateGui(g -> {
-                        g.showCard("IMPREVISTO", cardDescription, true);
-                        g.addLog("[Imprevisto]" + cardDescription);
+                        g.showCard("CHANCE", cardDescription, true);
+                        g.addLog("[Chance]" + cardDescription);
                         g.refreshAll();
                     });
                 }
@@ -307,6 +344,7 @@ public class MatchControllerImpl implements MatchController{
             if (msg != null && !msg.isEmpty()) g.addLog(msg);
         });
     }
+    */
 
     @Override
     public void payToExitJail() {
@@ -315,7 +353,7 @@ public class MatchControllerImpl implements MatchController{
             p.setState(FreeState.getInstance());
             jailTurnCounter.remove(p);
             updateGui(g -> {
-                g.addLog(p.getName() + " paga 50€ ed è libero!");
+                g.addLog(p.getName() + " pays 50€ and is now free!");
                 g.refreshAll();
             });
         }
@@ -351,7 +389,7 @@ public class MatchControllerImpl implements MatchController{
     @Override
     public void onStateChanged(Player player, PlayerState oldState, PlayerState newState) {
         updateGui(g -> {
-            g.addLog(player.getName() + " ora è in stato: " + newState.getClass().getSimpleName());
+            g.addLog(player.getName() + " is now in state: " + newState.getClass().getSimpleName());
             g.refreshAll();
         });
     }
@@ -392,29 +430,35 @@ public class MatchControllerImpl implements MatchController{
     public PropertyController getPropertyController() {
         return this.propertyController;
     }
-
+    
     public void buyCurrentProperty(){
         final Player currentPlayer = getCurrentPlayer();
         final Tile currentTile = gameBoard.getTileAt(currentPlayer.getCurrentPosition());
 
-        if(currentTile instanceof PropertyTile){
-            Property prop = ((PropertyTile) currentTile).getProperty();
+        if(currentTile instanceof PropertyTile pt){
+            Property prop = pt.getProperty();
 
-            if (prop.isOwnedByPlayer()){
-                updateGui(g -> {
-                    g.addLog("Non puoi acquistare una proprieta che ha gia un proprietario");
-                });
+            // DEBUG: Vediamo cosa legge il codice
+            System.out.println("DEBUG - Proprietà: " + prop.getId());
+            System.out.println("DEBUG - Owner ID attuale: " + prop.getIdOwner());
+            System.out.println("DEBUG - IsOwnedByPlayer: " + prop.isOwnedByPlayer());
+
+            if (prop.getIdOwner() != null && !prop.getIdOwner().isEmpty() && !prop.getIdOwner().equals("BANK")){
+                updateGui(g -> g.addLog("You cannot buy a property that already has an owner!"));
                 return;
             }
 
             if(this.economyController.purchaseProperty(currentPlayer, prop)){
                 updateGui(g -> {
-                    g.addLog(currentPlayer.getName() + " ha acquistato " + prop.getId() + " per " + prop.getPurchasePrice() + "€");
+                    g.addLog(currentPlayer.getName() + " purchased " + prop.getId() + " for € " + prop.getPurchasePrice());
                     g.refreshAll();
                 });
             }else {
-                updateGui(g -> g.addLog("Non hai abbastanza soldi per acquistare " + prop.getId()));
+                updateGui(g -> g.addLog("You don't have enough money to buy " + prop.getId()));
             }
+
+            System.out.println("DEBUG_BUY - Owner ID attuale: " + prop.getIdOwner());
+            System.out.println("DEBUG_BUY - IsOwnedByPlayer: " + prop.isOwnedByPlayer());
         }
     }
 
@@ -422,24 +466,24 @@ public class MatchControllerImpl implements MatchController{
         try {
             if(this.economyController.purchaseHouse(getCurrentPlayer(), property)){
                 updateGui(g -> {
-                    g.addLog("Costruita una casa su " + property.getId());
+                    g.addLog("Built a house on " + property.getId());
                     g.refreshAll();
                 });
             }else {
-                updateGui(g -> g.addLog("Impossibile costruire su " + property.getId()));
+                updateGui(g -> g.addLog("Cannot build on " + property.getId()));
             }
         } catch (IllegalStateException e) {
-            updateGui(g -> g.addLog("Errore: " + e.getMessage()));
+            updateGui(g -> g.addLog("Error: " + e.getMessage()));
 
         } catch (IllegalArgumentException e) {
-            updateGui(g -> g.addLog("Non puoi costruire su questa tipologia di casella."));
+            updateGui(g -> g.addLog("You cannot build on this type of tile."));
         }
     }
 
     public void finalizeLiquidation(Player p){
         if(p.getBalance() >= 0){
             updateGui(g -> {
-                g.addLog("✅ Debito saldato! " + p.getName() + " può continuare.");
+                g.addLog("✅ Debt settled! " + p.getName() + " can continue.");
                 g.refreshAll();
             });
             this.currentCreditor = null;
@@ -475,7 +519,9 @@ public class MatchControllerImpl implements MatchController{
         if(activePlayers.size() == 1){
             Player winner = activePlayers.get(0);
             updateGui(g -> {
-                g.addLog("🏆 PARTITA FINITA! Il vincitore è " + winner.getName());
+                g.addLog("🏆 GAME OVER! The winner is " + winner.getName());
+                //alert per mostrare il vincitore
+                //disabilito i tasti
             });
         }
     }
@@ -495,14 +541,15 @@ public class MatchControllerImpl implements MatchController{
         if(currentTile instanceof PropertyTile){
             Property prop =  ((PropertyTile) currentTile).getProperty();
             if(prop.getIdOwner() == null){
-                updateGui(g -> g.addLog("Puoi acquistare " + prop.getId() + " per " + prop.getPurchasePrice() + "€"));
+                updateGui(g -> g.addLog("You can buy " + prop.getId() + " for €" + prop.getPurchasePrice()));
             }else if(prop.getIdOwner().equals(currentPlayer.getName())){
                 updateGui(g -> {
-                    g.addLog("Sei a casa tua (" + prop.getId() + ").");
+                    g.addLog("You are at home (" + prop.getId() + ").");
                 });
             }
+            updateGui(g -> g.refreshAll());
         }
-        updateGui(g -> g.refreshAll());
+        
     }
 
     @Override
