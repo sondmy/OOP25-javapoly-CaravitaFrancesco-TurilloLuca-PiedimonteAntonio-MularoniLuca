@@ -46,11 +46,6 @@ public interface MatchController extends PlayerObserver{
      */
     void handlePrison();
 
-    /**
-     * Handles the events triggered when a player lands on a property space.
-     */
-    void handlePropertyLanding();
-
     /** @return the game board. */
     Board getBoard();
 
