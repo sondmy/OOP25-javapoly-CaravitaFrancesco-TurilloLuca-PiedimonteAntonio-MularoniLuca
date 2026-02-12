@@ -62,15 +62,12 @@ public class MenuControllerImpl implements MenuController {
             players.add(player);
         }
         showMainView(players);
-
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    // Checkstyle suppression is necessary here to catch any exception during loading.
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public void loadGame(final File saveFile) {
         ValidationUtils.requireNonNull(saveFile, "Save file cannot be null");
         if (!saveFile.exists()) {
@@ -94,8 +91,6 @@ public class MenuControllerImpl implements MenuController {
             matchController.startGame();
         } catch (final IOException e) {
             System.err.println("Error loading board from saved file: " + e.getMessage());
-        } catch (final Exception exception) {
-            System.err.println("Error loading board from saved file: " + exception.getMessage());
         }
     }
 
