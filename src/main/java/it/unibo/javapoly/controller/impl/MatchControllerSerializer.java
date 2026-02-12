@@ -32,9 +32,9 @@ public final class MatchControllerSerializer {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         final JsonNode root = mapper.readTree(file);
-        final JsonNode matchNode = root.get("MarchControllerImpl");
+        final JsonNode matchNode = root.get("MatchControllerImpl");
         if (matchNode == null) {
-            throw new IllegalArgumentException("Invalid JSON: missing 'MarchControllerImpl' field");
+            throw new IllegalArgumentException("Invalid JSON: missing 'MatchControllerImpl' field");
         }
         return mapper.treeToValue(matchNode, MatchControllerImpl.class);
     }
@@ -52,7 +52,7 @@ public final class MatchControllerSerializer {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
         final Map<String, Object> wrapper = new HashMap<>();
-        wrapper.put("MarchControllerImpl", matchController);
+        wrapper.put("MatchControllerImpl", matchController);
         return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(wrapper);
     }
 }

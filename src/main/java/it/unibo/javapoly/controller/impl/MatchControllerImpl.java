@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 
 import it.unibo.javapoly.controller.api.BoardController;
 import it.unibo.javapoly.controller.api.EconomyController;
@@ -34,6 +34,8 @@ import javafx.application.Platform;
  * MatchControllerImpl manages the flow of the game, including turns, 
  * movement, and GUI updates.
  */
+@JsonIgnoreProperties(value = {"gui","economyController", "mainView", ""}, ignoreUnknown = true)
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class MatchControllerImpl implements MatchController, LiquidationObserver{
 
     private static final int MAX_DOUBLES = 3;
@@ -61,6 +63,7 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
      * @param gameBoard the game board implementation
      * @param bank      the bank implementation
      */
+    @JsonIgnoreProperties({"gui", "economyController"})
     public MatchControllerImpl(final List<Player> players, final Board gameBoard, final Map<String, Property> properties){
         this.players = List.copyOf(players);
         this.gameBoard = Objects.requireNonNull(gameBoard);
@@ -78,8 +81,59 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
         }
     }
 
-    public MatchControllerImpl(@JsonProperty("players") final List<Player> players) {
-        this(players, new BoardImpl(new ArrayList<>()), new HashMap<>());
+    @JsonCreator
+    public MatchControllerImpl(
+            @JsonProperty("player")
+            final List<Player> players,
+            @JsonProperty("gameBoard")
+            final Board gameBoard,
+            @JsonProperty("propertyController")
+            final PropertyController propertyController,
+            @JsonProperty("currentPlayerIndex")
+            int currentPlayerIndex,
+            @JsonProperty("consecutiveDoubles")
+            int consecutiveDoubles,
+            @JsonProperty("hasRolled")
+            boolean hasRolled,
+            @JsonProperty("jailTurnCounter")
+            Map<String, Integer> jailTurnCounterJson,
+            @JsonProperty("diceThrow")
+            DiceThrow diceThrow) {
+        this.players = players != null ? List.copyOf(players) : new ArrayList<>();
+        this.gameBoard = gameBoard != null ? gameBoard : new BoardImpl(new ArrayList<>());
+        this.propertyController = propertyController != null ? propertyController : new PropertyControllerImpl(new HashMap<>());
+        this.economyController = new EconomyControllerImpl(this.propertyController, this.players);
+        this.economyController.addLiquidationObserver(this);
+        this.boardController = new BoardControllerImpl(this.gameBoard, this.economyController, this.propertyController);
+        this.diceThrow = diceThrow != null ? diceThrow : new DiceThrow(new DiceImpl(), new DiceImpl());
+        this.gui = new MainView(this);
+        this.currentPlayerIndex = currentPlayerIndex;
+        this.consecutiveDoubles = consecutiveDoubles;
+        this.hasRolled = hasRolled;
+        if(jailTurnCounterJson != null){
+            for (Map.Entry<String, Integer> entry : jailTurnCounterJson.entrySet()) {
+                String playerName = entry.getKey();
+                Player player = this.players.stream()
+                        .filter(p -> p.getName().equals(playerName))
+                        .findFirst()
+                        .orElse(null);
+                if (player != null) {
+                    this.jailTurnCounter.put(player, entry.getValue());
+                }
+            }
+        }
+        for (Player p: this.players) {
+            p.addObserver(this);
+        }
+    }
+
+    @JsonGetter("jailTurnCounter")
+    public Map<String, Integer> getJailTurnCounterJson() {
+        Map<String, Integer> result = new HashMap<>();
+        for (Map.Entry<Player, Integer> entry : this.jailTurnCounter.entrySet()) {
+            result.put(entry.getKey().getName(), entry.getValue());
+        }
+        return result;
     }
 
     /**
@@ -276,12 +330,15 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
     }
 
     @Override
+    @JsonIgnore
     public Board getBoard(){
         return this.gameBoard;
     }
 
-    
+
+
     @Override
+    @JsonIgnore
     public MainView getMainView(){
         return this.gui;
     }
@@ -341,9 +398,9 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
     public void setHasRolled(boolean b) {
         this.hasRolled = b;
     }
-    
-    public boolean canCurrentPlayerRoll(){ 
-        return !hasRolled; 
+
+    public boolean canCurrentPlayerRoll(){
+        return !hasRolled;
     }
 
     public Map<Player, Integer> getJailTurnCounter() {
@@ -457,7 +514,7 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
             }else if(prop.getIdOwner().equals(currentPlayer.getName())){
                 updateGui(g -> {
                     g.addLog("Sei a casa tua (" + prop.getId() + ").");
-                    // Qui la GUI potrebbe abilitare il tasto "Costruisci" 
+                    // Qui la GUI potrebbe abilitare il tasto "Costruisci"
                     // se l'EconomyController.canBuild (o simile) è true
                 });
             }
