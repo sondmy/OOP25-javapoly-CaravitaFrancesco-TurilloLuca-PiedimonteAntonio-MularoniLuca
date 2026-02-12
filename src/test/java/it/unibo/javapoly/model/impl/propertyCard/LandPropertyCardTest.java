@@ -1,4 +1,4 @@
-package it.unibo.javapoly.model.impl.propertycard;
+package it.unibo.javapoly.model.impl.propertyCard;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -15,7 +15,7 @@ class LandPropertyCardTest {
     private static final String ID = "L1";
     private static final String NAME = "Via Roma";
     private static final String DESCRIPTION = "Bella strada centrale";
-    private static final PropertyGroup GROUP = PropertyGroup.DARK_BLUE;
+    private static final PropertyGroup GROUP = PropertyGroup.DARKBLUE;
 
     private static final int PROPERTY_COST = 100;
     private static final int BASE_RENT = 10;

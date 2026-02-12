@@ -43,7 +43,7 @@ public class PropertyTile extends AbstractTile {
      * @return the property
      */
     public Property getProperty() {
-        return new PropertyImpl(this.property);
+        return this.property;
     }
 
     /**

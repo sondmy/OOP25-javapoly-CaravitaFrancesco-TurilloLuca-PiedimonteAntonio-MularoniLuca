@@ -133,12 +133,11 @@ public class MainView {
     public void showCard(final String title, final String description, final boolean isImprevisto){
         Platform.runLater(() -> {
             final Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle(isImprevisto ? "IMPREVISTO!" : "PROBABILITA'");
+            alert.setTitle("IMPREVISTO!");
             alert.setHeaderText(title);
             alert.setContentText(description);
 
-            String color = isImprevisto ? "#e74c3c" : "#3498db"; 
-            alert.getDialogPane().setStyle("-fx-border-color: " + color + "; -fx-border-width: 5px;");
+            alert.getDialogPane().setStyle("-fx-border-color: #e74c3c; -fx-border-width: 5px;");
 
             alert.showAndWait();
         });

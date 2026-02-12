@@ -94,4 +94,12 @@ public interface PropertyController {
      */
     int getHouseCost(Property property);
 
+    /**
+     * This method return the owner of a property.
+     * 
+     * @param property where we need to take the owner
+     * @return the owner, otherwise null
+     */
+    Player getOwnerByProperty(Property property);
+
 }

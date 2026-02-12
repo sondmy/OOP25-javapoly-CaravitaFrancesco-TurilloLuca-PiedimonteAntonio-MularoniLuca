@@ -98,10 +98,13 @@ public class CommandPanel {
 
     public void updateState() {
         Player current = matchController.getCurrentPlayer();
-        boolean hasRolled = !matchController.canCurrentPlayerRoll();
+        boolean canRoll = matchController.canCurrentPlayerRoll();
+        boolean hasRolled = !canRoll;
 
-        this.throwDice.setDisable(hasRolled);
-        this.endTurnButton.setDisable(!hasRolled);
+        boolean hasMoved = hasRolled || matchController.getConsecutiveDoubles() > 0;
+
+        this.throwDice.setDisable(!canRoll);
+        this.endTurnButton.setDisable(canRoll);
 
         Tile currentTile = matchController.getBoard().getTileAt(current.getCurrentPosition());
 
@@ -117,11 +120,11 @@ public class CommandPanel {
             if(isUnowned){
                 this.buyButton.setVisible(true);
                 this.buyButton.setManaged(true);
-                this.buyButton.setDisable(!hasRolled || actionDone);
+                this.buyButton.setDisable(!hasMoved || actionDone);
             }else if(current.getName().equals(prop.getIdOwner())){
                 this.buildButton.setVisible(true);
                 this.buildButton.setManaged(true);
-                this.buildButton.setDisable(!hasRolled || actionDone);
+                this.buildButton.setDisable(!hasMoved || actionDone);
             }
         }
 

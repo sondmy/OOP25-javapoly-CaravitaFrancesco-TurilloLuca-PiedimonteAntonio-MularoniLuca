@@ -18,7 +18,6 @@ import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.PlayerState;
 import it.unibo.javapoly.model.api.board.Board;
 import it.unibo.javapoly.model.api.board.Tile;
-import it.unibo.javapoly.model.api.board.TileType;
 import it.unibo.javapoly.model.api.property.Property;
 import it.unibo.javapoly.model.impl.BankruptState;
 import it.unibo.javapoly.model.impl.DiceImpl;
@@ -210,25 +209,29 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
             }
 
         updateGui(g -> g.addLog(currentPlayer.getName() + " lancia: " + this.diceThrow.getLastThrow() + (isDouble ? " (DOPPIO!)" : "")));
-        
+        this.hasRolled = true;
         if(isDouble && !(currentPlayer.getState() instanceof JailedState)){
             this.consecutiveDoubles++;
             if(this.consecutiveDoubles == MAX_DOUBLES){
                 updateGui(g -> g.addLog("3 doppi! In prigione."));
                 handlePrison(); 
-                this.hasRolled = true;
+                //this.hasRolled = true;
                 return;
-            }else {
+            }/*else {
                 this.hasRolled = false;
                 updateGui(g -> g.addLog("Puoi lanciare ancora!"));
-            }
+
+            }*/
         } else {
             this.consecutiveDoubles = 0;
-            this.hasRolled = true;
+            //this.hasRolled = true;
         }
         
         this.handleMove(this.diceThrow.getLastThrow());
-        //this.boardController.movePlayer(currentPlayer, this.lastDiceResult);
+        if(isDouble && this.consecutiveDoubles < MAX_DOUBLES){
+            this.hasRolled = false;
+        }
+        updateGui(g -> g.refreshAll());
     }
 
     /**
@@ -269,9 +272,11 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
     public void onPlayerMoved(Player player, int oldPosition, int newPosition) {
         updateGui(g -> g.refreshAll());
 
-        final Tile currentTile = gameBoard.getTileAt(newPosition);
+        final Tile currentTile = this.boardController.executeTileLogic(player, newPosition, this.diceThrow.getLastThrow());
 
-        this.boardController.executeTileLogic(player, currentTile, this.diceThrow.getLastThrow());
+        if ( newPosition != currentTile.getPosition()) {
+            player.setPosition(currentTile.getPosition());
+        }
 
         if(currentTile instanceof PropertyTile pt){
             this.currentCreditor = players.stream()
@@ -279,30 +284,15 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
                                           .findFirst()
                                           .orElse(null);
             handlePropertyLanding();
-            /*
-            Property prop = pt.getProperty();
-            String ownerId = prop.getIdOwner();
-
-            this.currentCreditor = players.stream()
-                                        .filter(p -> p.getName().equals(ownerId))
-                                        .findFirst()
-                                        .orElse(null);
-            if(ownerId != null && ownerId.equals(player.getName())){
-                if(this.propertyController.checkPayRent(player, prop.getId())){
-                    this.economyController.payRent(player, ownerId, prop, this.lastDiceResult);
-                }
-            } */
         }else {
             this.currentCreditor = null;
 
             if(currentTile instanceof UnexpectedTile){
                 String cardDescription = boardController.getMessagePrint();
                 if(cardDescription != null && !cardDescription.isEmpty()){
-                    int pos = player.getCurrentPosition();
-                    boolean isImprevisto = !(pos == 2 || pos == 17 || pos == 33);
                     updateGui(g -> {
-                        g.showCard(isImprevisto ? "IMPREVISTO" : "PROBABILITÀ", cardDescription, isImprevisto);
-                        g.addLog("[" + (isImprevisto ? "Imprevisto" : "Probabilità") + "] " + cardDescription);
+                        g.showCard("IMPREVISTO", cardDescription, true);
+                        g.addLog("[Imprevisto]" + cardDescription);
                         g.refreshAll();
                     });
                 }
@@ -344,8 +334,6 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
     public Board getBoard(){
         return this.gameBoard;
     }
-
-
 
     @Override
     @JsonIgnore
@@ -431,6 +419,13 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
 
         if(currentTile instanceof PropertyTile){
             Property prop = ((PropertyTile) currentTile).getProperty();
+
+            if (prop.isOwnedByPlayer()){
+                updateGui(g -> {
+                    g.addLog("Non puoi acquistare una proprieta che ha gia un proprietario");
+                });
+                return;
+            }
 
             if(this.economyController.purchaseProperty(currentPlayer, prop)){
                 updateGui(g -> {
@@ -524,8 +519,6 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
             }else if(prop.getIdOwner().equals(currentPlayer.getName())){
                 updateGui(g -> {
                     g.addLog("Sei a casa tua (" + prop.getId() + ").");
-                    // Qui la GUI potrebbe abilitare il tasto "Costruisci"
-                    // se l'EconomyController.canBuild (o simile) è true
                 });
             }
         }

@@ -9,6 +9,8 @@ import it.unibo.javapoly.model.api.board.Board;
 import it.unibo.javapoly.model.api.board.Tile;
 import it.unibo.javapoly.model.api.property.Property;
 import it.unibo.javapoly.model.impl.board.tile.PropertyTile;
+import it.unibo.javapoly.model.impl.card.LandPropertyCard;
+import it.unibo.javapoly.model.impl.card.StationPropertyCard;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -61,11 +63,21 @@ public class BoardPanel {
 
         if (tile instanceof PropertyTile pt) {
             Property prop = pt.getProperty();
-            if (prop.getIdOwner() != null) {
-                Pane ownerBar = new Pane();
-                ownerBar.setPrefHeight(10);
-                ownerBar.setStyle("-fx-background-color: " + getColorForOwner(prop.getIdOwner()) + ";");
-                tileDesign.getChildren().add(ownerBar);
+            String groupColor = "grey";
+            if(pt.getProperty().getCard() instanceof LandPropertyCard lpc){
+                groupColor = lpc.getGroup().toString().toLowerCase();
+            }else if(pt.getProperty().getCard() instanceof StationPropertyCard){
+                groupColor = "black";
+            }else if(pt.getProperty().getCard() instanceof StationPropertyCard){
+                groupColor = "lightgrey";
+            }
+            Pane groupBar = new Pane();
+            groupBar.setPrefHeight(15);
+            groupBar.setStyle("-fx-background-color: " + groupColor + "; -fx-border-color: black; -fx-border-width: 0 0 1 0;");
+            tileDesign.getChildren().add(groupBar);
+
+            if(prop.getIdOwner() != null){
+                tileDesign.setStyle("-fx-border-color: " + getColorForOwner(prop.getIdOwner()) + "; -fx-border-width: 3; -fx-background-color: white;");
             }
 
             HBox houseContainer = new HBox(2);

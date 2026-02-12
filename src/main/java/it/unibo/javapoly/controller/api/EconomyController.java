@@ -91,7 +91,7 @@ public interface EconomyController {
      * @param diceRoll the dice roll used to calculate rent (especially for utilities).
      * @return {@code true} if successful, {@code false} if insufficient funds (bankruptcy).
      */
-    boolean payRent(Player payer, String payeeId, Property property, int diceRoll);
+    boolean payRent(Player payer, Player payeeId, Property property, int diceRoll);
 
     /**
      * Method to pay payee of amount.

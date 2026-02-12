@@ -181,7 +181,7 @@ public class CardControllerImpl implements CardController {
     private int handleMoneyPerBuilding(final Player player, final BuildingPayload payload) {
         final List<Property> list = this.propertyController.getPropertiesWithHouseByOwner(player);
 
-        int amount = 0;
+        int amount = 1;
         for (final Property property : list) {
             final int taxHouse = property.getBuiltHouses() * payload.getMoltiplierHouse();
             amount += property.hotelIsBuilt() ? payload.getMoltiplierHotel() : taxHouse;

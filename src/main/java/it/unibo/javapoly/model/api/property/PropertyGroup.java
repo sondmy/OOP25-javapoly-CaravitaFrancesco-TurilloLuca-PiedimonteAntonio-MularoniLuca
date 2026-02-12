@@ -5,13 +5,13 @@ package it.unibo.javapoly.model.api.property;
  */
 public enum PropertyGroup {
     BROWN,
-    LIGHT_BLUE,
+    LIGHTBLUE,
     PINK,
     ORANGE,
     RED,
     YELLOW,
     GREEN,
-    DARK_BLUE,
+    DARKBLUE,
     RAILROAD,
     UTILITY
 }

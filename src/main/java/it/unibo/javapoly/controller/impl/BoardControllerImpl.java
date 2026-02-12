@@ -11,6 +11,8 @@ import it.unibo.javapoly.model.api.board.TileType;
 import it.unibo.javapoly.model.api.card.GameCard;
 import it.unibo.javapoly.model.impl.board.tile.PropertyTile;
 import it.unibo.javapoly.model.impl.board.tile.TaxTile;
+import it.unibo.javapoly.model.impl.card.StationPropertyCard;
+import it.unibo.javapoly.model.impl.card.UtilityPropertyCard;
 import it.unibo.javapoly.model.impl.JailedState;
 
 /**
@@ -118,10 +120,11 @@ public class BoardControllerImpl implements BoardController {
                 }
                 break;
             case GO_TO_JAIL:
+                this.message += tile.getDescription() + "\n";
                 return sendPlayerToJail(player);
             case UNEXPECTED:
                 final GameCard cardDrawed = this.cardController.drawCard(player.getName());
-                this.message = tile.getDescription() + "\n" + cardDrawed.getName();
+                this.message = tile.getDescription() + ":\n" + cardDrawed.getName() + "\n";
                 final int destPos = this.cardController.executeCardEffect(player, cardDrawed, BOARD_SIZE);
                 return destPos != -1 ? this.board.getTileAt(destPos) : tile;
             case PROPERTY:
@@ -131,7 +134,8 @@ public class BoardControllerImpl implements BoardController {
                     final PropertyTile prop = (PropertyTile) tile;
 
                     if (this.propertyController.checkPayRent(player, prop.getPropertyID())) {
-                        this.bank.payRent(player, prop.getProperty().getIdOwner(), prop.getProperty(), diceRoll);
+                        this.bank.payRent(player, this.propertyController.getOwnerByProperty(prop.getProperty()), prop.getProperty(), diceRoll);
+                        this.message += "Questa non è la tua Proprietà, paga l'affitto" + "\n";
                     }
                 }
                 break;
@@ -139,7 +143,7 @@ public class BoardControllerImpl implements BoardController {
                 break;
         }
 
-        this.message = tile.getDescription();
+        this.message += tile.getName() + "\n";
         return tile;
     }
 
@@ -177,6 +181,7 @@ public class BoardControllerImpl implements BoardController {
      * @param player the player receiving the bonus
      */
     private void awardGoBonus(final Player player) {
+        this.message += "Siete passati dal via, ritirate 200" + "\n"; 
         this.bank.depositToPlayer(player, this.GO_BONUS);
         System.out.println("Player " + player + " passed GO! Receives " + GO_BONUS); // NOPMD
     }
@@ -193,25 +198,23 @@ public class BoardControllerImpl implements BoardController {
         for (int offset = 1; offset < BOARD_SIZE; offset++) {
             final int pos = this.board.normalizePosition(startPos + offset);
             final Tile tile = board.getTileAt(pos);
-
-            if (matchesTileType(tile, tileType)) {
+            /*
+            if (tile.getType() == tileType 
+                && (tileType == tileType.RAILROAD || tileType == tileType.UTILITY )) {
                 return pos;
+            } */
+            
+            if(tile instanceof PropertyTile pt){
+                final var card = pt.getProperty().getCard();
+                if(tileType == tileType.RAILROAD && card instanceof StationPropertyCard){
+                    return pos;
+                }
+                if(tileType == tileType.UTILITY && card instanceof UtilityPropertyCard){
+                    return pos;
+                }
             }
         }
         return -1;
-    }
-
-    /**
-     * Checks if a tile matches the specified type.
-     *
-     * @param tile the tile to check
-     * @param tileType the type to match against
-     * @return true if the tile matches the type
-     */
-    private boolean matchesTileType(final Tile tile, final TileType tileType) {
-        return tile.getType() == tileType
-           || tile.getType() == TileType.RAILROAD 
-           || tile.getType() == TileType.UTILITY;
     }
 
 }

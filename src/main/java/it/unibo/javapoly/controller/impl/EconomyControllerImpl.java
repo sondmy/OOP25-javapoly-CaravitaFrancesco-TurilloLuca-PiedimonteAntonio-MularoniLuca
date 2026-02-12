@@ -96,12 +96,16 @@ public final class EconomyControllerImpl implements EconomyController {
      * {@inheritDoc}
      */
     @Override
-    public boolean payRent(final Player payer, final String payeeId, final Property property, final int diceRoll) {
+    public boolean payRent(final Player payer, final Player payee, final Property property, final int diceRoll) {
+
+        if (payee == null) {
+            return true; 
+        }
+        
         final int currentBalance = payer.getBalance();
-        final Player payee = getPlayerByID(payeeId);
         final int rent = this.propertyController.getRent(payer, property.getId(), diceRoll);
         if (currentBalance >= rent) {
-            if (this.bank.transferFunds(payee, payer, rent)) {
+            if (this.bank.transferFunds(payer, payee, rent)) {
                 recordTransaction(new Transaction(this.nextTransactionId,
                         PAY_RENT,
                         Optional.of(payer.getName()),

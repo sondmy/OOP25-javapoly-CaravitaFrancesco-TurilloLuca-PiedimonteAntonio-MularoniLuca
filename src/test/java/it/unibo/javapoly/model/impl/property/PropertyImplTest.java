@@ -17,7 +17,7 @@ class PropertyImplTest {
 
     private static final int FIXED_RENT = 777;
     private static final int NUM_SEVEN = 7;
-    private static final PropertyGroup GROUP_BLUE = PropertyGroup.DARK_BLUE;
+    private static final PropertyGroup GROUP_BLUE = PropertyGroup.DARKBLUE;
     private static final int PURCHASE_PRICE = 180;
     private static final String BANK = "BANK";
     private static final String OWNER_BOB = "bob";
