@@ -19,6 +19,8 @@ public class InfoPanel {
 
     private final VBox root;
     private final MatchController matchController;
+    private SellAssetViewImpl sellAssetView;
+    private VBox liquidation;
     
     /**
      * Constructor: creates labels and adds them to the panel.
@@ -28,7 +30,7 @@ public class InfoPanel {
     public InfoPanel(final MatchController matchController){
         this.matchController = Objects.requireNonNull(matchController);
 
-        this.root = new VBox(15); 
+        this.root = new VBox(15);
         this.root.setPadding(new Insets(20));
         this.root.setPrefWidth(280); 
         this.root.setStyle("-fx-background-color: #EEEEEE; -fx-border-color: #CCCCCC; -fx-border-width: 0 0 0 1;");
@@ -81,6 +83,14 @@ public class InfoPanel {
         return card;
     }
 
+    private void setUpSellView() {
+        this.sellAssetView = new SellAssetViewImpl(this.matchController);
+        this.liquidation = new VBox();
+        this.liquidation.getChildren().add(this.sellAssetView.getRoot());
+        this.liquidation.setVisible(false);
+        this.liquidation.setManaged(false);
+        this.root.getChildren().add(this.liquidation);
+    }
     /**
      * Returns the root node of this panel to be added to a Scene.
      *
