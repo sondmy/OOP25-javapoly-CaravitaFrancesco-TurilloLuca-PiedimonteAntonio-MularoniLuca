@@ -73,7 +73,7 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
         this.propertyController = new PropertyControllerImpl(properties);
         this.economyController = new EconomyControllerImpl(propertyController, players);
         this.boardController = new BoardControllerImpl(gameBoard, economyController, propertyController);
-        this.economyController.addLiquidationObserver(this);
+        this.economyController.setLiquidationObserver(this);
         this.diceThrow = new DiceThrow(new DiceImpl(), new DiceImpl());
         this.gui = new MainView(this);
         this.currentPlayerIndex = 0;
@@ -106,7 +106,7 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
         this.gameBoard = gameBoard != null ? gameBoard : new BoardImpl(new ArrayList<>());
         this.propertyController = propertyController != null ? propertyController : new PropertyControllerImpl(new HashMap<>());
         this.economyController = new EconomyControllerImpl(this.propertyController, this.players);
-        this.economyController.addLiquidationObserver(this);
+        this.economyController.setLiquidationObserver(this);
         this.boardController = new BoardControllerImpl(this.gameBoard, this.economyController, this.propertyController);
         this.diceThrow = diceThrow != null ? diceThrow : new DiceThrow(new DiceImpl(), new DiceImpl());
         this.gui = new MainView(this);
