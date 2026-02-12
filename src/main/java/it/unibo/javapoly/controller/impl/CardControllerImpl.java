@@ -32,6 +32,7 @@ import it.unibo.javapoly.utils.CardLoader;
 public class CardControllerImpl implements CardController {
 
     private static final String BANK_REC = "BANK";
+    private static final int VALUE_DEF = -1;
     private static final String PATH_CARD = "src/main/resources/Card/UnexpectedCards.json";
 
     private static final Logger LOGGER = Logger.getLogger(CardController.class.getName());
@@ -76,29 +77,31 @@ public class CardControllerImpl implements CardController {
      * {@inheritDoc}
      */
     @Override
-    public void executeCardEffect(final Player player, final GameCard card, 
+    public int executeCardEffect(final Player player, final GameCard card, 
                                   final int diceRoll) {
         if (card.isKeepUntilUsed()) {
-            return;
+            return this.VALUE_DEF;
         }
 
         final CardPayload payload = card.getPayload();
 
         if (payload instanceof MoneyPayload) {
-            handleMoneyPayload(player, (MoneyPayload) payload);
+            return handleMoneyPayload(player, (MoneyPayload) payload);
         } else if (payload instanceof MoveToPayload) {
-            handleMoveToPayload(player, (MoveToPayload) payload, diceRoll);
+            return handleMoveToPayload(player, (MoveToPayload) payload, diceRoll);
         } else if (payload instanceof MoveRelativePayload) {
-            handleMoveRelativePayload(player, (MoveRelativePayload) payload, diceRoll);
+            return handleMoveRelativePayload(player, (MoveRelativePayload) payload, diceRoll);
         } else if (payload instanceof MoveToNearestPayload) {
-            handleMoveToNearestPayload(player, (MoveToNearestPayload) payload, diceRoll);
+            return handleMoveToNearestPayload(player, (MoveToNearestPayload) payload, diceRoll);
         } else if (payload instanceof BuildingPayload) {
-            handleMoneyPerBuilding(player, (BuildingPayload) payload);
+            return handleMoneyPerBuilding(player, (BuildingPayload) payload);
         }
 
         if (CardType.GO_TO_JAIL == card.getType() && !useGetOutOfJailFreeCard(player.getName())) {
-            boardController.sendPlayerToJail(player);
+            return boardController.sendPlayerToJail(player).getPosition();
         }
+
+        return this.VALUE_DEF;
     }
 
     /**
@@ -115,13 +118,14 @@ public class CardControllerImpl implements CardController {
      * @param player the player
      * @param payload the money payload
      */
-    private void handleMoneyPayload(final Player player, final MoneyPayload payload) {
+    private int handleMoneyPayload(final Player player, final MoneyPayload payload) {
         if (this.BANK_REC.equals(payload.getReceiverMoney())) {
             this.bank.withdrawFromPlayer(player, payload.getAmount());
-            return;
+            return this.VALUE_DEF;
         }
 
         this.bank.depositToPlayer(player, payload.getAmount());
+        return this.VALUE_DEF;
     }
 
     /**
@@ -131,12 +135,12 @@ public class CardControllerImpl implements CardController {
      * @param payload the move-to payload
      * @param diceRoll the dice roll value
      */
-    private void handleMoveToPayload(final Player player, 
+    private int handleMoveToPayload(final Player player, 
                                      final MoveToPayload payload,
                                      final int diceRoll) {
         final int position = payload.getTargetPosition();
         final Tile tile = boardController.movePlayerToTile(player, position);
-        this.boardController.executeTileLogic(player, tile, diceRoll);
+        return this.boardController.executeTileLogic(player, tile.getPosition(), diceRoll).getPosition();
     }
 
     /**
@@ -146,12 +150,12 @@ public class CardControllerImpl implements CardController {
      * @param payload the move-relative payload
      * @param diceRoll the dice roll value
      */
-    private void handleMoveRelativePayload(final Player player, 
+    private int handleMoveRelativePayload(final Player player, 
                                            final MoveRelativePayload payload,
                                            final int diceRoll) {
         final int steps = payload.getDelta();
         final Tile tile = boardController.movePlayer(player, steps);
-        this.boardController.executeTileLogic(player, tile, diceRoll);
+        return this.boardController.executeTileLogic(player, tile.getPosition(), diceRoll).getPosition();
     }
 
     /**
@@ -161,11 +165,11 @@ public class CardControllerImpl implements CardController {
      * @param payload the move-to-nearest payload
      * @param diceRoll the dice roll value (for utility rent calculation)
      */
-    private void handleMoveToNearestPayload(final Player player, final MoveToNearestPayload payload, 
+    private int handleMoveToNearestPayload(final Player player, final MoveToNearestPayload payload, 
                                             final int diceRoll) {
         final TileType type = payload.getCategory();
         final Tile tile = boardController.movePlayerToNearestTileOfType(player, type);
-        this.boardController.executeTileLogic(player, tile, diceRoll);
+        return this.boardController.executeTileLogic(player, tile.getPosition(), diceRoll).getPosition();
     }
 
     /**
@@ -174,7 +178,7 @@ public class CardControllerImpl implements CardController {
      * @param player the player
      * @param payload the building payload
      */
-    private void handleMoneyPerBuilding(final Player player, final BuildingPayload payload) {
+    private int handleMoneyPerBuilding(final Player player, final BuildingPayload payload) {
         final List<Property> list = this.propertyController.getPropertiesWithHouseByOwner(player);
 
         int amount = 0;
@@ -183,7 +187,7 @@ public class CardControllerImpl implements CardController {
             amount += property.hotelIsBuilt() ? payload.getMoltiplierHotel() : taxHouse;
         }
 
-        handleMoneyPayload(player, new MoneyPayload(amount, BANK_REC));
+        return handleMoneyPayload(player, new MoneyPayload(amount, BANK_REC));
     }
 
     private List<GameCard> loadCardDeck() throws IOException {

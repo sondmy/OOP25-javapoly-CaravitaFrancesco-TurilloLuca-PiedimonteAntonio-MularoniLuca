@@ -24,8 +24,9 @@ public interface CardController {
      * @param player the player affected by the card
      * @param card the GameCard to execute
      * @param diceRoll the current dice roll value (used for utility rent calculations)
+     * @return the position
      */
-    void executeCardEffect(Player player, GameCard card, int diceRoll);
+    int executeCardEffect(Player player, GameCard card, int diceRoll);
 
     /**
      * Uses a "Get Out of Jail Free" card held by a player.

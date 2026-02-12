@@ -45,10 +45,11 @@ public interface BoardController {
      * This includes paying taxes, drawing cards, going to jail, etc.
      * 
      * @param player the player who landed on the tile
-     * @param tile the tile the player landed on
+     * @param tilePos the tile position the player landed on
      * @param diceRoll the sum of the two dice
+     * @return 
      */
-    void executeTileLogic(Player player, Tile tile, int diceRoll);
+    Tile executeTileLogic(Player player, int tilePos, int diceRoll);
 
     /**
      * Sends a player directly to jail without passing through "Go".
