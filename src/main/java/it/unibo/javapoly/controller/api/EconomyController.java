@@ -19,11 +19,11 @@ public interface EconomyController {
     List<Transaction> getTransactions();
 
     /**
-     * Returns the list of registered liquidation observers.
+     * Returns the currently registered liquidation observer.
      *
-     * @return the list of registered liquidation observers.
+     * @return the active liquidation observer instance.
      */
-    List<LiquidationObserver> getLiquidationObservers();
+    LiquidationObserver getLiquidationObserver();
 
     /**
      * Deposits money to a player from bank.
@@ -104,16 +104,9 @@ public interface EconomyController {
     boolean payPlayer(Player payer, Player payee, int amount);
 
     /**
-     * Add LiquidationObserver for manager before bankruptcy.
+     * Set LiquidationObserver for manager before bankruptcy.
      *
      * @param observer of observer.
      */
-    void addLiquidationObserver(LiquidationObserver observer);
-
-    /**
-     * Remove LiquidationObserver for manager before bankruptcy.
-     *
-     * @param observer of observer.
-     */
-    void removeLiquidationObserver(LiquidationObserver observer);
+    void setLiquidationObserver(LiquidationObserver observer);
 }

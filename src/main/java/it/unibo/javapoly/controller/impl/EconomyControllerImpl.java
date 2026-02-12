@@ -33,7 +33,7 @@ public final class EconomyControllerImpl implements EconomyController {
     private final PropertyController propertyController;
     private final List<Transaction> transactionHistory = new ArrayList<>();
     private int nextTransactionId = 1;
-    private final List<LiquidationObserver> liquidationObservers = new ArrayList<>();
+    private LiquidationObserver liquidationObserver;
 
     /**
      * Creates an EconomyController with the given list of properties.
@@ -75,22 +75,20 @@ public final class EconomyControllerImpl implements EconomyController {
     @Override
     public boolean withdrawFromPlayer(final Player player, final int amount) {
         final int currentBalance = player.getBalance();
-        final int amountToPay = Math.min(currentBalance, amount);
-        if (amountToPay > 0) {
-        if (this.bank.withdraw(player, amountToPay)) {
+        if (currentBalance >= amount) {
+        if (this.bank.withdraw(player, amount)) {
             recordTransaction(new Transaction(this.nextTransactionId,
                     WITHDRAW_TO_BANK,
                     Optional.of(player.getName()),
                     Optional.empty(),
                     Optional.empty(),
-                    amountToPay));
+                    amount));
+            return true;
             }
         }
-        if (currentBalance >= amount) {
-            return true;
+        if (this.liquidationObserver != null) {
+            this.liquidationObserver.onInsufficientFunds(player, amount);
         }
-        final int remainingDebt = amount - currentBalance;
-        liquidationObservers.forEach(liquidationObserver -> liquidationObserver.onInsufficientFunds(player, remainingDebt));
         return false;
     }
 
@@ -102,20 +100,20 @@ public final class EconomyControllerImpl implements EconomyController {
         final int currentBalance = payer.getBalance();
         final Player payee = getPlayerByID(payeeId);
         final int rent = this.propertyController.getRent(payer, property.getId(), diceRoll);
-        final int amountToPay = Math.min(currentBalance, rent);
-        if (amountToPay > 0 && this.bank.transferFunds(payer, payee, amountToPay)) {
-            recordTransaction(new Transaction(this.nextTransactionId,
-                    PAY_RENT,
-                    Optional.of(payer.getName()),
-                    Optional.of(payee.getName()),
-                    Optional.of(property.getId()),
-                    amountToPay));
-        }
         if (currentBalance >= rent) {
-            return true;
+            if (this.bank.transferFunds(payee, payer, rent)) {
+                recordTransaction(new Transaction(this.nextTransactionId,
+                        PAY_RENT,
+                        Optional.of(payer.getName()),
+                        Optional.of(payee.getName()),
+                        Optional.of(property.getId()),
+                        rent));
+                return true;
+            }
         }
-        final int remainingDebt = rent - currentBalance;
-        liquidationObservers.forEach(liquidationObserver -> liquidationObserver.onInsufficientFunds(payer, remainingDebt));
+        if (this.liquidationObserver != null) {
+            this.liquidationObserver.onInsufficientFunds(payer, rent);
+        }
         return false;
     }
 
@@ -215,28 +213,21 @@ public final class EconomyControllerImpl implements EconomyController {
         this.nextTransactionId++;
     }
 
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public void addLiquidationObserver(final LiquidationObserver observer) {
-        this.liquidationObservers.add(observer);
+    public LiquidationObserver getLiquidationObserver() {
+        return this.liquidationObserver;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void removeLiquidationObserver(final LiquidationObserver observer) {
-        this.liquidationObservers.remove(observer);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<LiquidationObserver> getLiquidationObservers() {
-        return new ArrayList<>(this.liquidationObservers);
+    public void setLiquidationObserver(final LiquidationObserver newObserver) {
+        this.liquidationObserver = newObserver;
     }
 
     /**
