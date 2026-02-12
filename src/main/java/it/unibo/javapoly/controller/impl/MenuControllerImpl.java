@@ -7,6 +7,7 @@ import it.unibo.javapoly.model.api.TokenType;
 import it.unibo.javapoly.model.api.property.Property;
 import it.unibo.javapoly.model.impl.PlayerImpl;
 import it.unibo.javapoly.model.impl.board.BoardImpl;
+import it.unibo.javapoly.model.impl.board.tile.PropertyTile;
 import it.unibo.javapoly.utils.BoardLoader;
 import it.unibo.javapoly.utils.ValidationUtils;
 import it.unibo.javapoly.view.api.MenuView;
@@ -16,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.HashMap;
+
 import it.unibo.javapoly.view.impl.MainView;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -67,7 +70,7 @@ public class MenuControllerImpl implements MenuController {
      */
     @Override
     // Checkstyle suppression is necessary here to catch any exception during loading.
-    @SuppressWarnings("Checkstyle")
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void loadGame(final File saveFile) {
         ValidationUtils.requireNonNull(saveFile, "Save file cannot be null");
         if (!saveFile.exists()) {
@@ -113,7 +116,12 @@ public class MenuControllerImpl implements MenuController {
         ValidationUtils.requireNonNull(players, NON_NULL);
         try {
             final BoardImpl board = BoardLoader.loadBoardFromJson(PATH_BOARD_JSON);
-            final Map<String, Property> properties = BoardLoader.loadPropertiesFromJson(PATH_BOARD_JSON);
+            final Map<String, Property> properties = new HashMap<>();
+            for (int i = 0; i < board.size(); i++) {
+                if (board.getTileAt(i) instanceof PropertyTile propertyTile) {
+                    properties.put(propertyTile.getProperty().getId(), propertyTile.getProperty());
+                }
+            }
             final MatchController matchController = new MatchControllerImpl(players, board, properties);
             final MainView mainView = matchController.getMainView();
             final Stage stage = this.menuView.getStage();
