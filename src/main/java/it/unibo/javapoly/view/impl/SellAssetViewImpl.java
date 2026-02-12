@@ -5,6 +5,7 @@ import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.property.Property;
 import it.unibo.javapoly.model.impl.BankruptState;
 import it.unibo.javapoly.view.api.SellAssetView;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -20,14 +21,16 @@ import java.util.Objects;
  * in order to satisfy debt obligation.
  */
 public class SellAssetViewImpl implements SellAssetView {
-
+    private static final String CURRENCY = " $";
     private final BorderPane root;
-    private final GridPane list;
-    private final Label title = new Label("Amount to pay off:");
-    private final Label debt = new Label();
-
+    private final GridPane propertyGrid;
+    private final Label titleLabel;
+    private final Label debtLabel;
+    private final Button bankruptButton;
     private final MatchController matchController;
     private Player currentPlayer;
+    private int originalDebt;
+    private int remainingDebt;
 
     /**
      * Constructor a new sell-asset view.
@@ -37,7 +40,10 @@ public class SellAssetViewImpl implements SellAssetView {
      */
     public SellAssetViewImpl(final MatchController controller) {
         this.root = new BorderPane();
-        this.list = new GridPane();
+        this.propertyGrid = new GridPane();
+        this.titleLabel = new Label("Amount to pay off: ");
+        this.debtLabel = new Label();
+        this.bankruptButton = new Button("Bankrupt");
         this.matchController = Objects.requireNonNull(controller, "Match controller must not be null");
         initialize();
     }
@@ -46,10 +52,13 @@ public class SellAssetViewImpl implements SellAssetView {
      * Initialize the UI layout structure.
      */
     public void initialize() {
-        final HBox titleHBox = new HBox();
-        titleHBox.getChildren().addAll(title, debt);
-        this.root.setTop(titleHBox);
-        this.root.setCenter(this.list);
+        final HBox header = new HBox(titleLabel, debtLabel);
+        header.setAlignment(Pos.CENTER);
+        bankruptButton.setOnAction(e -> declareBankruptcy());
+
+        this.root.setTop(header);
+        this.root.setCenter(this.propertyGrid);
+        this.root.setBottom(this.bankruptButton);
     }
 
     /**
@@ -62,41 +71,57 @@ public class SellAssetViewImpl implements SellAssetView {
      */
     public void show(final Player player, final int debtAmount) {
         this.currentPlayer = player;
-        final List<Property> properties =
-                new ArrayList<>(this.matchController.getPropertyController().getOwnedProperties(player.getName()));
-        final List<Property> houses =
-                new ArrayList<>(this.matchController.getPropertyController().getPropertiesWithHouseByOwner(player));
-        this.debt.setText(debtAmount + " $");
-        this.list.getChildren().clear();
-        if (debtAmount <= 0) {
+        this.originalDebt = debtAmount;
+        this.remainingDebt = debtAmount;
+        debtDisplay();
+    }
+
+    /**
+     * This method update debtLabel with remaining debt.
+     */
+    private void debtDisplay() {
+        this.debtLabel.setText(this.remainingDebt + this.CURRENCY);
+    }
+
+    /**
+     * This method update propertyGrid with buttons.
+     */
+    private void refreshPropertyGrid() {
+        this.propertyGrid.getChildren().clear();
+        if (this.remainingDebt <= 0) {
             return;
         }
+        final List<Property> properties =
+                new ArrayList<>(this.matchController.getPropertyController().getOwnedProperties(this.currentPlayer.getName()));
+        final List<Property> houses =
+                new ArrayList<>(this.matchController.getPropertyController().getPropertiesWithHouseByOwner(this.currentPlayer));
+
         if (properties.isEmpty() && houses.isEmpty()) {
-            player.setState(BankruptState.getInstance());
+            this.currentPlayer.setState(BankruptState.getInstance());
+            return;
         }
         int row = 0;
         int col = 0;
         if (!houses.isEmpty()) {
             for (final Property propertyWithHouse: houses) {
-                final Button houseButton = createHouseButton(propertyWithHouse, debtAmount);
-                list.add(houseButton, col++, row);
+                final Button houseButton = createHouseButton(propertyWithHouse);
+                propertyGrid.add(houseButton, col++, row);
                 if (col >= 3) {
                     col = 0;
                     row++;
                 }
             }
-            return;
-        }
-        if (!properties.isEmpty()) {
+        } else {
             for (final Property propertyWithoutHouse: properties) {
-                final Button propertyButton = createPropertyButton(propertyWithoutHouse, debtAmount);
-                list.add(propertyButton, col++, row);
+                final Button propertyButton = createPropertyButton(propertyWithoutHouse);
+                propertyGrid.add(propertyButton, col++, row);
                 if (col >= 3) {
                     col = 0;
                     row++;
                 }
             }
         }
+
     }
 
     /**
@@ -104,23 +129,17 @@ public class SellAssetViewImpl implements SellAssetView {
      * Value returned is half of the house construction cost.
      *
      * @param property the property, must not be null.
-     * @param debtAmount the actual debt amount.
      * @return a non-null button.
      */
-    private Button createHouseButton(final Property property, final int debtAmount) {
-        final Label name = new Label(property.getCard().getName());
-        final Label houseCount = new Label("House " + property.getState().getHouses());
-        final int housePrice = this.matchController.getPropertyController().getHouseCost(property) / 2;
-        final Label price = new Label("Sell for " + housePrice + " $");
-        final HBox content = new HBox(name, houseCount, price);
+    private Button createHouseButton(final Property property) {
+        final Label nameLabel = new Label(property.getCard().getName());
+        final Label houseCountLabel = new Label("House " + property.getState().getHouses());
+        final int housePriceLabel = this.matchController.getPropertyController().getHouseCost(property) / 2;
+        final Label price = new Label("Sell for " + housePriceLabel + " $");
+        final HBox content = new HBox(nameLabel, houseCountLabel, price);
         final Button houseButton = new Button();
         houseButton.setGraphic(content);
-        houseButton.setOnAction(e -> {
-            this.matchController.getEconomyController().sellHouse(this.currentPlayer, property);
-            final int updateDebt = debtAmount - housePrice;
-            debt.setText(updateDebt + "$");
-            show(currentPlayer, debtAmount);
-        });
+        houseButton.setOnAction(e -> sellHouse(property, housePriceLabel));
         return houseButton;
     }
 
@@ -129,23 +148,74 @@ public class SellAssetViewImpl implements SellAssetView {
      * Value returned is half of the property purchase cost.
      *
      * @param property the property, must not be null;
-     * @param debtAmount the actual debt amount.
-     * @return a non-null button
+     * @return a non-null button.
      */
-    private Button createPropertyButton(final Property property, final int debtAmount) {
+    private Button createPropertyButton(final Property property) {
         final Label name = new Label(property.getCard().getName());
-        final int propertySellHouse = property.getState().getPurchasePrice() / 2;
-        final Label price = new Label(String.valueOf(propertySellHouse));
+        final int pricePropertyToSell = property.getState().getPurchasePrice() / 2;
+        final Label price = new Label(String.valueOf(pricePropertyToSell));
         final HBox content = new HBox(name, price);
         final Button propertyButton = new Button();
         propertyButton.setGraphic(content);
-        propertyButton.setOnAction(e -> {
-            this.matchController.getEconomyController().sellProperty(this.currentPlayer, property);
-            final int updateDebt = debtAmount - propertySellHouse;
-            debt.setText(updateDebt + "$");
-            show(currentPlayer, debtAmount);
-        });
+        propertyButton.setOnAction(e -> sellProperty(property, pricePropertyToSell));
         return propertyButton;
+    }
+
+    /**
+     * Sells a house and update debt.
+     *
+     * @param property the property with house.
+     * @param housePrice the sale price.
+     */
+    private void sellHouse(final Property property, final int housePrice) {
+        final boolean success = matchController.getEconomyController().sellHouse(currentPlayer, property);
+        if (success) {
+            this.remainingDebt -= housePrice;
+            matchController.getMainView().addLog(
+                    currentPlayer.getName() + " sold house in " + property.getId() + " for " + housePrice + CURRENCY);
+            if (remainingDebt <= 0) {
+                completeLiquidation(true);
+            }
+            debtDisplay();
+            refreshPropertyGrid();
+        }
+    }
+
+    /**
+     * Sells a property and updates the debt.
+     *
+     * @param property the property.
+     * @param pricePropertyToSell the sale price.
+     */
+    private void sellProperty(final Property property, final int pricePropertyToSell) {
+        final boolean success = matchController.getEconomyController().sellProperty(this.currentPlayer, property);
+        if (success) {
+            this.remainingDebt -= pricePropertyToSell;
+            matchController.getMainView().addLog(
+            currentPlayer.getName() + " sold " + property.getId() + " for " + pricePropertyToSell + this.CURRENCY);
+            if (remainingDebt <= 0) {
+                completeLiquidation(true);
+            }
+            debtDisplay();
+            refreshPropertyGrid();
+        }
+    }
+
+    /**
+     * Declares bankruptcy.
+     */
+    private void declareBankruptcy() {
+        currentPlayer.setState(BankruptState.getInstance());
+        completeLiquidation(false);
+    }
+
+    /**
+     * Completes the liquidation process and notifies callback.
+     *
+     * @param success true if debt was full paid.
+     */
+    private void completeLiquidation(final boolean success) {
+
     }
 
     /**
