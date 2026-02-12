@@ -89,7 +89,7 @@ public final class PropertyImpl implements Property {
      */
     @Override
     public PropertyState getState() {
-        return new PropertyStateImpl(this.state);
+        return this.state;
     }
 
     /**
