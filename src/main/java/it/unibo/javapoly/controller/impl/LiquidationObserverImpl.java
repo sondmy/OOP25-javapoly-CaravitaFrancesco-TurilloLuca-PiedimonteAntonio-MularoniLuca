@@ -37,7 +37,8 @@ public class LiquidationObserverImpl implements LiquidationObserver {
         this.player = playerNoFunds;
         this.currentDebt = requiredAmount;
         this.currentCreditor = payee;
-        matchController.getMainView().addLog(playerNoFunds.getName() + " owes " + requiredAmount + CURRENCY + ". Sell your asset!!!");
+        matchController.getMainView().addLog(
+                playerNoFunds.getName() + " owes " + requiredAmount + CURRENCY + ". Sell your asset!!!");
         matchController.getMainView().showLiquidation();
         final SellAssetView view = matchController.getMainView().getSellAssetView();
         view.show(this.player, this.currentDebt);
