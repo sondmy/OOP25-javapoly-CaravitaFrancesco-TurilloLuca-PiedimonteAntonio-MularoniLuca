@@ -64,18 +64,15 @@ public class SellAssetViewImpl implements SellAssetView {
     }
 
     /**
-     * Display the view for the given player with their current debit and available properties.
-     * Updates the UI with button to sell house first(if any), otherwise regular properties.
-     *
-     * @param player the player in turn, must not be {@code null}
-     * @param debtAmount the amount of debt to be settled (must be >0 for UI to populate buttons)
-     * @throws IllegalArgumentException if {@code player} is null or any list is null.
+     * {@inheritDoc}
      */
+    @Override
     public void show(final Player player, final int debtAmount) {
         this.currentPlayer = player;
         this.originalDebt = debtAmount;
         this.remainingDebt = debtAmount;
         debtDisplay();
+        refreshPropertyGrid();
     }
 
     /**
@@ -136,8 +133,8 @@ public class SellAssetViewImpl implements SellAssetView {
      * @return a non-null button.
      */
     private Button createHouseButton(final Property property) {
-        final Label nameLabel = new Label(property.getCard().getName());
-        final Label houseCountLabel = new Label("House " + property.getState().getHouses());
+        final Label nameLabel = new Label(property.getCard().getName() + " ");
+        final Label houseCountLabel = new Label("House " + property.getState().getHouses() + " ");
         final int housePriceLabel = this.matchController.getPropertyController().getHouseCost(property) / 2;
         final Label price = new Label("Sell for " + housePriceLabel + " $");
         final HBox content = new HBox(nameLabel, houseCountLabel, price);
@@ -155,7 +152,7 @@ public class SellAssetViewImpl implements SellAssetView {
      * @return a non-null button.
      */
     private Button createPropertyButton(final Property property) {
-        final Label name = new Label(property.getCard().getName());
+        final Label name = new Label(property.getCard().getName() + " ");
         final int pricePropertyToSell = property.getState().getPurchasePrice() / 2;
         final Label price = new Label(String.valueOf(pricePropertyToSell));
         final HBox content = new HBox(name, price);

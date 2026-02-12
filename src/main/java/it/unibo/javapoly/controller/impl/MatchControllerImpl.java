@@ -32,17 +32,16 @@ import it.unibo.javapoly.view.impl.MainView;
 import javafx.application.Platform;
 
 /**
- * MatchControllerImpl manages the flow of the game, including turns, 
+ * MatchControllerImpl manages the flow of the game, including turns,
  * movement, and GUI updates.
  */
 @JsonIgnoreProperties(value = {"gui","economyController", "mainView", ""}, ignoreUnknown = true)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class MatchControllerImpl implements MatchController, LiquidationObserver{
-
+public class MatchControllerImpl implements MatchController{
     private static final int MAX_DOUBLES = 3;
     private static final int JAIL_EXIT_FEE = 50;
-    
-    private final List<Player> players;  
+
+    private final List<Player> players;
     private final DiceThrow diceThrow;
     private final Board gameBoard;
     @JsonIgnore
@@ -59,6 +58,8 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
     private int consecutiveDoubles;
     private boolean hasRolled = false;
     private Player currentCreditor;
+    @JsonIgnore
+    private LiquidationObserver liquidationObserver;
 
     /**
      * Constructor
@@ -74,14 +75,15 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
         this.propertyController = new PropertyControllerImpl(properties);
         this.economyController = new EconomyControllerImpl(propertyController, players);
         this.boardController = new BoardControllerImpl(gameBoard, economyController, propertyController);
-        this.economyController.setLiquidationObserver(this);
+        this.liquidationObserver = new LiquidationObserverImpl(this);
+        this.economyController.setLiquidationObserver(this.liquidationObserver);
         this.diceThrow = new DiceThrow(new DiceImpl(), new DiceImpl());
         this.gui = new MainView(this);
         this.currentPlayerIndex = 0;
         this.consecutiveDoubles = 0;
 
         for (Player p : this.players) {
-            p.addObserver(this); 
+            p.addObserver(this);
         }
     }
 
@@ -106,6 +108,7 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
         this.players = players != null ? List.copyOf(players) : new ArrayList<>();
         this.gameBoard = gameBoard != null ? gameBoard : new BoardImpl(new ArrayList<>());
         this.propertyController = propertyController != null ? propertyController : new PropertyControllerImpl(new HashMap<>());
+        this.liquidationObserver = new LiquidationObserverImpl(this);
         this.economyController = new EconomyControllerImpl(this.propertyController, this.players);
         this.economyController.setLiquidationObserver(this);
         this.boardController = new BoardControllerImpl(this.gameBoard, this.economyController, this.propertyController);
@@ -210,12 +213,12 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
             }
 
         updateGui(g -> g.addLog(currentPlayer.getName() + " lancia: " + this.diceThrow.getLastThrow() + (isDouble ? " (DOPPIO!)" : "")));
-        
+
         if(isDouble && !(currentPlayer.getState() instanceof JailedState)){
             this.consecutiveDoubles++;
             if(this.consecutiveDoubles == MAX_DOUBLES){
                 updateGui(g -> g.addLog("3 doppi! In prigione."));
-                handlePrison(); 
+                handlePrison();
                 this.hasRolled = true;
                 return;
             }else {
@@ -226,7 +229,7 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
             this.consecutiveDoubles = 0;
             this.hasRolled = true;
         }
-        
+
         this.handleMove(this.diceThrow.getLastThrow());
         //this.boardController.movePlayer(currentPlayer, this.lastDiceResult);
     }
@@ -237,7 +240,6 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
      *
      * @param steps number of spaces to move
      */
-    @Override
     public void handleMove(int steps) {
         final Player currentPlayer = getCurrentPlayer();
         int oldPos = currentPlayer.getCurrentPosition();
@@ -254,7 +256,6 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
      * Handles the logic when a player is in prison.
      * For simplicity, we can just log it here.
      */
-    @Override
     public void handlePrison() {
         final Player currentPlayer = getCurrentPlayer();
 
@@ -364,28 +365,6 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
             g.addLog(player.getName() + " ora è in stato: " + newState.getClass().getSimpleName());
             g.refreshAll();
         });
-    }
-
-    @Override
-    public void onInsufficientFunds(Player player, int requiredAmount) {
-       updateGui(g -> {
-            g.addLog("⚠️ FONDI INSUFFICIENTI: " + player.getName() + " deve recuperare " + requiredAmount + "€");
-            g.showLiquidation(player, requiredAmount);
-        });
-    }
-
-    @Override
-    public void onBankruptcyDeclared(Player bankruptPlayer, Player creditor, int totalDebt) {
-        updateGui(g -> {
-            g.addLog("❌ BANCAROTTA: " + bankruptPlayer.getName() + " è fuori dai giochi!");
-            if(creditor != null){
-                g.addLog("I suoi beni passano a " + creditor.getName());
-            }else{
-                g.addLog("I suoi beni tornano alla banca.");
-            }
-        });
-        bankruptPlayer.setState(BankruptState.getInstance());
-        checkWinCondition();
     }
 
     //#region public method
@@ -531,6 +510,26 @@ public class MatchControllerImpl implements MatchController, LiquidationObserver
         }
         updateGui(g -> g.refreshAll());
     }
-//#endregion
+
+    @Override
+    public void handleEndTurn() {
+
+    }
+    // LiquidationObserver implementations
+    @Override
+    public void onInsufficientFunds(Player player, int amount) {
+        if (this.liquidationObserver != null) {
+            this.liquidationObserver.onInsufficientFunds(player, amount);
+        }
+    }
+
+    @Override
+    public void onBankruptcyDeclared(Player payer, Player payee, int amount) {
+        if (this.liquidationObserver != null) {
+            this.liquidationObserver.onBankruptcyDeclared(payer, payee, amount);
+        }
+    }
+
+    //#endregion
 
 }

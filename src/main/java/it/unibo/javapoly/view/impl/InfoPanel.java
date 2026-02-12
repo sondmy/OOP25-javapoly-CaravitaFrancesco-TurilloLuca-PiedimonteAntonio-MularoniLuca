@@ -35,7 +35,7 @@ public class InfoPanel {
         this.root.setPadding(new Insets(20));
         this.root.setPrefWidth(280); 
         this.root.setStyle("-fx-background-color: #EEEEEE; -fx-border-color: #CCCCCC; -fx-border-width: 0 0 0 1;");
-
+        this.setUpSellView();
         this.updateInfo();
     }
 
@@ -44,7 +44,6 @@ public class InfoPanel {
      */
     public void updateInfo(){
         this.root.getChildren().clear();
-        
         Label title = new Label("GIOCATORI");
         title.setFont(Font.font("Segoe UI", FontWeight.BOLD, 16));
         title.setPadding(new Insets(0, 0, 10, 0));
@@ -52,6 +51,10 @@ public class InfoPanel {
         
         for (Player p : this.matchController.getPlayers()) {
             this.root.getChildren().add(createPlayerCard(p));
+        }
+
+        if (this.liquidation != null) {
+            this.root.getChildren().add(this.liquidation);
         }
     }
 
@@ -88,8 +91,9 @@ public class InfoPanel {
         this.sellAssetView = new SellAssetViewImpl(this.matchController);
         this.liquidation = new VBox();
         this.liquidation.getChildren().add(this.sellAssetView.getRoot());
-        this.liquidation.setVisible(false);
-        this.liquidation.setManaged(false);
+        this.sellAssetView.getRoot().setVisible(false);
+        this.liquidation.setVisible(true);
+        this.liquidation.setManaged(true);
         this.root.getChildren().add(this.liquidation);
     }
     
