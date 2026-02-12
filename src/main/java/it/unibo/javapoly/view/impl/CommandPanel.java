@@ -5,9 +5,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import it.unibo.javapoly.controller.impl.MatchControllerImpl;
-import it.unibo.javapoly.controller.impl.MatchSnapshotter;
-import it.unibo.javapoly.controller.impl.MatchSnapshot;
 import it.unibo.javapoly.utils.JsonUtils;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -84,11 +81,11 @@ public class CommandPanel {
             }
         });
         this.root.getChildren().addAll(
-            this.throwDice, 
-            this.buyButton, 
-            this.buildButton, 
-            this.payJailButton, 
-            this.endTurnButton, 
+            this.throwDice,
+            this.buyButton,
+            this.buildButton,
+            this.payJailButton,
+            this.endTurnButton,
             this.saveButton
         );
     }
@@ -101,7 +98,7 @@ public class CommandPanel {
         this.endTurnButton.setDisable(!hasRolled);
 
         Tile currentTile = matchController.getBoard().getTileAt(current.getCurrentPosition());
-        
+
         this.buyButton.setVisible(false);
         this.buyButton.setManaged(false);
         this.buildButton.setVisible(false);
@@ -148,10 +145,7 @@ public class CommandPanel {
             final String userHome = System.getProperty("user.home");
             final Path saveDir = Paths.get(userHome);
             final Path saveFile = saveDir.resolve("javapoly_save.json");
-            if (matchController instanceof MatchControllerImpl impl) {
-                final MatchSnapshot snapshot = MatchSnapshotter.toSnapshot(impl);
-                JsonUtils.getInstance().mapper().writeValue(saveFile.toFile(), snapshot);
-            }
+            JsonUtils.getInstance().mapper().writeValue(saveFile.toFile(), this.matchController);
         } catch (final IOException ex) {
             System.err.println("Failed to save game " + ex.getMessage());
         }
