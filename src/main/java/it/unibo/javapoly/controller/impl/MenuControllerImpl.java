@@ -15,11 +15,7 @@ import it.unibo.javapoly.view.api.MenuView;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.HashMap;
+import java.util.*;
 import java.util.logging.Logger;
 
 import it.unibo.javapoly.view.impl.MainViewImpl;
@@ -82,7 +78,7 @@ public class MenuControllerImpl implements MenuController {
             this.menuView.showError("Selected path is not a file.");
             return;
         }
-        if (!saveFile.getName().toLowerCase().endsWith(JSON_EXTENSION)) {
+        if (!saveFile.getName().toLowerCase(Locale.ROOT).endsWith(JSON_EXTENSION)) {
             this.menuView.showError("Selected file is not a valid save (.json) file.");
             return;
         }
