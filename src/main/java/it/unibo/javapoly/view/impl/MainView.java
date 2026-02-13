@@ -20,12 +20,23 @@ import it.unibo.javapoly.controller.api.MatchController;
  * MainFrame is the main window of the JavaPoly game.
  * It contains the game board, player info, action buttons, and a log area.
  */
-public class MainView {
+public final class MainView {
+
+    private static final int LOG_SPACING = 5;
+    private static final int LOG_PREF_WIDTH = 250;
+    private static final int SCENE_WIDTH = 1200;
+    private static final int SCENE_HEIGHT = 800;
+    private static final int FONT_SIZE_SMALL = 13;
+    private static final int FONT_SIZE_MEDIUM = 14;
+    private static final int INSET_VAL = 5;
+    private static final int INSET_SIDE_VAL = 10;
+    private static final int BORDER_WIDTH_VAL = 5;
+    private static final String FONT_FAMILY = "Segoe UI";
 
     private final BorderPane root;
-    private final BoardPanel boardPanel; // panel displaying the game board
-    private final CommandPanel commandPanel; // panel with action buttons (throw dice, end turn)
-    private final InfoPanel infoPanel; // panel showing player information
+    private final BoardPanel boardPanel; 
+    private final CommandPanel commandPanel; 
+    private final InfoPanel infoPanel; 
     private final MatchController matchController;
 
     private final VBox logContainer;
@@ -40,14 +51,14 @@ public class MainView {
         this.matchController = Objects.requireNonNull(matchController);
         this.root = new BorderPane();
 
-        this.boardPanel = new BoardPanel(this.matchController.getBoard(), this.matchController.getPlayers()); // shows the game board and player tokens
-        this.commandPanel = new CommandPanel(this.matchController); // contains buttons for throwing dice and ending turn
-        this.infoPanel = new InfoPanel(this.matchController); // shows current player info (name, money, position)
+        this.boardPanel = new BoardPanel(this.matchController.getBoard(), this.matchController.getPlayers()); 
+        this.commandPanel = new CommandPanel(this.matchController);
+        this.infoPanel = new InfoPanel(this.matchController); 
 
-        this.logContainer = new VBox(5);
+        this.logContainer = new VBox(LOG_SPACING);
         this.logScroll = new ScrollPane(this.logContainer);
         this.logScroll.setFitToWidth(true);
-        this.logScroll.setPrefWidth(250);
+        this.logScroll.setPrefWidth(LOG_PREF_WIDTH);
 
         this.root.setCenter(this.boardPanel.getRoot());
         this.root.setBottom(this.commandPanel.getRoot());
@@ -60,15 +71,18 @@ public class MainView {
      *
      * @param stage the primary stage provided by JavaFX.
      */
-    public final void start(final Stage stage) {
+    public void start(final Stage stage) {
         Objects.requireNonNull(stage);
-        final Scene scene = new Scene(this.root, 1200, 800);
+        final Scene scene = new Scene(this.root, SCENE_WIDTH, SCENE_HEIGHT);
         stage.setTitle("JavaPoly - Monopoly Java Edition");
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.show();
     }
 
+    /**
+     * Refreshes all UI components.
+     */
     public void refreshAll() {
         this.boardPanel.update();
         this.infoPanel.updateInfo();
@@ -80,30 +94,31 @@ public class MainView {
      *
      * @param msg The message to append.
      */
-    public void addLog(String msg) {
+    public void addLog(final String msg) {
         Platform.runLater(() -> {
-            Text textNode = new Text(msg);
-            textNode.setFont(Font.font("Segoe UI", FontWeight.NORMAL, 13)); 
+            final Text textNode = new Text(msg);
+            textNode.setFont(Font.font(FONT_FAMILY, FontWeight.NORMAL, FONT_SIZE_SMALL)); 
 
-            String upperMsg = msg.toUpperCase();
+           final String upperMsg = msg.toUpperCase();
 
-            if (upperMsg.contains("PURCHASED") || upperMsg.contains("EARNED") || upperMsg.contains("COLLECT") || upperMsg.contains("+")) {
+            if (upperMsg.contains("PURCHASED") || upperMsg.contains("EARNED") 
+                    || upperMsg.contains("COLLECT") || upperMsg.contains("+")) {
                 textNode.setFill(Color.DARKGREEN);
-                textNode.setFont(Font.font("Segoe UI", FontWeight.BOLD, 13));
-            } else if (upperMsg.contains("PAYS") || upperMsg.contains("TAX") || upperMsg.contains("JAIL") || upperMsg.contains("DOUBLE") || upperMsg.contains("DEBT")) {
+                textNode.setFont(Font.font(FONT_FAMILY, FontWeight.BOLD, FONT_SIZE_SMALL));
+            } else if (upperMsg.contains("PAYS") || upperMsg.contains("TAX") 
+                    || upperMsg.contains("JAIL") || upperMsg.contains("DOUBLE") 
+                    || upperMsg.contains("DEBT")) {
                 textNode.setFill(Color.FIREBRICK);
             } else if (upperMsg.contains("TURN")) {
                 textNode.setFill(Color.CORNFLOWERBLUE);
-                textNode.setFont(Font.font("Segoe UI", FontWeight.BOLD, 14));
+                textNode.setFont(Font.font(FONT_FAMILY, FontWeight.BOLD, FONT_SIZE_MEDIUM));
             } else {
                 textNode.setFill(Color.BLACK);
             }
 
-            VBox messageBox = new VBox(textNode);
-            messageBox.setPadding(new javafx.geometry.Insets(5, 10, 5, 10));
-  
+            final VBox messageBox = new VBox(textNode);
+            messageBox.setPadding(new javafx.geometry.Insets(INSET_VAL, INSET_SIDE_VAL, INSET_VAL, INSET_SIDE_VAL));
             this.logContainer.getChildren().add(messageBox);
-
             this.logContainer.heightProperty().addListener((obs, oldVal, newVal) -> {
                 this.logScroll.setVvalue(1.0);
             });
@@ -132,20 +147,46 @@ public class MainView {
         });
     }
 
-    public void showCard(final String title, final String description, final boolean isImprevisto){
+    /**
+     * Shows a card alert.
+     * 
+     * @param title card title.
+     * @param description card description.
+     */
+    public void showCard(final String title, final String description) {
         Platform.runLater(() -> {
             final Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("CHANCE CARD!");
             alert.setHeaderText(title);
             alert.setContentText(description);
-
             alert.getDialogPane().setStyle("-fx-border-color: #e74c3c; -fx-border-width: 5px;");
-
             alert.showAndWait();
         });
     }
 
-    public void showWinner(String winnerName){
+    /**
+     * Shows bankrupt alert.
+     * 
+     * @param playerName name of player.
+     */
+    public void showBankruptAlert(final String playerName) {
+        Platform.runLater(() -> {
+            final Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("BANKRUPTCY!");
+            alert.setHeaderText("Game Over for " + playerName);
+            alert.setContentText(playerName + " has run out of money and assets. " 
+            + "All their properties have been returned to the bank.");
+            alert.getDialogPane().setStyle("-fx-border-color: #7f8c8d; -fx-border-width: 5px;");
+            alert.showAndWait();
+        });
+    }
+
+    /**
+     * Shows the winner of the game.
+     * 
+     * @param winnerName name of winner.
+     */
+    public void showWinner(final String winnerName) {
         Platform.runLater(() -> {
             this.infoPanel.getRoot().setDisable(true);
             this.commandPanel.getRoot().setDisable(true);
@@ -154,17 +195,15 @@ public class MainView {
             this.addLog("---------------------------");
             this.addLog("   PLAYER " + winnerName.toUpperCase() + " WON!   ");
             this.addLog("---------------------------");
-            
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            final Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Victory!!");
             alert.setHeaderText("🏆 We have a Winner!");
             alert.setContentText("Congratulations" + winnerName + ", you are the tycoon of JavaPoly!");
-
             alert.getDialogPane().setStyle("-fx-border-color: #f1c40f; -fx-border-width: 5px;");
-
             alert.showAndWait();
         });
     }
+
     /**
      * Get info panel.
      *
@@ -174,11 +213,19 @@ public class MainView {
         return this.infoPanel.getSellAssetView();
     }
 
-    public void clearLog(){
+    /**
+     * Clears the log area.
+     */
+    public void clearLog() {
         this.logContainer.getChildren().clear();
     }
 
-    public BorderPane getRoot(){
+    /**
+     * Returns the root node.
+     * 
+     * @return the borderpane root.
+     */
+    public BorderPane getRoot() {
         return this.root;
     }
 }

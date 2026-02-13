@@ -20,7 +20,9 @@ import it.unibo.javapoly.model.impl.board.tile.PropertyTile;
  * CommandPanel contains the buttons for player actions,
  * such as throwing the dice and ending the turn.
  */
-public class CommandPanel {
+public final class CommandPanel {
+
+    private static final int SPACING = 15;
 
     private final HBox root;
     private final MatchController matchController;
@@ -31,23 +33,23 @@ public class CommandPanel {
     private final Button buyButton;
     private final Button buildButton;
 
-    private boolean actionDone = false;
+    private boolean actionDone;
 
     /**
      * Constructor: creates the panel and its buttons.
      *
      * @param matchController the controller that handles game logic
      */
-    public CommandPanel(final MatchController matchController){
+    public CommandPanel(final MatchController matchController) {
         this.matchController = Objects.requireNonNull(matchController);
 
-        this.root = new HBox(15); 
+        this.root = new HBox(SPACING); 
 
         this.throwDice = new Button("Throw dices");
         this.endTurnButton = new Button("End turn");
         this.payJailButton = new Button("Pay 50€");
         this.saveButton = new Button("Save");
-        Player p = matchController.getCurrentPlayer();
+        final Player p = matchController.getCurrentPlayer();
         this.buyButton = new Button("Buy property");
         this.buyButton.setStyle("-fx-base: #2ecc71; -fx-text-fill: white;");
         this.buildButton = new Button("Build house");
@@ -56,7 +58,6 @@ public class CommandPanel {
         this.payJailButton.setStyle("-fx-base: #e74c3c; -fx-text-fill: white;");
 
         this.throwDice.setOnAction(e -> {
-
             if (p.getState() instanceof BankruptState) {
                 this.matchController.updatePlayerBankrupt();
                 this.actionDone = true;
@@ -86,7 +87,7 @@ public class CommandPanel {
             updateState();
         });
         this.buildButton.setOnAction(e -> {
-            Tile t = matchController.getBoard().getTileAt(p.getCurrentPosition());
+            final Tile t = matchController.getBoard().getTileAt(p.getCurrentPosition());
             if (t instanceof PropertyTile pt) {
                 this.actionDone = true;
                 this.matchController.buildHouseOnProperty(pt.getProperty());
@@ -103,39 +104,42 @@ public class CommandPanel {
         );
     }
 
+    /**
+     * Updates the state of the buttons based on the game context.
+     */
     public void updateState() {
-        Player current = matchController.getCurrentPlayer();
-        boolean canRoll = matchController.canCurrentPlayerRoll();
-        boolean hasRolled = !canRoll;
+        final Player current = matchController.getCurrentPlayer();
+        final boolean canRoll = matchController.canCurrentPlayerRoll();
+        final boolean hasRolled = !canRoll;
 
-        boolean hasMoved = hasRolled || matchController.getConsecutiveDoubles() > 0;
+        final boolean hasMoved = hasRolled || matchController.getConsecutiveDoubles() > 0;
 
         this.throwDice.setDisable(!canRoll);
         this.endTurnButton.setDisable(canRoll);
 
-        Tile currentTile = matchController.getBoard().getTileAt(current.getCurrentPosition());
+        final Tile currentTile = matchController.getBoard().getTileAt(current.getCurrentPosition());
 
         this.buyButton.setVisible(false);
         this.buyButton.setManaged(false);
         this.buildButton.setVisible(false);
         this.buildButton.setManaged(false);
 
-        if(currentTile instanceof PropertyTile pt){
-            Property prop = pt.getProperty();
-            boolean isUnowned = !prop.isOwnedByPlayer();
+        if (currentTile instanceof PropertyTile pt) {
+            final Property prop = pt.getProperty();
+            final boolean isUnowned = !prop.isOwnedByPlayer();
 
-            if(isUnowned){
+            if (isUnowned) {
                 this.buyButton.setVisible(true);
                 this.buyButton.setManaged(true);
                 this.buyButton.setDisable(!hasMoved || actionDone);
-            }else if(prop.playerIsTheOwner(current.getName())){
+            } else if (prop.playerIsTheOwner(current.getName())) {
                 this.buildButton.setVisible(true);
                 this.buildButton.setManaged(true);
                 this.buildButton.setDisable(!hasMoved || actionDone);
             }
         }
 
-        boolean isJailed = current.getState() instanceof JailedState;
+        final boolean isJailed = current.getState() instanceof JailedState;
 
         this.payJailButton.setVisible(isJailed);
         this.payJailButton.setManaged(isJailed);

@@ -2,7 +2,6 @@ package it.unibo.javapoly.view.impl;
 
 import java.util.List;
 import java.util.Objects;
-
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.TokenType;
 import it.unibo.javapoly.model.api.board.Board;
@@ -32,26 +31,41 @@ import javafx.scene.text.TextAlignment;
 /**
  * BoardPanel handles the visual representation of the board.
  */
-public class BoardPanel {
+public final class BoardPanel {
+
+    private static final int GRID_SIZE = 11;
+    private static final double CELL_PERCENT = 100.0 / GRID_SIZE;
+    private static final int TILE_BAR_HEIGHT = 15;
+    private static final int TOKEN_SIZE = 35;
+    private static final double SHADOW_RADIUS = 5.0;
+    private static final double SHADOW_OPACITY = 0.4;
+    private static final int FALLBACK_CIRCLE_RADIUS = 12;
+    private static final int POSITION_THRESHOLD_10 = 10;
+    private static final int POSITION_THRESHOLD_20 = 20;
+    private static final int POSITION_THRESHOLD_30 = 30;
 
     private final GridPane root;
     private final Board board;
     private final List<Player> players;
 
-    public BoardPanel(final Board board, List<Player> players) {
+    /**
+     * Constructor for BoardPanel.
+     * 
+     * @param board the game board.
+     * @param players the list of players.
+     */
+    public BoardPanel(final Board board, final List<Player> players) {
         this.board = Objects.requireNonNull(board);
         this.players = Objects.requireNonNull(players);
         this.root = new GridPane();
-
         this.root.setStyle("-fx-background-color: #CDE6D0; -fx-padding: 5; -fx-border-color: black;");
         this.root.setAlignment(Pos.CENTER);
-
         this.renderBoard();
     }
 
-    private String getColorForOwner(String ownerId) {
-        int hash = ownerId.hashCode();
-        String[] colors = { "#e74c3c", "#3498db", "#f1c40f", "#9b59b6", "#e67e22" };
+    private String getColorForOwner(final String ownerId) {
+        final int hash = ownerId.hashCode();
+        final String[] colors = { "#e74c3c", "#3498db", "#f1c40f", "#9b59b6", "#e67e22" };
         return colors[Math.abs(hash) % colors.length];
     }
 
@@ -62,46 +76,47 @@ public class BoardPanel {
         tileDesign.setAlignment(Pos.TOP_CENTER);
 
         if (tile instanceof PropertyTile pt) {
-            Property prop = pt.getProperty();
+            final Property prop = pt.getProperty();
             String groupColor = "grey";
-            if(pt.getProperty().getCard() instanceof LandPropertyCard lpc){
+            if (pt.getProperty().getCard() instanceof LandPropertyCard lpc) {
                 groupColor = lpc.getGroup().toString().toLowerCase();
-            }else if(pt.getProperty().getCard() instanceof StationPropertyCard){
+            } else if (pt.getProperty().getCard() instanceof StationPropertyCard) {
                 groupColor = "black";
-            }else if(pt.getProperty().getCard() instanceof StationPropertyCard){
-                groupColor = "lightgrey";
             }
-            Pane groupBar = new Pane();
-            groupBar.setPrefHeight(15);
+
+            final Pane groupBar = new Pane();
+            groupBar.setPrefHeight(TILE_BAR_HEIGHT);
             groupBar.setStyle("-fx-background-color: " + groupColor + "; -fx-border-color: black; -fx-border-width: 0 0 1 0;");
             tileDesign.getChildren().add(groupBar);
 
-            if(prop.getIdOwner() != null){
-                tileDesign.setStyle("-fx-border-color: " + getColorForOwner(prop.getIdOwner()) + "; -fx-border-width: 3; -fx-background-color: white;");
+            if (prop.getIdOwner() != null) {
+                tileDesign.setStyle("-fx-border-color: " + getColorForOwner(prop.getIdOwner()) 
+                + "; -fx-border-width: 3; -fx-background-color: white;");
             }
 
-            HBox houseContainer = new HBox(2);
+            final HBox houseContainer = new HBox(2);
             houseContainer.setAlignment(Pos.CENTER);
-            houseContainer.setPrefHeight(15);
+            houseContainer.setPrefHeight(TILE_BAR_HEIGHT);
 
-            int houseCount = prop.getBuiltHouses();
+            final int houseCount = prop.getBuiltHouses();
             for (int i = 0; i < houseCount; i++) {
-                Circle house = new Circle(4, Color.GREEN);
+                final Circle house = new Circle(4, Color.GREEN);
                 houseContainer.getChildren().add(house);
             }
             tileDesign.getChildren().add(houseContainer);
         }
         if (tile != null) {
-            Label nameLabel = new Label(tile.getName());
+            final Label nameLabel = new Label(tile.getName());
             nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 9px;");
             nameLabel.setWrapText(true);
             nameLabel.setTextAlignment(TextAlignment.CENTER);
             tileDesign.getChildren().add(nameLabel);
         }
-        FlowPane tokenLayer = new FlowPane();
+
+        final FlowPane tokenLayer = new FlowPane();
         tokenLayer.setAlignment(Pos.CENTER);
         tokenLayer.setPickOnBounds(false);
-        for (Player p : players) {
+        for (final Player p : players) {
             if (p.getCurrentPosition() == index) {
                 tokenLayer.getChildren().add(createToken(p));
             }
@@ -110,19 +125,10 @@ public class BoardPanel {
         return container;
     }
 
-    /**
-     * Creates a visual representation (Node) for a player's token.
-     * It attempts to load an image based on the player's token type.
-     * If loading fails, it creates a fallback graphical representation.
-     *
-     * @param p The player for whom to create the token.
-     * @return A Node containing the visual representation of the token.
-     */
     private Node createToken(final Player p) {
         Image img = null;
 
         try {
-            // --- new section try to load custom token ---
             if (p.getTokenType() == TokenType.CUSTOM) {
                 final String path = p.getCustomTokenPath();
                 if (path != null && !path.isBlank()) {
@@ -130,75 +136,63 @@ public class BoardPanel {
                 }
             }
 
-            // --- old section standard loading ---
-            // if img is still null (because the token is CAR/DOG... or because the custom
-            // failed)
             if (img == null || img.isError()) {
-                // build the classic name: CAR.png, DOG.png...
                 final String imageName = p.getTokenType().toString().toUpperCase() + ".png";
-
-                // search in the resources
                 final var stream = getClass().getResourceAsStream("/images/tokens/" + imageName);
                 if (stream != null) {
                     img = new Image(stream);
                 }
             }
 
-            // if even the standard resources fail, throw an error to go to the
-            // colored circle fallback
             if (img == null || img.isError()) {
-                throw new Exception("Image not found for token: " + p.getTokenType());
+                throw new RuntimeException("Image not found for token: " + p.getTokenType());
             }
 
-            // create the ImageView with the loaded image
             final ImageView imageView = new ImageView(img);
-            imageView.setFitWidth(35);
-            imageView.setFitHeight(35);
+            imageView.setFitWidth(TOKEN_SIZE);
+            imageView.setFitHeight(TOKEN_SIZE);
             imageView.setPreserveRatio(true);
             imageView.setSmooth(true);
 
-            // drop shadow effect
             final DropShadow ds = new DropShadow();
-            ds.setRadius(5.0);
-            ds.setColor(Color.color(0, 0, 0, 0.4));
+            ds.setRadius(SHADOW_RADIUS);
+            ds.setColor(Color.color(0, 0, 0, SHADOW_OPACITY));
             imageView.setEffect(ds);
-
             return imageView;
 
-        } catch (Exception e) {
-            // --- extreme fallback (if even the PNG in the resources is missing) ---
-            // draw the colored circle
-            final Color fallbackColor = (p.getTokenType() == TokenType.CUSTOM)
-                    ? Color.PURPLE // purple for Custom
-                    : Color.RED; // red for broken Standard
-
-            final Circle circle = new Circle(12);
+        } catch (final Exception e) {
+            final Color fallbackColor = (p.getTokenType() == TokenType.CUSTOM) ? Color.PURPLE : Color.RED; 
+            final Circle circle = new Circle(FALLBACK_CIRCLE_RADIUS);
             circle.setFill(fallbackColor);
             circle.setStroke(Color.BLACK);
-
-            final StackPane stack = new StackPane(circle, new Label(p.getName().substring(0, 1)));
-            return stack;
+            return new StackPane(circle, new Label(p.getName().substring(0, 1)));
         }
     }
 
-    private int calculateX(int i) {
-        if (i <= 10)
-            return 10 - i;
-        if (i <= 20)
+    private int calculateX(final int i) {
+        if (i <= POSITION_THRESHOLD_10) {
+            return POSITION_THRESHOLD_10 - i;
+        }
+        if (i <= POSITION_THRESHOLD_20) {
             return 0;
-        if (i <= 30)
-            return i - 20;
-        return 10;
+        }
+        if (i <= POSITION_THRESHOLD_30) {
+            return i - POSITION_THRESHOLD_20;
+        }
+        return POSITION_THRESHOLD_10;
     }
 
-    private int calculateY(int i) {
-        if (i <= 10)
-            return 10;
-        if (i <= 20)
-            return 10 - (i - 10);
-        if (i <= 30)
+    private int calculateY(final int i) {
+        if (i <= POSITION_THRESHOLD_10) {
+            return POSITION_THRESHOLD_10;
+        }
+        if (i <= POSITION_THRESHOLD_20) {
+            return POSITION_THRESHOLD_10 - (i - POSITION_THRESHOLD_10);
+        }
+        if (i <= POSITION_THRESHOLD_30) {
             return 0;
-        return i - 30;
+        }
+        return i - POSITION_THRESHOLD_30;
     }
 
     private void renderBoard() {
@@ -206,39 +200,36 @@ public class BoardPanel {
         this.root.getRowConstraints().clear();
         this.root.getColumnConstraints().clear();
 
-        for (int i = 0; i < 11; i++) {
-            ColumnConstraints col = new ColumnConstraints();
-            col.setPercentWidth(100.0 / 11);
-
-            RowConstraints row = new RowConstraints();
-            row.setPercentHeight(100.0 / 11);
-
+        for (int i = 0; i < GRID_SIZE; i++) {
+            final ColumnConstraints col = new ColumnConstraints();
+            col.setPercentWidth(CELL_PERCENT);
+            final RowConstraints row = new RowConstraints();
+            row.setPercentHeight(CELL_PERCENT);
             this.root.getColumnConstraints().add(col);
             this.root.getRowConstraints().add(row);
         }
 
         final int size = board.size();
-
         for (int i = 0; i < size; i++) {
             final Tile tile = board.getTileAt(i);
             final StackPane tileUI = createTileUI(tile, i);
-
-            // Espandi la VBox per riempire tutta la cella del GridPane
             tileUI.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
-            final int x = calculateX(i);
-            final int y = calculateY(i);
-
-            this.root.add(tileUI, x, y);
+            this.root.add(tileUI, calculateX(i), calculateY(i));
         }
     }
 
-    /** @return the visual root of the board. */
+    /**
+     * Returns the visual root of the board.
+     *
+     * @return the visual root of the board.
+     */
     public Pane getRoot() {
         return this.root;
     }
 
-    /** Updates the view based on current model state. */
+    /**
+     * Updates the view based on current model state.
+     */
     public void update() {
         renderBoard();
     }

@@ -26,6 +26,7 @@ public interface MatchController extends PlayerObserver {
 
     /**
      * Returns the player who is currently taking their turn.
+     * 
      * @return the current {@link Player}
      */
     Player getCurrentPlayer();
@@ -37,19 +38,22 @@ public interface MatchController extends PlayerObserver {
 
     /**
      * Returns the game board.
-     * * @return the game board.
+     * 
+     * @return the game board.
      */
     Board getBoard();
 
     /**
      * Checks if the current player can roll the dice.
-     * * @return true if the current player can roll the dice.
+     * 
+     * @return true if the current player can roll the dice.
      */
     boolean canCurrentPlayerRoll();
 
     /**
      * Returns the main view.
-     * * @return the main view/GUI.
+     * 
+     * @return the main view/GUI.
      */
     MainView getMainView();
 
@@ -60,74 +64,89 @@ public interface MatchController extends PlayerObserver {
 
     /**
      * Returns the list of players.
-     * * @return list of all players.
+     * 
+     * @return list of all players.
      */
     List<Player> getPlayers();
 
-    /** Allows the current player to pay to exit jail. */
+    /** 
+     * Allows the current player to pay to exit jail. 
+     */
     void payToExitJail();
 
     /**
      * Returns the current player index.
-     * * @return the index of the current player.
+     * 
+     * @return the index of the current player.
      */
     int getCurrentPlayerIndex();
 
     /**
      * Returns the number of doubles.
-     * * @return the number of consecutive doubles rolled.
+     * 
+     * @return the number of consecutive doubles rolled.
      */
     int getConsecutiveDoubles();
 
     /**
      * Sets the current player index.
-     * * @param indx the player index.
+     * 
+     * @param indx the player index.
      */
     void setCurrentPlayerIndex(int indx);
 
     /**
      * Sets the consecutive doubles count.
-     * * @param d the number of doubles.
+     * 
+     * @param d the number of doubles.
      */
     void setConsecutiveDoubles(int d);
 
     /**
      * Sets whether the current player has rolled.
-     * * @param b true if rolled.
+     * 
+     * @param b true if rolled.
      */
     void setHasRolled(boolean b);
 
     /**
      * Restores the jail turn counter from saved data.
-     * * @param map the jail data map.
+     * 
+     * @param map the jail data map.
      * @param players the list of players.
      */
-    void restoreJailTurnCounter(final Map<String, Integer> map, final List<Player> players);
+    void restoreJailTurnCounter(Map<String, Integer> map, List<Player> players);
 
     /**
      * Returns the economy controller.
-     * * @return the economy controller.
+     * 
+     * @return the economy controller.
      */
     EconomyController getEconomyController();
 
     /**
      * Returns the property controller.
-     * * @return the property controller.
+     * 
+     * @return the property controller.
      */
     PropertyController getPropertyController();
 
-    /** Acquista la proprietà sulla casella attuale. */
+    /** 
+     * Acquista la proprietà sulla casella attuale. 
+     */
     void buyCurrentProperty();
 
     /**
      * Costruisce una casa sulla proprietà specificata.
-     * * @param property the property to build on.
+     * 
+     * @param property the property to build on.
      */
     void buildHouseOnProperty(Property property);
 
     /**
      * Finalizes the liquidation process for a player.
-     * * @param p the player being liquidated.
+     * 
+     * @param p the player being liquidated.
      */
     void finalizeLiquidation(Player p);
 }

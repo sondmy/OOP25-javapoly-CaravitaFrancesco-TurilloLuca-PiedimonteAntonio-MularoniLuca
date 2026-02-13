@@ -14,7 +14,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import it.unibo.javapoly.controller.api.*;
+import it.unibo.javapoly.controller.api.BoardController;
+import it.unibo.javapoly.controller.api.EconomyController;
+import it.unibo.javapoly.controller.api.LiquidationObserver;
+import it.unibo.javapoly.controller.api.MatchController;
+import it.unibo.javapoly.controller.api.PropertyController;
 import it.unibo.javapoly.model.api.Player;
 import it.unibo.javapoly.model.api.PlayerState;
 import it.unibo.javapoly.model.api.board.Board;
@@ -65,14 +69,14 @@ public class MatchControllerImpl implements MatchController {
     /**
      * Constructor for MatchControllerImpl.
      *
-     * @param players    list of players (already created).
+     * @param allPlayers list of players (already created).
      * @param gameBoard  the game board implementation.
      * @param properties the map of properties in the game.
      */
     @JsonIgnoreProperties({ "gui", "economyController" })
-    public MatchControllerImpl(final List<Player> players, final Board gameBoard,
+    public MatchControllerImpl(final List<Player> allPlayers, final Board gameBoard,
             final Map<String, Property> properties) {
-        this.players = List.copyOf(players);
+        this.players = List.copyOf(allPlayers);
         this.gameBoard = Objects.requireNonNull(gameBoard);
         this.liquidationObserver = new LiquidationObserverImpl(this);
         this.propertyController = new PropertyControllerImpl(properties);
@@ -93,14 +97,17 @@ public class MatchControllerImpl implements MatchController {
 
     /**
      * JSON Creator for loading a saved match state.
-     * @param players             the list of players.  
+     *
+     * @param players             the list of players.
      * @param gameBoard           the game board.
      * @param propertyController  the property controller.
+     * @param boardController     the board controller.
      * @param currentPlayerIndex  index of the current player.
      * @param consecutiveDoubles  number of consecutive doubles.
      * @param hasRolled           if player has already rolled.
      * @param jailTurnCounterJson map of players in jail.
      * @param diceThrow           the dice state.
+     * @param playersBankrupt     the list of bankrupt players.
      */
     @JsonCreator
     public MatchControllerImpl(
@@ -148,7 +155,7 @@ public class MatchControllerImpl implements MatchController {
 
     /**
      * Returns a JSON-compatible map of the jail turn counter.
-     * 
+     *
      * @return map of player names and turn counts.
      */
     @JsonGetter("jailTurnCounter")
@@ -201,13 +208,11 @@ public class MatchControllerImpl implements MatchController {
      */
     @Override
     public void handleDiceThrow() {
-
         if (this.hasRolled) {
             return;
         }
 
         final Player currentPlayer = getCurrentPlayer();
-
 
         if (currentPlayer.getState() instanceof BankruptState) {
             this.updatePlayerBankrupt();
@@ -260,7 +265,7 @@ public class MatchControllerImpl implements MatchController {
 
     /**
      * Moves the current player.
-     * 
+     *
      * @param steps number of steps.
      */
     public void handleMove(final int steps) {
@@ -291,7 +296,7 @@ public class MatchControllerImpl implements MatchController {
     /**
      * Handles the logic after a player has moved to a new position.
      *
-     * @param player the player who moved.
+     * @param player      the player who moved.
      * @param oldPosition the previous position of the player.
      * @param newPosition the current position of the player.
      */
@@ -311,7 +316,7 @@ public class MatchControllerImpl implements MatchController {
         updateGui(g -> {
             if (currentTile instanceof UnexpectedTile) {
                 if (msg != null && !msg.isEmpty()) {
-                    g.showCard("CHANCE", msg, true);
+                    g.showCard("CHANCE", msg);
                 }
             }
 
@@ -364,7 +369,19 @@ public class MatchControllerImpl implements MatchController {
     public void updatePlayerBankrupt() {
         final Player currentPlayer = this.getCurrentPlayer();
         if (currentPlayer.getState() instanceof BankruptState) {
-            //TODO
+            if (!this.playersBankrupt.contains(currentPlayer)) {
+                this.playersBankrupt.add(currentPlayer);
+            }
+            final List<Property> ownedProperties = this.propertyController.getOwnedProperties(currentPlayer.getName());
+            for (final Property property : ownedProperties) {
+                this.propertyController.returnPropertyToBank(property);
+            }
+            updateGui(g -> {
+                g.addLog("BANKRUPTCY: " + currentPlayer.getName() + " is out of the game!");
+                g.showBankruptAlert(currentPlayer.getName());
+                g.refreshAll();
+            });
+            this.nextTurn();
         }
     }
 
@@ -391,7 +408,8 @@ public class MatchControllerImpl implements MatchController {
     /**
      * Returns the board.
      *
-    /** @return the game board. */
+     * @return the game board.
+     */
     @Override
     @JsonIgnore
     public Board getBoard() {
@@ -401,7 +419,8 @@ public class MatchControllerImpl implements MatchController {
     /**
      * Returns the main view.
      *
-    /** @return the main view. */
+     * @return the main view.
+     */
     @Override
     @JsonIgnore
     public MainView getMainView() {
@@ -411,7 +430,7 @@ public class MatchControllerImpl implements MatchController {
     /**
      * Notifies the controller that a player's balance has changed.
      *
-     * @param player the player whose balance changed.
+     * @param player     the player whose balance changed.
      * @param newBalance the new balance value.
      */
     @Override
@@ -422,7 +441,7 @@ public class MatchControllerImpl implements MatchController {
     /**
      * Notifies the controller that a player's state has changed.
      *
-     * @param player the player whose state changed.
+     * @param player   the player whose state changed.
      * @param oldState the previous state.
      * @param newState the new state.
      */
@@ -545,7 +564,7 @@ public class MatchControllerImpl implements MatchController {
 
     /**
      * Logic for building a house.
-     * 
+     *
      * @param property the property to build on.
      */
     public void buildHouseOnProperty(final Property property) {
@@ -568,7 +587,7 @@ public class MatchControllerImpl implements MatchController {
 
     /**
      * Finalizes the liquidation process.
-     * 
+     *
      * @param p the player.
      */
     public void finalizeLiquidation(final Player p) {
@@ -586,15 +605,15 @@ public class MatchControllerImpl implements MatchController {
 
     /**
      * Restores the jail counter state.
-     * 
-     * @param map     the data map.
-     * @param players the list of players.
+     *
+     * @param map         the data map.
+     * @param playersList the list of players.
      */
-    public void restoreJailTurnCounter(final Map<String, Integer> map, final List<Player> players) {
+    public void restoreJailTurnCounter(final Map<String, Integer> map, final List<Player> playersList) {
         this.jailTurnCounter.clear();
         for (final Map.Entry<String, Integer> entry : map.entrySet()) {
             final String ownerId = entry.getKey();
-            final Player owner = players.stream()
+            final Player owner = playersList.stream()
                     .filter(p -> p.getName().equals(ownerId))
                     .findFirst()
                     .orElse(null);
@@ -625,11 +644,13 @@ public class MatchControllerImpl implements MatchController {
 
     /**
      * Safely updates the GUI using the JavaFX Platform thread.
-     * * @param action the consumer action to perform on the MainView.
+     * 
+     * @param action the consumer action to perform on the MainView.
      */
     private void updateGui(final Consumer<MainView> action) {
-        if (this.gui != null)
+        if (this.gui != null) {
             Platform.runLater(() -> action.accept(this.gui));
+        }
     }
 
     /**
