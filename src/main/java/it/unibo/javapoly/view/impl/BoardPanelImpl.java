@@ -1,5 +1,6 @@
 package it.unibo.javapoly.view.impl;
 
+import java.util.Locale;
 import java.util.List;
 import java.util.Objects;
 import it.unibo.javapoly.model.api.Player;
@@ -57,7 +58,7 @@ public final class BoardPanelImpl implements BoardPanel {
      */
     public BoardPanelImpl(final Board board, final List<Player> players) {
         this.board = Objects.requireNonNull(board);
-        this.players = Objects.requireNonNull(players);
+        this.players = List.copyOf(Objects.requireNonNull(players));
         this.root = new GridPane();
         this.root.setStyle("-fx-background-color: #CDE6D0; -fx-padding: 5; -fx-border-color: black;");
         this.root.setAlignment(Pos.CENTER);
@@ -65,9 +66,9 @@ public final class BoardPanelImpl implements BoardPanel {
     }
 
     private String getColorForOwner(final String ownerId) {
-        final int hash = ownerId.hashCode();
         final String[] colors = {"#e74c3c", "#3498db", "#f1c40f", "#9b59b6", "#e67e22"};
-        return colors[Math.abs(hash) % colors.length];
+        final int hash = ownerId.hashCode() & Integer.MAX_VALUE;
+        return colors[hash % colors.length];
     }
 
     private StackPane createTileUI(final Tile tile, final int index) {
@@ -80,7 +81,7 @@ public final class BoardPanelImpl implements BoardPanel {
             final Property prop = pt.getProperty();
             String groupColor = "grey";
             if (pt.getProperty().getCard() instanceof LandPropertyCard lpc) {
-                groupColor = lpc.getGroup().toString().toLowerCase();
+                groupColor = lpc.getGroup().toString().toLowerCase(Locale.ROOT);
             } else if (pt.getProperty().getCard() instanceof StationPropertyCard) {
                 groupColor = "black";
             }
@@ -129,26 +130,22 @@ public final class BoardPanelImpl implements BoardPanel {
     private Node createToken(final Player p) {
         Image img = null;
 
-        try {
-            if (p.getTokenType() == TokenType.CUSTOM) {
-                final String path = p.getCustomTokenPath();
-                if (path != null && !path.isBlank()) {
-                    img = new Image(path);
-                }
+        if (p.getTokenType() == TokenType.CUSTOM) {
+            final String path = p.getCustomTokenPath();
+            if (path != null && !path.isBlank()) {
+                img = new Image(path);
             }
+        }
 
-            if (img == null || img.isError()) {
-                final String imageName = p.getTokenType().toString().toUpperCase() + ".png";
-                final var stream = getClass().getResourceAsStream("/images/tokens/" + imageName);
-                if (stream != null) {
-                    img = new Image(stream);
-                }
+        if (img == null || img.isError()) {
+            final String imageName = p.getTokenType().toString().toUpperCase(Locale.ROOT) + ".png";
+            final var stream = getClass().getResourceAsStream("/images/tokens/" + imageName);
+            if (stream != null) {
+                img = new Image(stream);
             }
+        }
 
-            if (img == null || img.isError()) {
-                throw new IllegalArgumentException("Image not found for token: " + p.getTokenType());
-            }
-
+        if (img == null || img.isError()) {
             final ImageView imageView = new ImageView(img);
             imageView.setFitWidth(TOKEN_SIZE);
             imageView.setFitHeight(TOKEN_SIZE);
@@ -160,13 +157,13 @@ public final class BoardPanelImpl implements BoardPanel {
             ds.setColor(Color.color(0, 0, 0, SHADOW_OPACITY));
             imageView.setEffect(ds);
             return imageView;
-
-        } catch (final IllegalArgumentException e) {
+        } else {
             final Color fallbackColor = (p.getTokenType() == TokenType.CUSTOM) ? Color.PURPLE : Color.RED; 
             final Circle circle = new Circle(FALLBACK_CIRCLE_RADIUS);
             circle.setFill(fallbackColor);
             circle.setStroke(Color.BLACK);
-            return new StackPane(circle, new Label(p.getName().substring(0, 1)));
+            final Label initial = new Label(p.getName().substring(0, 1));
+            return new StackPane(circle, initial);
         }
     }
 
@@ -224,6 +221,7 @@ public final class BoardPanelImpl implements BoardPanel {
      *
      * @return the visual root of the board.
      */
+    @Override
     public Pane getRoot() {
         return this.root;
     }
@@ -231,6 +229,7 @@ public final class BoardPanelImpl implements BoardPanel {
     /**
      * Updates the view based on current model state.
      */
+    @Override
     public void update() {
         renderBoard();
     }

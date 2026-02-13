@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import it.unibo.javapoly.model.impl.BankruptState;
 import it.unibo.javapoly.utils.JsonUtils;
@@ -108,6 +110,7 @@ public final class CommandPanelImpl implements CommandPanel {
     /**
      * Updates the state of the buttons based on the game context.
      */
+    @Override
     public void updateState() {
         final Player current = matchController.getCurrentPlayer();
         final boolean canRoll = matchController.canCurrentPlayerRoll();
@@ -154,6 +157,7 @@ public final class CommandPanelImpl implements CommandPanel {
      *
      * @return the {@link HBox} containing the action buttons.
      */
+    @Override
     public HBox getRoot() {
         return this.root;
     }
@@ -161,6 +165,7 @@ public final class CommandPanelImpl implements CommandPanel {
     /**
      * Method to save the game state on javapoly_save.json file in user directory.
      */
+    @Override
     public void saveStateGame() {
         try {
             final String userHome = System.getProperty("user.home");
@@ -168,7 +173,7 @@ public final class CommandPanelImpl implements CommandPanel {
             final Path saveFile = saveDir.resolve("javapoly_save.json");
             JsonUtils.getInstance().mapper().writeValue(saveFile.toFile(), this.matchController);
         } catch (final IOException ex) {
-            System.err.println("Failed to save game " + ex.getMessage());
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to save game", ex);
         }
     }
 }

@@ -29,10 +29,20 @@ public final class DiceThrow {
         this.lastDiceResult = 0;
     }
 
+    /**
+     * Returns the first die.
+     *
+     * @return the {@link Dice} object representing the first die.
+     */
     public Dice getDice1() {
         return this.dice1;
     }
 
+    /**
+     * Returns the second die.
+     *
+     * @return the {@link Dice} object representing the second die.
+     */
     public Dice getDice2() {
         return this.dice2;
     }
