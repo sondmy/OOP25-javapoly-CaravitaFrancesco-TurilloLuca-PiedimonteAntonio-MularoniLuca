@@ -67,7 +67,7 @@ public class UtilityPropertyCard extends AbstractPropertyCard {
      */
     private int getTheMultiplier(final int number) {
         if (checkNumberUtility(number)) {
-            throw new NoSuchElementException(ERR_INDEX_OUT_LIMITS + number);
+            return 0;
         }
         return getAllMultiplier().get(number - 1);
     }

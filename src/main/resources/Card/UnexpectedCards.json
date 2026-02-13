@@ -45,7 +45,7 @@
   "type" : "MOVE_RELATIVE",
   "payload" : {
     "type" : "PayLoadMoveRelative",
-    "delta" : 3
+    "delta" : -3
   },
   "keepUntilUsed" : false
 }, {
