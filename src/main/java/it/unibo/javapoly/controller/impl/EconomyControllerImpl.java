@@ -93,9 +93,9 @@ public final class EconomyControllerImpl implements EconomyController {
      * {@inheritDoc}
      */
     @Override
-    public boolean payRent(final Player payer, final Player payee, final Property property, final int diceRoll) {
+    public void payRent(final Player payer, final Player payee, final Property property, final int diceRoll) {
         if (payee == null) {
-            return true; 
+            return;
         }
         final int currentBalance = payer.getBalance();
         final int rent = this.propertyController.getRent(payer, property.getId(), diceRoll);
@@ -107,13 +107,12 @@ public final class EconomyControllerImpl implements EconomyController {
                         Optional.of(payee.getName()),
                         Optional.of(property.getId()),
                         rent));
-                return true;
+                return;
             }
         }
         if (this.liquidationObserver != null) {
             this.liquidationObserver.onInsufficientFunds(payer, payee, rent);
         }
-        return false;
     }
 
     /**
@@ -212,15 +211,6 @@ public final class EconomyControllerImpl implements EconomyController {
         this.nextTransactionId++;
     }
 
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public LiquidationObserver getLiquidationObserver() {
-        return this.liquidationObserver;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -233,12 +223,11 @@ public final class EconomyControllerImpl implements EconomyController {
      * {@inheritDoc}
      */
     @Override
-    public boolean payPlayer(final Player payer, final Player payee, final int amount) {
+    public void payPlayer(final Player payer, final Player payee, final int amount) {
         if (payer.getBalance() < amount) {
-            return false;
+            return;
         }
         this.bank.withdraw(payer, amount);
         this.bank.deposit(payee, amount);
-        return true;
     }
 }

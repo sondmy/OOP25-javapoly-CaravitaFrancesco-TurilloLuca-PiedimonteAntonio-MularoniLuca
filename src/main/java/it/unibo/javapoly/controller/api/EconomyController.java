@@ -19,13 +19,6 @@ public interface EconomyController {
     List<Transaction> getTransactions();
 
     /**
-     * Returns the currently registered liquidation observer.
-     *
-     * @return the active liquidation observer instance.
-     */
-    LiquidationObserver getLiquidationObserver();
-
-    /**
      * Deposits money to a player from bank.
      *
      * @param player the player receiving money.
@@ -89,19 +82,17 @@ public interface EconomyController {
      * @param payeeId the player id who collect payment.
      * @param property property where is the payer (owned by payee).
      * @param diceRoll the dice roll used to calculate rent (especially for utilities).
-     * @return {@code true} if successful, {@code false} if insufficient funds (bankruptcy).
      */
-    boolean payRent(Player payer, Player payeeId, Property property, int diceRoll);
+    void payRent(Player payer, Player payeeId, Property property, int diceRoll);
 
     /**
      * Method to pay payee of amount.
      *
      * @param payer the player making the payment.
      * @param payee the player receiving the payment.
-     * @param amount to pay
-     * @return {@code true} if successful, {@code false} otherwise (ex. if player has insufficient funds).
+     * @param amount to pay.
      */
-    boolean payPlayer(Player payer, Player payee, int amount);
+    void payPlayer(Player payer, Player payee, int amount);
 
     /**
      * Set LiquidationObserver for manager before bankruptcy.
