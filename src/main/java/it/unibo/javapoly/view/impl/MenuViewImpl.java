@@ -5,6 +5,7 @@ import it.unibo.javapoly.view.api.PlayerSetupView;
 import it.unibo.javapoly.view.api.MenuView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -21,11 +22,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * Implementation of the main menu view for the Javapoly application.
  */
-public class MenuViewImpl implements MenuView {
+public final class MenuViewImpl implements MenuView {
     public static final String BG_COLOR = "-fx-background-color: #edfbea;";
     public static final String TITLE = "Javapoly";
     private static final String MENU = " - Menu";
@@ -39,6 +41,7 @@ public class MenuViewImpl implements MenuView {
     private static final double SPACING = 0.02;
     private final Stage stage;
     private MenuController controller;
+    private final Logger logger = Logger.getLogger(MenuViewImpl.class.getName());
 
     /**
      * Constructor a new MenuViewImpl with the specific stage.
@@ -65,17 +68,17 @@ public class MenuViewImpl implements MenuView {
      * Loads the window icon if available.
      */
     private void loadIcon() {
-        try {
-            final var iconStream = MenuViewImpl.class.getResourceAsStream(ICON_PATH);
-            if (iconStream == null) {
-                System.err.println("Icon loading failed.");
-                return;
-            }
-            final Image icon = new Image(iconStream);
-            this.stage.getIcons().add(icon);
-        } catch (final RuntimeException e) {
-            System.err.println("Icon loading failed.");
+        final var iconStream = MenuViewImpl.class.getResourceAsStream(ICON_PATH);
+        if (iconStream == null) {
+            logger.fine("Icon loading failed.");
+            return;
         }
+        final Image icon = new Image(iconStream);
+        if (icon.isError()) {
+            logger.fine("Icon loading failed.");
+            return;
+        }
+        this.stage.getIcons().add(icon);
     }
 
     /**
@@ -102,7 +105,7 @@ public class MenuViewImpl implements MenuView {
         topBox.setPadding(new Insets(TOP_PADDING));
             final var logoStream = MenuViewImpl.class.getResourceAsStream(LOGO_PATH);
             if (logoStream == null) {
-                System.err.println("Logo not found");
+                logger.fine("Logo not found");
                 topBox.getChildren().add(createTitleLabel());
                 return topBox;
             }
@@ -229,7 +232,15 @@ public class MenuViewImpl implements MenuView {
      * {@inheritDoc}
      */
     @Override
-    public Stage getStage() {
-        return this.stage;
+    public void setRoot(final Parent root) {
+        this.stage.getScene().setRoot(root);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setTitle(final String title) {
+        this.stage.setTitle(title);
     }
 }

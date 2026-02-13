@@ -4,8 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
+import java.util.EnumSet;
+import java.util.Objects;
 
 import it.unibo.javapoly.controller.api.MenuController;
 import it.unibo.javapoly.model.api.TokenType;
@@ -241,7 +242,7 @@ public class PlayerSetupViewImpl implements PlayerSetupView {
             return false;
         }
 
-        final Set<TokenType> uniqueTokens = new HashSet<>(tokens);
+        final Set<TokenType> uniqueTokens = EnumSet.copyOf(tokens);
         if (uniqueTokens.size() != tokens.size()) {
             showError("Players cannot choose the same token");
             return false;

@@ -15,15 +15,16 @@ import it.unibo.javapoly.view.api.MenuView;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.HashMap;
+import java.util.Locale;
+import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import it.unibo.javapoly.view.impl.MainViewImpl;
 import javafx.application.Platform;
-import javafx.stage.Stage;
 
 import static it.unibo.javapoly.view.impl.MenuViewImpl.TITLE;
 
@@ -36,6 +37,7 @@ public class MenuControllerImpl implements MenuController {
     private static final String NON_NULL = "Player names list cannot be null";
     private static final String JSON_EXTENSION = ".json";
     private final MenuView menuView;
+    private final Logger logger = Logger.getLogger(MenuControllerImpl.class.getName());
 
     /**
      * Creates a new MenuControllerImpl with the specified view.
@@ -80,19 +82,18 @@ public class MenuControllerImpl implements MenuController {
             this.menuView.showError("Selected path is not a file.");
             return;
         }
-        if (!saveFile.getName().toLowerCase().endsWith(JSON_EXTENSION)) {
+        if (!saveFile.getName().toLowerCase(Locale.ROOT).endsWith(JSON_EXTENSION)) {
             this.menuView.showError("Selected file is not a valid save (.json) file.");
             return;
         }
         try {
             final MatchControllerImpl matchController = MatchControllerDeserializer.deserialize(saveFile);
             final MainViewImpl mainView = matchController.getMainViewImpl();
-            final Stage stage = this.menuView.getStage();
-            stage.getScene().setRoot(mainView.getRoot());
-            stage.setTitle(TITLE);
+            this.menuView.setRoot(mainView.getRoot());
+            this.menuView.setTitle(TITLE);
             matchController.startGame();
         } catch (final IOException e) {
-            System.err.println("Error loading board from saved file: " + e.getMessage());
+            logger.fine("Error loading board from saved file: " + e.getMessage());
         }
     }
 
@@ -122,12 +123,11 @@ public class MenuControllerImpl implements MenuController {
             }
             final MatchController matchController = new MatchControllerImpl(players, board, properties);
             final MainViewImpl mainView = matchController.getMainViewImpl();
-            final Stage stage = this.menuView.getStage();
-            stage.getScene().setRoot(mainView.getRoot());
-            stage.setTitle(TITLE);
+            this.menuView.setRoot(mainView.getRoot());
+            this.menuView.setTitle(TITLE);
             matchController.startGame();
         } catch (final IOException e) {
-            System.err.println("Error loading board from file: " + e.getMessage());
+            logger.fine("Error loading board from file: " + e.getMessage());
         }
     }
 }
