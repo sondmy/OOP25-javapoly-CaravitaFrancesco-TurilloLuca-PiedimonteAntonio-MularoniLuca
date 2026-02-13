@@ -1,22 +1,12 @@
 package it.unibo.javapoly.controller.api;
 
 import it.unibo.javapoly.model.api.Player;
-import it.unibo.javapoly.model.api.economy.Transaction;
 import it.unibo.javapoly.model.api.property.Property;
-
-import java.util.List;
 
 /**
  * Main controller interface for managing the economy of the game.
  */
 public interface EconomyController {
-
-    /**
-     * Gets the complete transaction history.
-     *
-     * @return list of all transaction.
-     */
-    List<Transaction> getTransactions();
 
     /**
      * Deposits money to a player from bank.
