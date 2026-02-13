@@ -89,7 +89,7 @@ public final class InfoPanelImpl implements InfoPanel {
         card.setAlignment(Pos.CENTER_LEFT);
 
         final ImageView icon = new ImageView();
-        final String fileName = p.getToken().getType().toLowerCase(Locale.ROOT);
+        final String fileName = p.getToken().getType().toUpperCase(Locale.ROOT);
         final var stream = getClass().getResourceAsStream("/images/tokens/" + fileName + ".png");
         if (stream != null) {
             icon.setImage(new Image(stream));

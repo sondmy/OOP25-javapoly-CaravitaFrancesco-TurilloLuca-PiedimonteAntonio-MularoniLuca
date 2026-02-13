@@ -139,14 +139,14 @@ public final class BoardPanelImpl implements BoardPanel {
         }
 
         if (img == null || img.isError()) {
-            final String imageName = p.getTokenType().toString().toUpperCase(Locale.ROOT) + ".png";
+            final String imageName = p.getTokenType().toString().toUpperCase() + ".png";
             final var stream = getClass().getResourceAsStream("/images/tokens/" + imageName);
             if (stream != null) {
                 img = new Image(stream);
             }
         }
 
-        if (img == null || img.isError()) {
+        if (img != null) {
             final ImageView imageView = new ImageView(img);
             imageView.setFitWidth(TOKEN_SIZE);
             imageView.setFitHeight(TOKEN_SIZE);
