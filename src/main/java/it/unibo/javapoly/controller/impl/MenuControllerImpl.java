@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.HashMap;
 
-import it.unibo.javapoly.view.impl.MainView;
+import it.unibo.javapoly.view.impl.MainViewImpl;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
@@ -85,7 +85,7 @@ public class MenuControllerImpl implements MenuController {
         }
         try {
             final MatchControllerImpl matchController = MatchControllerDeserializer.deserialize(saveFile);
-            final MainView mainView = matchController.getMainView();
+            final MainViewImpl mainView = matchController.getMainViewImpl();
             final Stage stage = this.menuView.getStage();
             stage.getScene().setRoot(mainView.getRoot());
             stage.setTitle(TITLE);
@@ -119,7 +119,7 @@ public class MenuControllerImpl implements MenuController {
                 }
             }
             final MatchController matchController = new MatchControllerImpl(players, board, properties);
-            final MainView mainView = matchController.getMainView();
+            final MainViewImpl mainView = matchController.getMainViewImpl();
             final Stage stage = this.menuView.getStage();
             stage.getScene().setRoot(mainView.getRoot());
             stage.setTitle(TITLE);
