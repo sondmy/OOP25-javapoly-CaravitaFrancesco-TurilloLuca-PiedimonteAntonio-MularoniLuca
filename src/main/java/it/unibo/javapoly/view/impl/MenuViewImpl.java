@@ -40,7 +40,7 @@ public class MenuViewImpl implements MenuView {
     private static final double SPACING = 0.02;
     private final Stage stage;
     private MenuController controller;
-    private final Logger logger =  Logger.getLogger(MenuViewImpl.class.getName());
+    private final Logger logger = Logger.getLogger(MenuViewImpl.class.getName());
 
     /**
      * Constructor a new MenuViewImpl with the specific stage.
