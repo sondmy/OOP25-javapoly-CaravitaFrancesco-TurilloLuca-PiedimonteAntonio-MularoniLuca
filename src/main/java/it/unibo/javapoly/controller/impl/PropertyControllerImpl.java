@@ -110,8 +110,10 @@ public class PropertyControllerImpl implements PropertyController {
             return false;
         }
 
-        if (property.getBuiltHouses() >= property.getBuiltHouses() + 1) {
-            return false;
+        for (final Property prop : getPropertiesInGroup(property.getPropertyGroup())) {
+            if (property.getBuiltHouses() >= prop.getBuiltHouses() + 1) {
+                return false;
+            }
         }
 
         return property.buildHouse(playerId.getName());

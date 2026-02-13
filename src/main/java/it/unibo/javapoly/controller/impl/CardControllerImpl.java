@@ -242,7 +242,7 @@ public class CardControllerImpl implements CardController {
      */
     private List<GameCard> loadCardDeck() throws IOException {
         try {
-            final InputStream is = getClass().getResourceAsStream(this.PATH_CARD);
+            final InputStream is = CardControllerImpl.class.getResourceAsStream(this.PATH_CARD);
 
             return CardLoader.loadCardsFromFile(is);
         } catch (final IOException e) {

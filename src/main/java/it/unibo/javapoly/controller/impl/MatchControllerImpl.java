@@ -136,7 +136,7 @@ public class MatchControllerImpl implements MatchController {
         this.economyController = new EconomyControllerImpl(this.propertyController);
         this.economyController.setLiquidationObserver(this.liquidationObserver);
         this.boardController = boardController;
-        this.diceThrow = diceThrow != null  
+        this.diceThrow = diceThrow != null
                 ? new DiceThrow(diceThrow.getDice1(), diceThrow.getDice2()) 
                 : new DiceThrow(new DiceImpl(), new DiceImpl());
         this.playersBankrupt = playersBankrupt != null ? new ArrayList<>(playersBankrupt) : new ArrayList<>();

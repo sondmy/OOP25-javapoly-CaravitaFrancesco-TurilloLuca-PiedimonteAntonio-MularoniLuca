@@ -33,7 +33,7 @@ public interface MenuView {
     void showLoadGameView();
 
     /**
-     * Set root
+     * Set root.
      *
      * @param root to set.
      */
