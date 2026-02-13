@@ -30,7 +30,7 @@ import javafx.stage.Stage;
 public class PlayerSetupViewImpl implements PlayerSetupView {
     private static final int MIN_PLAYER = 2;
     private static final int MAX_PLAYER = 4;
-    private static final int MAX_CHAR_NAME = 20;
+    private static final int MAX_CHAR_NAME = 12;
     private static final double SPACING = 0.05;
     private static final double HEIGHT_TEXT_FIELDS = 0.05;
     private static final double WIDTH_TEXT_FIELDS = 0.20;
