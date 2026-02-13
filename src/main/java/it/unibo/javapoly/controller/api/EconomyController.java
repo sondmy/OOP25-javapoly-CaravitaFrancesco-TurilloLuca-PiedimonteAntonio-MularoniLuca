@@ -23,11 +23,17 @@ public interface EconomyController {
      *
      * @param player the player from whom to withdraw.
      * @param amount the amount to withdraw.
-     * @return {@code true} if successful, {@code false} if insufficient funds (bankruptcy)
-     * @throws NullPointerException if {@code player} is {@code null}.
-     * @throws IllegalArgumentException if {@code amount} <= 0.
      */
-    boolean withdrawFromPlayer(Player player, int amount);
+    void withdrawFromPlayer(Player player, int amount);
+
+    /**
+     * Check if a player can afford to spend the specified amount. (Call before withdraw).
+     *
+     * @param player player to check.
+     * @param amount the amount to check.
+     * @return {@code true} if can afford, {@code false} otherwise.
+     */
+    boolean afford(Player player, int amount);
 
     /**
      * Transfer property ownership from bank to player.

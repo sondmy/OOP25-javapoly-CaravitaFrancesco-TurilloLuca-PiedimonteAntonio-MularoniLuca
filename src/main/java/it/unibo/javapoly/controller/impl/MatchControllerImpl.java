@@ -38,8 +38,8 @@ import javafx.application.Platform;
 @JsonIgnoreProperties(value = { "gui", "economyController", "mainView", "" }, ignoreUnknown = true)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class MatchControllerImpl implements MatchController {
-    private static final int MAX_DOUBLES = 1;
-    private static final int JAIL_EXIT_FEE = 1300;
+    private static final int MAX_DOUBLES = 3;
+    private static final int JAIL_EXIT_FEE = 50;
 
     private final List<Player> players;
     private final List<Player> playersBankrupt;
@@ -207,6 +207,13 @@ public class MatchControllerImpl implements MatchController {
         }
 
         final Player currentPlayer = getCurrentPlayer();
+
+
+        if (currentPlayer.getState() instanceof BankruptState) {
+            this.updatePlayerBankrupt();
+            return;
+        }
+
         diceThrow.throwAll();
         final boolean isDouble = diceThrow.isDouble();
 
@@ -324,8 +331,8 @@ public class MatchControllerImpl implements MatchController {
         if (!(p.getState() instanceof JailedState)) {
             return;
         }
-        final boolean payment = economyController.withdrawFromPlayer(p, JAIL_EXIT_FEE);
-        if (payment) {
+        if (economyController.afford(p, JAIL_EXIT_FEE)) {
+            this.economyController.withdrawFromPlayer(p, JAIL_EXIT_FEE);
             p.setState(FreeState.getInstance());
             jailTurnCounter.remove(p);
             updateGui(g -> {
@@ -333,20 +340,20 @@ public class MatchControllerImpl implements MatchController {
                 g.refreshAll();
             });
         } else {
-            if (p.getState() == BankruptState.getInstance()) {
-                jailTurnCounter.remove(p);
-                updateGui(g -> {
-                    g.addLog(p.getName() + " cannot pay (bankrupt)");
-                    g.refreshAll();
-                });
-            } else {
+            this.economyController.withdrawFromPlayer(p, JAIL_EXIT_FEE);
+            if (p.getState() != BankruptState.getInstance()) {
                 p.setState(FreeState.getInstance());
                 jailTurnCounter.remove(p);
                 updateGui(g -> {
-                    g.addLog(p.getName() + " sell asset");
+                    g.addLog(p.getName() + " pays 50€ and is now free!");
                     g.refreshAll();
                 });
+                return;
             }
+            updateGui(g -> {
+                g.addLog(p.getName() + " has insufficient funds to pay the 50€ exit fee.");
+                g.refreshAll();
+            });
         }
     }
 
@@ -357,8 +364,7 @@ public class MatchControllerImpl implements MatchController {
     public void updatePlayerBankrupt() {
         final Player currentPlayer = this.getCurrentPlayer();
         if (currentPlayer.getState() instanceof BankruptState) {
-            this.players.remove(currentPlayer);
-            this.players.add(currentPlayer);
+            //TODO
         }
     }
 

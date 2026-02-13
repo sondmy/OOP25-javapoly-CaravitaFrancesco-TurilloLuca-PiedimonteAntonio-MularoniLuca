@@ -42,17 +42,20 @@ public final class EconomyControllerImpl implements EconomyController {
      * {@inheritDoc}
      */
     @Override
-    public boolean withdrawFromPlayer(final Player player, final int amount) {
-        final int currentBalance = player.getBalance();
-        if (currentBalance >= amount) {
-        if (this.bank.withdraw(player, amount)) {
-            return true;
+    public boolean afford(final Player player, final int amount) {
+        return this.bank.canAfford(player, amount);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void withdrawFromPlayer(final Player player, final int amount) {
+        if (!(this.bank.withdraw(player, amount))) {
+            if (this.liquidationObserver != null) {
+                this.liquidationObserver.onInsufficientFunds(player, null, amount);
             }
         }
-        if (this.liquidationObserver != null) {
-            this.liquidationObserver.onInsufficientFunds(player, null, amount);
-        }
-        return false;
     }
 
     /**
