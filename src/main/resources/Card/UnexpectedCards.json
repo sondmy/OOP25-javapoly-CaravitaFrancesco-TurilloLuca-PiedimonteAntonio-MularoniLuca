@@ -309,12 +309,12 @@
   "keepUntilUsed" : false
 }, {
   "id" : "31",
-  "name" : "Ricevete 10 per ogni giocatore.",
+  "name" : "Giorno fortunato, avete trovato 100 per strada.",
   "description" : "",
   "type" : "RECEIVE_BANK",
   "payload" : {
     "type" : "PayLoadMoney",
-    "amount" : 10,
+    "amount" : 100,
     "receiver" : "PLAYER"
   },
   "keepUntilUsed" : false
