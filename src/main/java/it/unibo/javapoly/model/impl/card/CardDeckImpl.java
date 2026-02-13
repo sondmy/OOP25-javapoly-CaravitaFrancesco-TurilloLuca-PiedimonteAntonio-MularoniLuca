@@ -62,15 +62,47 @@ public class CardDeckImpl implements CardDeck {
     public CardDeckImpl(@JsonProperty("cards") final List<GameCard> cards,
                         @JsonProperty("drawPile") final Deque<GameCard> drawPile,
                         @JsonProperty("discardPile") final Deque<GameCard> discardPile,
-                        @JsonProperty("heldCards") final Map<GameCard, String> heldCards) {
-        this.drawPile = new ArrayDeque<>(drawPile);
-        this.discardPile = new ArrayDeque<>(discardPile);
-        this.heldCards = new HashMap<>(heldCards);
-        random = new Random();
-        this.cards = new ArrayList<>(cards);
+                        @JsonProperty("heldCards") final Map<String, String> heldCards) {
+        this.drawPile = new ArrayDeque<>(drawPile != null ? drawPile : new ArrayDeque<>());
+        this.discardPile = new ArrayDeque<>(discardPile != null ? discardPile : new ArrayDeque<>());
+        this.cards = new ArrayList<>(cards != null ? cards : new ArrayList<>());
+        this.random = new Random();
+        this.heldCards = new HashMap<>();
+        
+        if (heldCards != null && cards != null) {
+            for (Map.Entry<String, String> entry : heldCards.entrySet()) {
+                final String cardId = entry.getKey();
+                final String playerId = entry.getValue();
+                
+                // Trova la carta corrispondente nella lista cards (senza stream)
+                GameCard card = null;
+                for (GameCard c : cards) {
+                    if (c.getId().equals(cardId)) {
+                        card = c;
+                        break;
+                    }
+                }
+                
+                if (card != null) {
+                    this.heldCards.put(card, playerId);
+                }
+            }
+        }
     }
 
     //#region Getter
+    /**
+     * Getter per serializzazione: converte Map<GameCard, String> → Map<String, String>
+     */
+    @JsonProperty("heldCards")
+    private Map<String, String> getHeldCardsJson() {
+        Map<String, String> result = new HashMap<>();
+        for (Map.Entry<GameCard, String> entry : heldCards.entrySet()) {
+            result.put(entry.getKey().getId(), entry.getValue());
+        }
+        return result;
+    }
+
     /**
      * Returns a copy of the list containing all the cards in the deck.
      * This includes both the cards in the draw pile and discard pile.
