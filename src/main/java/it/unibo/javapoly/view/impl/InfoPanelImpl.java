@@ -1,6 +1,9 @@
 package it.unibo.javapoly.view.impl;
 
+import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import it.unibo.javapoly.controller.api.LiquidationCallback;
 import it.unibo.javapoly.view.api.InfoPanel;
@@ -66,6 +69,7 @@ public final class InfoPanelImpl implements InfoPanel {
     /**
      * Updates the labels to show current player's info.
      */
+    @Override
     public void updateInfo() {
         this.root.getChildren().clear();
         final Label title = new Label("PLAYERS");
@@ -85,16 +89,12 @@ public final class InfoPanelImpl implements InfoPanel {
         card.setAlignment(Pos.CENTER_LEFT);
 
         final ImageView icon = new ImageView();
-        try {
-            final String fileName = p.getToken().getType().toString().toLowerCase();
-            final var stream = getClass().getResourceAsStream("/images/tokens/" + fileName + ".png");
-            if (stream == null) {
-                throw new IllegalArgumentException("Resource not found");
-            }
-            final Image tokenImg = new Image(stream);
-            icon.setImage(tokenImg);
-        } catch (final IllegalArgumentException e) {
-            System.err.println("Image not found for: " + p.getName());
+        final String fileName = p.getToken().getType().toLowerCase(Locale.ROOT);
+        final var stream = getClass().getResourceAsStream("/images/tokens/" + fileName + ".png");
+        if (stream != null) {
+            icon.setImage(new Image(stream));
+        } else {
+            Logger.getLogger(getClass().getName()).log(Level.WARNING, "Image not found for: {0}", p.getName());
         }
 
         icon.setFitWidth(ICON_SIZE);
@@ -116,17 +116,18 @@ public final class InfoPanelImpl implements InfoPanel {
 
         card.getChildren().addAll(header, balance, position);
 
-        String style = "-fx-background-radius: 10; -fx-background-color: white; " 
-                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 4);";
+        final StringBuilder style = new StringBuilder(512);
+        style.append("-fx-background-radius: 10; -fx-background-color: white; ")
+             .append("-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 4);");
 
         if (p.equals(this.matchController.getCurrentPlayer())) {
-            style += "-fx-border-color: #4CAF50; -fx-border-width: 2.5; -fx-background-color: #F1F8E9;";
+            style.append("-fx-border-color: #4CAF50; -fx-border-width: 2.5; -fx-background-color: #F1F8E9;");
             name.setText("▶ " + p.getName()); 
         } else {
-            style += "-fx-border-color: #D3D3D3; -fx-border-width: 1;";
+            style.append("-fx-border-color: #D3D3D3; -fx-border-width: 1;");
         }
 
-        card.setStyle(style);
+        card.setStyle(style.toString());
         return card;
     }
 
@@ -135,6 +136,7 @@ public final class InfoPanelImpl implements InfoPanel {
      *
      * @return the {@link VBox} containing the labels.
      */
+    @Override
     public VBox getRoot() {
         return this.root;
     }
@@ -142,6 +144,7 @@ public final class InfoPanelImpl implements InfoPanel {
     /**
      * Show the sell asset view for liquidation.
      */
+    @Override
     public void showSellAssetView() {
         this.sellAssetView.getRoot().setVisible(true);
         this.sellAssetView.getRoot().setManaged(true);
@@ -150,6 +153,7 @@ public final class InfoPanelImpl implements InfoPanel {
     /**
      * Hide the sell asset view for liquidation.
      */
+    @Override
     public void hideSellAssetView() {
         this.sellAssetView.getRoot().setVisible(false);
         this.sellAssetView.getRoot().setManaged(false);
@@ -161,6 +165,7 @@ public final class InfoPanelImpl implements InfoPanel {
      * @param player the player who needs to liquidate assets.
      * @param debtAmount the amount of debt to pay off.
      */
+    @Override
     public void showLiquidation(final Player player, final int debtAmount) {
         this.sellAssetView.show(player, debtAmount);
         showSellAssetView();
@@ -171,6 +176,7 @@ public final class InfoPanelImpl implements InfoPanel {
      *
      * @param callback the callback to invoke when liquidation completes.
      */
+    @Override
     public void setLiquidationCallback(final LiquidationCallback callback) {
         this.sellAssetView.setCallBack(callback);
     }

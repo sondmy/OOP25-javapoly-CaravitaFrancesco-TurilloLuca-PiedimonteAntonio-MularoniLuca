@@ -1,5 +1,6 @@
 package it.unibo.javapoly.view.impl;
 
+import java.util.Locale;
 import java.util.Objects;
 
 import javafx.application.Platform;
@@ -63,6 +64,10 @@ public final class MainViewImpl implements MainView {
         this.root.setBottom(this.commandPanel.getRoot());
         this.root.setRight(this.infoPanel.getRoot()); 
         this.root.setLeft(this.logScroll); 
+
+        this.logContainer.heightProperty().addListener((obs, oldVal, newVal) -> 
+            this.logScroll.setVvalue(1.0)
+        );
     }
 
     /**
@@ -70,6 +75,7 @@ public final class MainViewImpl implements MainView {
      *
      * @param stage the primary stage provided by JavaFX.
      */
+    @Override
     public void start(final Stage stage) {
         Objects.requireNonNull(stage);
         final Scene scene = new Scene(this.root, SCENE_WIDTH, SCENE_HEIGHT);
@@ -82,6 +88,7 @@ public final class MainViewImpl implements MainView {
     /**
      * Refreshes all UI components.
      */
+    @Override
     public void refreshAll() {
         this.boardPanel.update();
         this.infoPanel.updateInfo();
@@ -93,12 +100,13 @@ public final class MainViewImpl implements MainView {
      *
      * @param msg The message to append.
      */
+    @Override
     public void addLog(final String msg) {
         Platform.runLater(() -> {
             final Text textNode = new Text(msg);
             textNode.setFont(Font.font(FONT_FAMILY, FontWeight.NORMAL, FONT_SIZE_SMALL)); 
 
-           final String upperMsg = msg.toUpperCase();
+            final String upperMsg = msg.toUpperCase(Locale.ROOT);
 
             if (upperMsg.contains("PURCHASED") || upperMsg.contains("EARNED") 
                     || upperMsg.contains("COLLECT") || upperMsg.contains("+")) {
@@ -118,15 +126,13 @@ public final class MainViewImpl implements MainView {
             final VBox messageBox = new VBox(textNode);
             messageBox.setPadding(new javafx.geometry.Insets(INSET_VAL, INSET_SIDE_VAL, INSET_VAL, INSET_SIDE_VAL));
             this.logContainer.getChildren().add(messageBox);
-            this.logContainer.heightProperty().addListener((obs, oldVal, newVal) -> {
-                this.logScroll.setVvalue(1.0);
-            });
         });
     }
 
     /**
      * Shows the liquidation view and disables game controls.
      */
+    @Override
     public void showLiquidation() {
         Platform.runLater(() -> {
             this.infoPanel.showSellAssetView();
@@ -137,6 +143,7 @@ public final class MainViewImpl implements MainView {
     /**
      * Hides the liquidation view and re-enables game controls.
      */
+    @Override
     public void hideLiquidation() {
         Platform.runLater(() -> {
             this.infoPanel.hideSellAssetView();
@@ -150,6 +157,7 @@ public final class MainViewImpl implements MainView {
      * @param title card title.
      * @param description card description.
      */
+    @Override
     public void showCard(final String title, final String description) {
         Platform.runLater(() -> {
             final Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -166,6 +174,7 @@ public final class MainViewImpl implements MainView {
      * 
      * @param playerName name of player.
      */
+    @Override
     public void showBankruptAlert(final String playerName) {
         Platform.runLater(() -> {
             final Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -183,6 +192,7 @@ public final class MainViewImpl implements MainView {
      * 
      * @param winnerName name of winner.
      */
+    @Override
     public void showWinner(final String winnerName) {
         Platform.runLater(() -> {
             this.infoPanel.getRoot().setDisable(true);
@@ -190,12 +200,12 @@ public final class MainViewImpl implements MainView {
             this.boardPanel.getRoot().setDisable(true);
 
             this.addLog("---------------------------");
-            this.addLog("   PLAYER " + winnerName.toUpperCase() + " WON!   ");
+            this.addLog("   PLAYER " + winnerName.toUpperCase(Locale.ROOT) + " WON!   ");
             this.addLog("---------------------------");
             final Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Victory!!");
             alert.setHeaderText("🏆 We have a Winner!");
-            alert.setContentText("Congratulations" + winnerName + ", you are the tycoon of JavaPoly!");
+            alert.setContentText("Congratulations " + winnerName + ", you are the tycoon of JavaPoly!");
             alert.getDialogPane().setStyle("-fx-border-color: #f1c40f; -fx-border-width: 5px;");
             alert.showAndWait();
         });
@@ -213,6 +223,7 @@ public final class MainViewImpl implements MainView {
     /**
      * Clears the log area.
      */
+    @Override
     public void clearLog() {
         this.logContainer.getChildren().clear();
     }
@@ -222,6 +233,7 @@ public final class MainViewImpl implements MainView {
      * 
      * @return the borderpane root.
      */
+    @Override
     public BorderPane getRoot() {
         return this.root;
     }

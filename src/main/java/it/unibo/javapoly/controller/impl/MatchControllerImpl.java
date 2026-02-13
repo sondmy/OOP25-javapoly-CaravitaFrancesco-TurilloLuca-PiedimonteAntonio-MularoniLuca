@@ -122,17 +122,22 @@ public class MatchControllerImpl implements MatchController {
             @JsonProperty("jailTurnCounter") final Map<String, Integer> jailTurnCounterJson,
             @JsonProperty("diceThrow") final DiceThrow diceThrow,
             @JsonProperty("playersBankrupt") final List<Player> playersBankrupt) {
-        this.players = players != null ? List.copyOf(players) : new ArrayList<>();
-        this.gameBoard = gameBoard != null ? gameBoard : new BoardImpl(new ArrayList<>());
-        this.propertyController = propertyController != null ? propertyController
+        this.players = players != null 
+                ? List.copyOf(players) 
+                : List.of();
+        this.gameBoard = gameBoard != null 
+                ? gameBoard 
+                : new BoardImpl(new ArrayList<>());
+        this.propertyController = propertyController != null 
+                ? propertyController
                 : new PropertyControllerImpl(new HashMap<>());
         this.liquidationObserver = new LiquidationObserverImpl(this);
         this.economyController = new EconomyControllerImpl(this.propertyController);
         this.economyController.setLiquidationObserver(this.liquidationObserver);
         this.boardController = boardController;
-        this.diceThrow = diceThrow != null ? 
-                new DiceThrow(diceThrow.getDice1(), diceThrow.getDice2()) : 
-                new DiceThrow(new DiceImpl(), new DiceImpl());
+        this.diceThrow = diceThrow != null  
+                ? new DiceThrow(diceThrow.getDice1(), diceThrow.getDice2()) 
+                : new DiceThrow(new DiceImpl(), new DiceImpl());
         this.playersBankrupt = playersBankrupt != null ? new ArrayList<>(playersBankrupt) : new ArrayList<>();
 
         this.gui = new MainViewImpl(this);
@@ -515,6 +520,7 @@ public class MatchControllerImpl implements MatchController {
      *
      * @return true if player can roll.
      */
+    @Override
     public boolean canCurrentPlayerRoll() {
         return !hasRolled;
     }
