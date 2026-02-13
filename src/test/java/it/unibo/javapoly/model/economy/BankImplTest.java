@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TestBank {
+class BankImplTest {
 
     private static final int INITIAL_BALANCE = 1500;
     private static final int DEPOSIT_AMOUNT = 200;
