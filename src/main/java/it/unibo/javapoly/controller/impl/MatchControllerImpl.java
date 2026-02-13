@@ -51,12 +51,15 @@ public class MatchControllerImpl implements MatchController {
     private final List<Player> playersBankrupt;
     private final DiceThrow diceThrow;
     private final Board gameBoard;
+
     @JsonIgnore
     private final MainViewImpl gui;
+
     private final Map<Player, Integer> jailTurnCounter = new HashMap<>();
 
     @JsonIgnore
     private final EconomyController economyController;
+
     private final PropertyController propertyController;
 
     private final BoardController boardController;

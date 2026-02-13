@@ -37,15 +37,10 @@ public class BoardControllerImpl implements BoardController {
     private static final String JAIL_FREE =
         "Hai usato una carta esci di prigione gratis.";
 
-    @JsonIgnore
     private final Board board;
-
-    @JsonIgnore
     private final PropertyController propertyController;
-
     @JsonIgnore
     private final EconomyController bank;
-
     private final CardController cardController;
 
     @JsonIgnore
