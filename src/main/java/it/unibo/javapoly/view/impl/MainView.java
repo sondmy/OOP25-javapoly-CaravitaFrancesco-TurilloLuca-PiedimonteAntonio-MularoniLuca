@@ -29,7 +29,6 @@ public final class MainView {
     private static final int FONT_SIZE_MEDIUM = 14;
     private static final int INSET_VAL = 5;
     private static final int INSET_SIDE_VAL = 10;
-    private static final int BORDER_WIDTH_VAL = 5;
     private static final String FONT_FAMILY = "Segoe UI";
 
     private final BorderPane root;

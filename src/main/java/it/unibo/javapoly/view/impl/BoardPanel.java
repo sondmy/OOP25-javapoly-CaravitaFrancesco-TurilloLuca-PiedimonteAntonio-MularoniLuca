@@ -65,7 +65,7 @@ public final class BoardPanel {
 
     private String getColorForOwner(final String ownerId) {
         final int hash = ownerId.hashCode();
-        final String[] colors = { "#e74c3c", "#3498db", "#f1c40f", "#9b59b6", "#e67e22" };
+        final String[] colors = {"#e74c3c", "#3498db", "#f1c40f", "#9b59b6", "#e67e22"};
         return colors[Math.abs(hash) % colors.length];
     }
 
@@ -145,7 +145,7 @@ public final class BoardPanel {
             }
 
             if (img == null || img.isError()) {
-                throw new RuntimeException("Image not found for token: " + p.getTokenType());
+                throw new IllegalArgumentException("Image not found for token: " + p.getTokenType());
             }
 
             final ImageView imageView = new ImageView(img);
@@ -160,7 +160,7 @@ public final class BoardPanel {
             imageView.setEffect(ds);
             return imageView;
 
-        } catch (final Exception e) {
+        } catch (final IllegalArgumentException e) {
             final Color fallbackColor = (p.getTokenType() == TokenType.CUSTOM) ? Color.PURPLE : Color.RED; 
             final Circle circle = new Circle(FALLBACK_CIRCLE_RADIUS);
             circle.setFill(fallbackColor);
